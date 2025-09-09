@@ -1,0 +1,3 @@
+Sadrži funkcije za komunikaciju sa REST API-jima, bilo da je u 
+pitanju backend aplikacije ili eksterni servisi. Ovdje se definišu Axios 
+instance.

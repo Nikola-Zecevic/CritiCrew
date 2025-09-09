@@ -1,0 +1,4 @@
+Definiše osnovnu strukturu i raspored stranica u aplikaciji, 
+uključujući  Navbar,  Sidebar,  Footer  i  MainLayout. Ove komponente 
+služe  kao okvir (frame) za stranice i pomažu u dosjlednom dizajnu 
+aplikacije.

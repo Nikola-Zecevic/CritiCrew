@@ -1,0 +1,4 @@
+Sadrži glavne stranice aplikacije, pri čemu svaka stranica ima 
+svoj zaseban folder i obično odgovara jednoj ruti (npr. /home, /profile, 
+/dashboard). Svaka stranica se organizuje u poseban folder, a glavni 
+fajl u folderu se zove index.jsx. 
