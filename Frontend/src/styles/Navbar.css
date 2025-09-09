@@ -1,0 +1,95 @@
+/* src/components/Navbar.css */
+.navbar {
+  background-color: #000000; /* Pure black like IMDB */
+  border-bottom: 2px solid #f5c518; /* IMDB's iconic yellow */
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  height: 60px;
+}
+
+.navbar-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #f5c518; /* IMDB yellow */
+  display: flex;
+  align-items: center;
+}
+
+.navbar-logo:hover {
+  color: #ffdf5e; /* Lighter yellow on hover */
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 2.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #f5c518;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #f5c518;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.nav-profile {
+  display: flex;
+  align-items: center;
+}
+
+.avatar-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #f5c518;
+  background-color: #1a1a1a;
+  color: #f5c518;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.avatar-button:hover {
+  background-color: #f5c518;
+  color: #000000;
+  transform: scale(1.05);
+}
