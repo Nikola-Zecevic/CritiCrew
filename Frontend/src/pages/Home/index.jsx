@@ -26,13 +26,6 @@ function Home() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.hero}>
-        <h1 className={styles.heroTitle}>Welcome to CritiCrew</h1>
-        <p className={styles.heroText}>
-          Your ultimate destination for movie ratings, reviews, and information.
-        </p>
-      </div>
-
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🎬 Movie of the Day</h2>
         <div
