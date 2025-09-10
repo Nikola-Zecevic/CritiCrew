@@ -1,0 +1,4 @@
+Obuhvata  poslovnu  logiku  aplikacije,  kao  što  su 
+autentifikacija, rad sa podacima i integracija sa eksternim servisima. 
+Uglavnom koristi Axios instance iz apis/, čime se omogućava dosledna 
+i modularna komunikacija sa API-jem. 

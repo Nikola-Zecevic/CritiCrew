@@ -1,0 +1,1 @@
+Folder za globalne i modularne stilske datoteke aplikacije.
