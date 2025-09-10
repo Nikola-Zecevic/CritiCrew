@@ -58,7 +58,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          CritiCrew
+          MovieDB
         </Link>
 
         <div className="nav-search">

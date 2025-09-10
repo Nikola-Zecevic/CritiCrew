@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
-import Modal from "../../components/Modal";
-import Pagination from "../../components/Pagination";
-import styles from "../../styles/Page.module.css";
+import Modal from "../components/Modal";
+import Pagination from "../components/Pagination";
+import styles from "../styles/Page.module.css";
 
 function Home() {
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -145,7 +145,7 @@ function Home() {
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
-        <h1 className={styles.heroTitle}>Welcome to CritiCrew</h1>
+        <h1 className={styles.heroTitle}>Welcome to MovieDB</h1>
         <p className={styles.heroText}>
           Your ultimate destination for movie ratings, reviews, and information.
         </p>
