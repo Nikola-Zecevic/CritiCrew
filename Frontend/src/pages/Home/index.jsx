@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import styles from "../../styles/Page.module.css";
 import allMovies from "../../services/moviesService";
+import MovieCard from "../../components/MovieCard";
 
 function Home() {
   const navigate = useNavigate();
@@ -26,29 +27,18 @@ function Home() {
 
   return (
     <div className={styles.page}>
+      {/* Featured Movie */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🎬 Movie of the Day</h2>
         <div
-          className={styles.featuredMovie}
           onClick={() => handleMovieClick(allMovies[0])}
           style={{ cursor: "pointer" }}
         >
-          <img
-            src={allMovies[0].image}
-            alt={allMovies[0].title}
-            className={styles.featuredImage}
-          />
-          <div className={styles.featuredInfo}>
-            <h3 className={styles.movieTitle}>{allMovies[0].title}</h3>
-            <p className={styles.movieRating}>⭐ {allMovies[0].rating}/10</p>
-            <p className={styles.movieDescription}>
-              {allMovies[0].description}
-            </p>
-            <button className={styles.readMoreBtn}>Read More →</button>
-          </div>
+          <MovieCard movie={allMovies[0]} isFeatured />
         </div>
       </div>
 
+      {/* Top Rated Movies */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🔥 Top Rated Movies</h2>
         <p className={styles.pageInfo}>
@@ -60,20 +50,10 @@ function Home() {
           {currentMovies.map((movie) => (
             <div
               key={movie.id}
-              className={styles.movieCard}
               onClick={() => handleMovieClick(movie)}
               style={{ cursor: "pointer" }}
             >
-              <img
-                src={movie.image}
-                alt={movie.title}
-                className={styles.movieImage}
-              />
-              <div className={styles.movieInfo}>
-                <h3 className={styles.movieTitle}>{movie.title}</h3>
-                <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
-                <p className={styles.movieYear}>{movie.year}</p>
-              </div>
+              <MovieCard movie={movie} />
             </div>
           ))}
         </div>
