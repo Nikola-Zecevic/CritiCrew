@@ -10,7 +10,7 @@ function MovieModal() {
   const movie = allMovies.find((m) => m.slug === slug);
   if (!movie) return null;
   function handleClose() {
-    navigate(-1); // vraća prethodnu stranicu
+    navigate(-1);
   }
   return <Modal isOpen={true} onClose={handleClose} movie={movie} />;
 }

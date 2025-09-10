@@ -27,7 +27,6 @@ function Home() {
 
   return (
     <div className={styles.page}>
-      {/* Featured Movie */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🎬 Movie of the Day</h2>
         <div
@@ -38,7 +37,6 @@ function Home() {
         </div>
       </div>
 
-      {/* Top Rated Movies */}
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🔥 Top Rated Movies</h2>
         <p className={styles.pageInfo}>

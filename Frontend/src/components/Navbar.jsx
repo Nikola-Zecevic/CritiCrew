@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
+import allMovies from "../services/moviesService";
 
 function Navbar() {
   const user = { name: "Jane Doe" };
@@ -8,18 +9,7 @@ function Navbar() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Movie data for search - using the same data as Home.jsx
-  const mockMovies = [
-    { id: 1, title: "The Shawshank Redemption", year: 1994, rating: 9.3 },
-    { id: 2, title: "The Dark Knight", year: 2008, rating: 9.0 },
-    { id: 3, title: "Pulp Fiction", year: 1994, rating: 8.9 },
-    { id: 4, title: "Inception", year: 2010, rating: 8.8 },
-    { id: 5, title: "The Matrix", year: 1999, rating: 8.7 },
-    { id: 6, title: "Interstellar", year: 2014, rating: 8.6 },
-    { id: 7, title: "The Godfather", year: 1972, rating: 9.2 },
-    { id: 8, title: "Forrest Gump", year: 1994, rating: 8.8 },
-    { id: 9, title: "The Lord of the Rings", year: 2003, rating: 8.9 },
-  ];
+  const navigate = useNavigate();
 
   function getInitials(name) {
     return name
@@ -32,7 +22,7 @@ function Navbar() {
   function handleSearchInputChange(query) {
     setSearchQuery(query);
     if (query.length > 1) {
-      const results = mockMovies.filter((movie) =>
+      const results = allMovies.filter((movie) =>
         movie.title.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(results);
@@ -45,13 +35,13 @@ function Navbar() {
 
   function handleSearch(e) {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
     setShowSuggestions(false);
   }
 
   function handleSuggestionClick(movie) {
-    setSearchQuery(movie.title);
+    setSearchQuery("");
     setShowSuggestions(false);
+    navigate(`/movie/${movie.slug}`);
   }
 
   return (
@@ -82,6 +72,7 @@ function Navbar() {
                   key={movie.id}
                   className="suggestion-item"
                   onClick={() => handleSuggestionClick(movie)}
+                  style={{ cursor: "pointer" }}
                 >
                   {movie.title} ({movie.year}) - ⭐{movie.rating}
                 </div>
