@@ -1,15 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
-import allMovies from "../services/moviesService";
+import useMovieSearch from "../hooks/useMovieSearch";
 
 function Navbar() {
   const user = { name: "Jane Doe" };
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
   const navigate = useNavigate();
+
+  const {
+    searchQuery,
+    searchResults,
+    showSuggestions,
+    handleSearchInputChange,
+    clearSearch,
+  } = useMovieSearch();
 
   function getInitials(name) {
     return name
@@ -19,28 +23,12 @@ function Navbar() {
       .toUpperCase();
   }
 
-  function handleSearchInputChange(query) {
-    setSearchQuery(query);
-    if (query.length > 1) {
-      const results = allMovies.filter((movie) =>
-        movie.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(results);
-      setShowSuggestions(true);
-    } else {
-      setSearchResults([]);
-      setShowSuggestions(false);
-    }
-  }
-
   function handleSearch(e) {
     e.preventDefault();
-    setShowSuggestions(false);
   }
 
   function handleSuggestionClick(movie) {
-    setSearchQuery("");
-    setShowSuggestions(false);
+    clearSearch();
     navigate(`/movie/${movie.slug}`);
   }
 
