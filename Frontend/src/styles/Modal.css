@@ -76,8 +76,8 @@
 
 .modal-rating {
   display: inline-block;
-  color: #f5c518; /* keep text readable */
-  background-color: rgba(245, 197, 24, 0.2); /* subtle yellow-ish background */
+  color: #f5c518;
+  background-color: rgba(245, 197, 24, 0.2);
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-weight: bold;
