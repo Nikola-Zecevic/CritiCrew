@@ -81,17 +81,15 @@
   transform: scale(1.03);
 }
 
+.reverse {
+  flex-direction: row-reverse;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
-  .section {
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .reverse {
+  .section, .reverse {
     flex-direction: column;
   }
-  
   .hero-title {
     font-size: 2rem;
   }
