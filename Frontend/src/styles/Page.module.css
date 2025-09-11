@@ -1,50 +1,3 @@
-<<<<<<< HEAD
-/* src/pages/Page.module.css */
-.page {
-  padding: 2rem 0;
-}
-
-.hero {
-  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-  padding: 3rem 2rem;
-  border-radius: 8px;
-  border: 1px solid #333;
-  margin-bottom: 2rem;
-}
-
-.heroTitle {
-  color: #f5c518;
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.heroText {
-  font-size: 1.2rem;
-  color: #ccc;
-}
-
-.movieGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-}
-
-.movieCard {
-  background: #1a1a1a;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #333;
-}
-
-.movieTitle {
-  color: #f5c518;
-  margin-bottom: 1rem;
-}
-
-.movieRating {
-  color: #ccc;
-}
-=======
 .page {
   padding: 0.5rem 0;
 }
@@ -201,4 +154,3 @@
   font-size: 0.9rem;
   margin: 0;
 }
->>>>>>> 02a6fb1c0da4da51c18637bbc8bfab992add5ee1
