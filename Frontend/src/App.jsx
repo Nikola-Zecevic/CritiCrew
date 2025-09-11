@@ -1,34 +1,22 @@
-import React, { useState } from "react";
-import styles from "../../styles/Page.module.css";
-import allMovies from "../../services/moviesService";
-import Modal from "../../components/Modal";
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import Custom from "./pages/Custom";
 
-export default function Custom() {
-  const [selectedMovie, setSelectedMovie] = useState(null);
-
-  const getRandomMovie = () => {
-    const randomIndex = Math.floor(Math.random() * allMovies.length);
-    setSelectedMovie(allMovies[randomIndex]);
-  };
-
-  const handleClose = () => {
-    setSelectedMovie(null);
-  };
-
+function App() {
   return (
-    <div className={styles.page}>
-      <h1 className={styles.heroTitle}>Random Movie Picker</h1>
-      <p className={styles.heroText}>Click the button to get a random movie!</p>
-      <button className={styles.readMoreBtn} onClick={getRandomMovie}>
-        Get Random Movie
-      </button>
-      {selectedMovie && (
-        <Modal
-          isOpen={true}
-          onClose={handleClose}
-          movie={selectedMovie}
-        />
-      )}
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/custom" element={<Custom />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
+
+export default App;
