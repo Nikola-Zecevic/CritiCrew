@@ -36,12 +36,13 @@
 .load-more {
   margin-top: 20px;
   padding: 10px 20px;
-  background: #ff4444;
-  color: white;
+  background: #f5c518;
+  color: black;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .load-more:hover {

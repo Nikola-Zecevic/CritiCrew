@@ -1,15 +1,20 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import allMovies from "../../services/moviesService";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import "../../styles/Filter.css";
+import MovieCard from "../../components/MovieCard";
 
 function Filter() {
   const [visibleCount, setVisibleCount] = useState(6);
+  const navigate = useNavigate();
 
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + 3);
   };
+
+  function handleMovieClick(movie) {
+    navigate(`/movie/${movie.slug}`);
+  }
 
   return (
     <div className="filter-page">
@@ -18,10 +23,12 @@ function Filter() {
 
         <div className="movies-grid">
           {allMovies.slice(0, visibleCount).map((movie) => (
-            <div key={movie.id} className="movie-card">
-              <img src={movie.image} alt={movie.title} />
-              <h3>{movie.title}</h3>
-              <p>{movie.genre}</p>
+            <div
+              key={movie.id}
+              onClick={() => handleMovieClick(movie)}
+              style={{ cursor: "pointer" }}
+            >
+              <MovieCard movie={movie} />
             </div>
           ))}
         </div>

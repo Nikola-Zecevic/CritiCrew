@@ -95,7 +95,7 @@
 .movieTitle {
   color: #f5c518;
   margin-bottom: 0.5rem;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
 }
 
 .movieRating {
@@ -153,4 +153,11 @@
   color: #888;
   font-size: 0.9rem;
   margin: 0;
+}
+
+.movieGenres {
+  margin-top: 0.25rem;
+  color: #ccc;
+  font-size: 1rem;
+  font-weight: bold;
 }
