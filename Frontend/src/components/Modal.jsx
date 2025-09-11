@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/Modal.css";
+import UserReviews from "./UserReviews";
 
 function Modal({ isOpen, onClose, movie }) {
   if (!isOpen) return null;
@@ -52,9 +53,7 @@ function Modal({ isOpen, onClose, movie }) {
 
             <div className="modal-reviews">
               <h3>User Reviews</h3>
-              <p className="reviews-placeholder">
-                Reviews functionality coming soon...
-              </p>
+              <UserReviews movieId={movie?.id} />
             </div>
           </div>
         </div>
