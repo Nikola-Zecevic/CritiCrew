@@ -1,13 +1,10 @@
 import React from "react";
-import styles from "../../styles/Page.module.css";
+import "../../styles/About.css";
+import "../../styles/Contact.css";
+import AboutUsInfo from "../../components/AboutUsInfo";
 
 function About() {
-  return (
-    <div className={styles.page}>
-      <h1 className={styles.heroTitle}>About Us</h1>
-      <p className={styles.heroText}>This page is coming soon.</p>
-    </div>
-  );
+  return <AboutUsInfo />;
 }
 
 export default About;
