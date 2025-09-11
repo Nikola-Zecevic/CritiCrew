@@ -48,3 +48,55 @@
 .load-more:hover {
   background: #cc0000;
 }
+
+.genre-filter {
+  margin: 1rem 0;
+}
+
+.genre-filter label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.toggle-genres-btn {
+  margin: 1rem 0;
+  padding: 10px 15px;
+  background: #f5c518;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.toggle-genres-btn:hover {
+  background: #cc0000;
+  color: #fff;
+}
+
+.genre-box {
+  max-height: 200px; /* scrollable */
+  overflow-y: auto;
+  background: #222;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.genre-option {
+  display: block;
+  margin: 5px 0;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #ccc;
+  font-style: italic;
+  font-size: 1.2rem;
+}
