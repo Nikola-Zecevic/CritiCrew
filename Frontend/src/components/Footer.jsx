@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/Footer.css";
+import SocialLinks from "./SocialLinks";
 
 function Footer() {
   return (
@@ -31,17 +32,7 @@ function Footer() {
 
           <div className="footer-section">
             <h4>Follow Us</h4>
-            <div className="social-links">
-              <a href="#" className="social-link">
-                Facebook
-              </a>
-              <a href="#" className="social-link">
-                Twitter
-              </a>
-              <a href="#" className="social-link">
-                Instagram
-              </a>
-            </div>
+            <SocialLinks />
           </div>
         </div>
 

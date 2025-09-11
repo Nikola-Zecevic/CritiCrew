@@ -129,12 +129,19 @@
   background: #f5c518;
   color: #000;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
   margin-top: 1rem;
   transition: all 0.3s ease;
+  width: auto;
+  display: inline-block;
+}
+
+.featuredInfo .readMoreBtn {
+  align-self: flex-start;
+  width: auto;
 }
 
 .readMoreBtn:hover {
@@ -146,11 +153,4 @@
   color: #888;
   font-size: 0.9rem;
   margin: 0;
-}
-
-.pageInfo {
-  text-align: center;
-  color: #888;
-  margin-bottom: 2rem;
-  font-style: italic;
 }

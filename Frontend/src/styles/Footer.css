@@ -90,3 +90,20 @@
     justify-content: center;
   }
 }
+
+.social-links {
+  display: flex;
+  gap: 0.5rem; /* space between icons */
+}
+
+.social-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  margin: 0 10px;
+  transition: transform 0.2s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.1);
+}

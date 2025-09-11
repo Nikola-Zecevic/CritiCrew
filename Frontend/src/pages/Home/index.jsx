@@ -39,10 +39,6 @@ function Home() {
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>🔥 Top Rated Movies</h2>
-        <p className={styles.pageInfo}>
-          Showing {currentMovies.length} of {allMovies.length} movies (Page{" "}
-          {currentPage} of {totalPages})
-        </p>
 
         <div className={styles.movieGrid}>
           {currentMovies.map((movie) => (
