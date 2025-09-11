@@ -1,0 +1,43 @@
+.page {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.heroTitle {
+  color: #f5c518;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.heroText {
+  font-size: 1.2rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.squareBtn {
+  background: #f5c518;
+  color: #000;
+  border: none;
+  border-radius: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: all 0.3s ease;
+  width: 140px;
+  height: 140px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.squareBtn:hover {
+  background: #ffdf5e;
+  transform: scale(1.05);
+}
