@@ -2,9 +2,10 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import useMovieSearch from "../hooks/useMovieSearch";
+import { useAuth } from "../contexts/AuthContext";
 
 function Navbar() {
-  const user = { name: "Jane Doe" };
+  const { currentUser, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -90,10 +91,21 @@ function Navbar() {
               About Us
             </Link>
           </li>
+          <li className="nav-item">
+            {isAdmin && (
+              <Link to="/dashboard" className="nav-link">
+                Dashboard
+              </Link>
+            )}
+          </li>
         </ul>
 
         <div className="nav-profile">
-          <button className="avatar-button">{getInitials(user.name)}</button>
+          <Link to={"/profile"}>
+            <button className="avatar-button">
+              {getInitials(currentUser.name)}
+            </button>
+          </Link>
         </div>
       </div>
     </nav>
