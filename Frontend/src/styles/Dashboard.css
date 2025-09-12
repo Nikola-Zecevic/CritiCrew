@@ -1,0 +1,126 @@
+.dashboard-container {
+  max-width: 1000px;
+  margin: 2.5rem auto;
+  padding: 1rem;
+  color: #eee;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.dashboard-header h1 {
+  color: #f5c518;
+  margin: 0 0 0.25rem 0;
+}
+
+.dashboard-header .muted {
+  color: #cfcfcf;
+  margin: 0 0 1rem 0;
+}
+
+/* Cards */
+.card {
+  background: #121212;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  margin-bottom: 1.25rem;
+}
+
+/* Movie form */
+.movie-form .row {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.movie-form input,
+.movie-form textarea {
+  flex: 1;
+  padding: 0.6rem;
+  background: #1f1f1f;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.movie-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}
+
+/* Movies list */
+.movie-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0 0;
+}
+
+.movie-item {
+  padding: 0.6rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* Users table */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.6rem;
+}
+
+.users-table th,
+.users-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #222;
+  vertical-align: middle;
+}
+
+.users-table thead th {
+  color: #f5c518;
+  font-weight: 600;
+}
+
+.actions-td {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-yellow {
+  background: #f5c518;
+  color: #000;
+}
+
+.btn-muted {
+  background: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.btn-danger {
+  background: #b22222;
+  color: #fff;
+}
+
+/* Small/Muted text */
+.muted {
+  color: #bdbdbd;
+  font-size: 0.95rem;
+}
+
+.small {
+  font-size: 0.85rem;
+}
