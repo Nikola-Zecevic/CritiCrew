@@ -1,13 +1,34 @@
-import React from "react";
-import styles from "../../styles/Page.module.css";
+import React, { useState } from "react";
+import styles from "../../styles/Random.module.css";
+import allMovies from "../../services/moviesService";
+import Modal from "../../components/Modal";
 
-function Custom() {
+export default function Custom() {
+  const [selectedMovie, setSelectedMovie] = useState(null);
+
+  const getRandomMovie = () => {
+    const randomIndex = Math.floor(Math.random() * allMovies.length);
+    setSelectedMovie(allMovies[randomIndex]);
+  };
+
+  const handleClose = () => {
+    setSelectedMovie(null);
+  };
+
   return (
     <div className={styles.page}>
-      <h1 className={styles.heroTitle}>Custom Page</h1>
-      <p className={styles.heroText}>This is a custom page.</p>
+      <h1 className={styles.heroTitle}>Random Movie Picker</h1>
+      <p className={styles.heroText}>Click the button to get a random movie!</p>
+      <button className={styles.squareBtn} onClick={getRandomMovie}>
+        Get Random Movie
+      </button>
+      {selectedMovie && (
+        <Modal
+          isOpen={true}
+          onClose={handleClose}
+          movie={selectedMovie}
+        />
+      )}
     </div>
   );
 }
-
-export default Custom;
