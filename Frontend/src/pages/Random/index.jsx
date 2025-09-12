@@ -3,7 +3,7 @@ import styles from "../../styles/Random.module.css";
 import allMovies from "../../services/moviesService";
 import Modal from "../../components/Modal";
 
-export default function Custom() {
+export default function Random() {
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   const getRandomMovie = () => {

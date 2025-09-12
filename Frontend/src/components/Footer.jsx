@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../styles/Footer.css";
 import SocialLinks from "./SocialLinks";
 
@@ -19,13 +20,16 @@ function Footer() {
             <h4>Quick Links</h4>
             <ul>
               <li>
-                <a href="/">Home</a>
+                <Link to="/">Home</Link>
               </li>
               <li>
-                <a href="/custom">Custom Page</a>
+                <Link to="/filter">Filter</Link>
               </li>
               <li>
-                <a href="/about">About Us</a>
+                <Link to="/custom">Random Movie</Link>
+              </li>
+              <li>
+                <Link to="/about">About Us</Link>
               </li>
             </ul>
           </div>
