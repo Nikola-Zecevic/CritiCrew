@@ -30,6 +30,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
         <h3 className={styles.movieTitle}>{movie.title}</h3>
         <p className={styles.movieYear}>Year: {movie.year}</p>
         <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
+        <p className={styles.movieGenres}>{movie.genre}</p>
         <Link to={`/movie/${movie.slug}`} className={styles.readMoreBtn}>
           Read More
         </Link>

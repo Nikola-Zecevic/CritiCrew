@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout";
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Custom from "../pages/Custom";
+import Filter from "../pages/Filter/";
 import MovieModal from "../components/MovieModal";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="custom" element={<Custom />} />
+          <Route path="/filter" element={<Filter />} />
           <Route path="movie/:slug" element={<MovieModal />} />
         </Route>
       </Routes>

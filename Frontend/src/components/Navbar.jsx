@@ -76,6 +76,11 @@ function Navbar() {
             </Link>
           </li>
           <li className="nav-item">
+            <Link to="/filter" className="nav-link">
+              Filter
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link to="/custom" className="nav-link">
               Custom Page
             </Link>
