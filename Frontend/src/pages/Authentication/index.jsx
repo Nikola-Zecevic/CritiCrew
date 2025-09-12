@@ -1,7 +1,7 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AuthForm from "../../components/AuthForm";
-import "../../styles/authentication.css";
+import "../../styles/Authentication.css";
 
 export default function AuthenticationPage() {
   const { login } = useAuth();

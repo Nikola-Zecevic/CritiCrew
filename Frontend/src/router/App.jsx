@@ -8,6 +8,7 @@ import MovieModal from "../components/MovieModal";
 import AuthenticationPage from "../pages/Authentication";
 import ProfilePage from "../pages/ProfilePage";
 import Dashboard from "../pages/Dashboard";
+import NotFound from "../pages/NotFound";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard></Dashboard>}></Route>
         </Route>
         <Route path="auth" element={<AuthenticationPage />}></Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
