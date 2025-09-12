@@ -82,8 +82,8 @@ function Navbar() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/custom" className="nav-link">
-              Custom Page
+            <Link to="/random" className="nav-link">
+              Random Movie
             </Link>
           </li>
           <li className="nav-item">
