@@ -26,7 +26,7 @@ function Footer() {
                 <Link to="/filter">Filter</Link>
               </li>
               <li>
-                <Link to="/custom">Random Movie</Link>
+                <Link to="/random">Random Movie</Link>
               </li>
               <li>
                 <Link to="/about">About Us</Link>
