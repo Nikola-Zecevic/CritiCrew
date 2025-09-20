@@ -3,10 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
+import { Button, Box, Typography } from "@mui/material";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function Navbar() {
   const { currentUser, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { mode, toggleTheme } = useThemeContext();
 
   const {
     searchQuery,
@@ -99,6 +102,11 @@ function Navbar() {
             )}
           </li>
         </ul>
+        <Box sx={{ p: 4, textAlign: "center" }}>
+          <Button variant="contained" onClick={toggleTheme}>
+            Switch to {mode === "light" ? "Dark" : "Light"} Theme
+          </Button>
+        </Box>
 
         <div className="nav-profile">
           <Link to={"/profile"}>
