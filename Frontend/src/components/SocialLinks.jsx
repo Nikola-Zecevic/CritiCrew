@@ -1,18 +1,11 @@
 import React from "react";
-import "../styles/Footer.css";
+import { Instagram, Twitter, YouTube } from "@mui/icons-material";
+import "../styles/footer.css";
 
 const socialMedia = [
-  {
-    name: "Facebook",
-    url: "https://www.facebook.com",
-    icon: "/images/facebook.png",
-  },
-  {
-    name: "Instagram",
-    url: "https://www.instagram.com",
-    icon: "/images/instagram.webp",
-  },
-  { name: "X", url: "https://www.x.com", icon: "/images/x.webp" },
+  { name: "Instagram", url: "https://www.instagram.com", icon: <Instagram /> },
+  { name: "X", url: "https://www.x.com", icon: <Twitter /> }, // Using Twitter icon for X
+  { name: "YouTube", url: "https://www.youtube.com", icon: <YouTube /> },
 ];
 
 export default function SocialLinks() {
@@ -24,8 +17,9 @@ export default function SocialLinks() {
           href={social.url}
           target="_blank"
           rel="noopener noreferrer"
+          className="social-icon-link"
         >
-          <img src={social.icon} alt={social.name} className="social-icon" />
+          {social.icon}
         </a>
       ))}
     </div>

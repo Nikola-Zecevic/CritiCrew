@@ -1,6 +1,4 @@
 import React from "react";
-import cinemaImage from "../../public/images/cinema.jpg";
-import cinemaPeopleImage from "../../public/images/cinemappl.jpeg";
 import AboutUsSection from "./AboutUsSection";
 import AboutUsContact from "./AboutUsContact";
 
@@ -9,14 +7,10 @@ function AboutUsInfo() {
     <div className="page">
       <h1 className="hero-title">About Us</h1>
 
-      <AboutUsSection 
-        imageLink={cinemaImage} 
-        reverse={false} 
-        section="first" 
-      />
+      <AboutUsSection imageLink={cinema.jpg} reverse={false} section="first" />
 
       <AboutUsSection
-        imageLink={cinemaPeopleImage}
+        imageLink={cinemappl.jpeg}
         reverse={true}
         section="second"
       />
