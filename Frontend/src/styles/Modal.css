@@ -1,3 +1,4 @@
+/* Restore modal-overlay and modal-content for Dialog and Backdrop */
 .modal-overlay {
   background-color: rgba(0, 0, 0, 0.9);
   position: fixed;

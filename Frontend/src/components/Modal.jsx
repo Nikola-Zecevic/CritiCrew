@@ -5,6 +5,7 @@ import {
   DialogContent,
   IconButton,
   Typography,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserReviews from "./UserReviews";
@@ -20,39 +21,54 @@ function Modal({ isOpen, onClose, movie }) {
       maxWidth="md"
       fullWidth
       PaperProps={{
-        className: "modal-content",
+        className: "modal-content", // layout + animation in CSS
+        sx: {
+          bgcolor: "background.paper", // theme-aware
+          border: "2px solid #f5c518",
+        },
       }}
       BackdropProps={{
         className: "modal-overlay",
       }}
     >
       {/* Close button */}
-      <IconButton aria-label="close" className="modal-close" onClick={onClose}>
+      <IconButton aria-label="close" onClick={onClose} className="modal-close">
         <CloseIcon />
       </IconButton>
 
       {/* Header */}
       <DialogTitle className="modal-header">
-        <Typography variant="h4" component="h2" className="modal-title">
+        <Typography
+          variant="h4"
+          component="h2"
+          className="modal-title"
+          sx={{
+            fontSize: { xs: "2rem", md: "2.5rem" }, // responsive via sx
+          }}
+        >
           {movie.title}
         </Typography>
         <Typography variant="subtitle1" className="modal-year">
           {movie.year}
         </Typography>
-        <div className="modal-rating">⭐ {movie.rating}/10</div>
+        <Box className="modal-rating">★ {movie.rating}/10</Box>
       </DialogTitle>
 
       {/* Body */}
       <DialogContent className="modal-body">
-        <div className="modal-image">
+        {/* Poster */}
+        <Box className="modal-image">
           <img src={movie.image} alt={movie.title} className="modal-poster" />
-        </div>
+        </Box>
 
-        <div className="modal-details">
-          <h3>Description</h3>
-          <p className="modal-description">
+        {/* Details */}
+        <Box className="modal-details">
+          <Typography variant="h6" className="section-title">
+            Description
+          </Typography>
+          <Typography className="modal-description">
             {movie.description || "No description available."}
-          </p>
+          </Typography>
 
           <div className="modal-info">
             <div className="info-item">
@@ -67,10 +83,12 @@ function Modal({ isOpen, onClose, movie }) {
           </div>
 
           <div className="modal-reviews">
-            <h3>User Reviews</h3>
+            <Typography variant="h6" className="section-title">
+              User Reviews
+            </Typography>
             <UserReviews movieId={movie.id} />
           </div>
-        </div>
+        </Box>
       </DialogContent>
     </Dialog>
   );

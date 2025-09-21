@@ -17,7 +17,25 @@ export default function MovieCard({ movie, isFeatured = false }) {
           <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
           <p className={styles.movieDescription}>{movie.description}</p>
           <Link to={`/movie/${movie.slug}`}>
-            <Button className={styles.readMoreBtn} variant="contained">
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#f5c518",
+                color: "#222",
+                fontWeight: 600,
+                borderRadius: "6px",
+                textTransform: "none",
+                px: 2.5,
+                py: 1,
+                mt: 1.5,
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: "#ffe082",
+                  color: "#111",
+                  boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
+                },
+              }}
+            >
               Read More
             </Button>
           </Link>
@@ -35,7 +53,25 @@ export default function MovieCard({ movie, isFeatured = false }) {
         <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
         <p className={styles.movieGenres}>{movie.genre}</p>
         <Link to={`/movie/${movie.slug}`}>
-          <Button className={styles.readMoreBtn} variant="contained">
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#f5c518",
+              color: "#222",
+              fontWeight: 600,
+              borderRadius: "6px",
+              textTransform: "none",
+              px: 2.5,
+              py: 1,
+              mt: 1.5,
+              boxShadow: "none",
+              "&:hover": {
+                backgroundColor: "#ffe082",
+                color: "#111",
+                boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
+              },
+            }}
+          >
             Read More
           </Button>
         </Link>

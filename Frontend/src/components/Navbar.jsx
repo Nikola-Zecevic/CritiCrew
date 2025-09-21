@@ -3,7 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
-import { Button, Box, Typography, Switch } from "@mui/material";
+import {
+  Button,
+  Box,
+  Typography,
+  Switch,
+  TextField,
+  IconButton,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useThemeContext } from "../contexts/ThemeContext";
@@ -47,16 +55,22 @@ function Navbar() {
 
         <div className="nav-search">
           <form onSubmit={handleSearch} className="search-form">
-            <input
+            <TextField
               type="text"
               placeholder="Search movies..."
               value={searchQuery}
               onChange={(e) => handleSearchInputChange(e.target.value)}
-              className="search-input"
+              size="small"
+              variant="outlined"
+              sx={{
+                backgroundColor: mode === "dark" ? "#222" : "#fff",
+                borderRadius: 1,
+                input: { color: mode === "dark" ? "#fff" : "#000" },
+              }}
             />
-            <button type="submit" className="search-button">
-              🔍
-            </button>
+            <IconButton type="submit" sx={{ ml: 1 }} aria-label="search">
+              <SearchIcon sx={{ color: "#f5c518" }} />
+            </IconButton>
           </form>
 
           {showSuggestions && searchResults.length > 0 && (

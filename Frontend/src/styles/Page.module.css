@@ -112,27 +112,6 @@
   font-weight: bold;
 }
 
-.readMoreBtn.MuiButton-root {
-  background-color: #f5c518;
-  color: #000;
-  font-weight: bold;
-  border-radius: 4px;
-  padding: 0.4rem 0.8rem;
-  text-transform: none;
-  transition: all 0.3s ease;
-  display: block;
-  margin-top: 1.5rem;
-}
-
-.readMoreBtn.MuiButton-root:hover {
-  background-color: #ffdf5e;
-  transform: translateX(4px);
-}
-
-.featuredInfo .readMoreBtn.MuiButton-root {
-  align-self: flex-start;
-}
-
 .movieYear {
   color: #888;
   font-size: 0.9rem;
