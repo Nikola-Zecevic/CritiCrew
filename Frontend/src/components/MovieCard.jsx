@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Button from "@mui/material/Button";
 import styles from "../styles/Page.module.css";
 
 export default function MovieCard({ movie, isFeatured = false }) {
@@ -15,8 +16,10 @@ export default function MovieCard({ movie, isFeatured = false }) {
           <p className={styles.movieYear}>Year: {movie.year}</p>
           <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
           <p className={styles.movieDescription}>{movie.description}</p>
-          <Link to={`/movie/${movie.slug}`} className={styles.readMoreBtn}>
-            Read More
+          <Link to={`/movie/${movie.slug}`}>
+            <Button className={styles.readMoreBtn} variant="contained">
+              Read More
+            </Button>
           </Link>
         </div>
       </div>
@@ -31,8 +34,10 @@ export default function MovieCard({ movie, isFeatured = false }) {
         <p className={styles.movieYear}>Year: {movie.year}</p>
         <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
         <p className={styles.movieGenres}>{movie.genre}</p>
-        <Link to={`/movie/${movie.slug}`} className={styles.readMoreBtn}>
-          Read More
+        <Link to={`/movie/${movie.slug}`}>
+          <Button className={styles.readMoreBtn} variant="contained">
+            Read More
+          </Button>
         </Link>
       </div>
     </div>
