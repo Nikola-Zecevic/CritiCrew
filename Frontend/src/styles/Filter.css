@@ -10,6 +10,10 @@
   text-align: center;
 }
 
+h2 {
+  margin-bottom: 0.5rem;
+}
+
 .movies-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -33,22 +37,6 @@
   margin-bottom: 10px;
 }
 
-.load-more {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: #f5c518;
-  color: black;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.load-more:hover {
-  background: #cc0000;
-}
-
 .genre-filter {
   margin: 1rem 0;
 }
@@ -56,22 +44,6 @@
 .genre-filter label {
   margin-right: 10px;
   font-weight: bold;
-}
-
-.toggle-genres-btn {
-  margin: 1rem 0;
-  padding: 10px 15px;
-  background: #f5c518;
-  color: black;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.toggle-genres-btn:hover {
-  background: #cc0000;
-  color: #fff;
 }
 
 .genre-box {
@@ -85,7 +57,6 @@
 }
 
 .genre-option {
-  display: block;
   margin: 5px 0;
   color: #fff;
   font-size: 0.95rem;
