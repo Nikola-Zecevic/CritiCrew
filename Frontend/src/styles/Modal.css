@@ -1,10 +1,10 @@
 .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.9);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -37,9 +37,11 @@
 
 .modal-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.2rem;
+  left: 1.2rem;
+  right: auto;
   background: #f5c518;
+  color: #000;
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -47,8 +49,11 @@
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 10;
   transition: all 0.3s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
@@ -66,6 +71,7 @@
   color: #f5c518;
   font-size: 2.5rem;
   margin: 0 0 0.5rem;
+  font-weight: bold;
 }
 
 .modal-year {
@@ -85,15 +91,11 @@
 }
 
 .modal-body {
-  padding: 2rem;
+  padding: 2rem 2rem 2rem 2rem;
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 2rem;
-}
-
-.modal-image {
-  display: flex;
-  justify-content: center;
+  align-items: flex-start;
 }
 
 .modal-poster {
@@ -102,26 +104,26 @@
   height: auto;
   border-radius: 8px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  margin-top: 2rem;
 }
 
 .modal-details {
   color: #ccc;
+  margin-top: 0;
 }
 
 .modal-details h3 {
   color: #f5c518;
-  margin-bottom: 1rem;
+  margin: 2rem 0 1rem 0;
   font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .modal-description {
   line-height: 1.6;
   margin-bottom: 2rem;
   font-size: 1.1rem;
-}
-
-.modal-info {
-  margin-bottom: 2rem;
+  margin-top: 1rem;
 }
 
 .info-item {
@@ -136,7 +138,7 @@
 }
 
 .modal-reviews {
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   border-top: 1px solid #333;
 }
 
@@ -149,6 +151,7 @@
   .modal-body {
     grid-template-columns: 1fr;
     text-align: center;
+    padding: 1rem;
   }
 
   .modal-title {
@@ -159,11 +162,8 @@
     padding: 1.5rem 1rem 1rem;
   }
 
-  .modal-body {
-    padding: 1rem;
-  }
-
   .modal-poster {
     max-width: 200px;
+    margin: 0 auto;
   }
 }
