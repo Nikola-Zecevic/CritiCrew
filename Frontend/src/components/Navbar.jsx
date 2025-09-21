@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
-import { Button, Box, Typography } from "@mui/material";
+import { Button, Box, Typography, Switch } from "@mui/material";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 function Navbar() {
@@ -103,9 +105,21 @@ function Navbar() {
           </li>
         </ul>
         <Box sx={{ p: 4, textAlign: "center" }}>
-          <Button variant="contained" onClick={toggleTheme}>
-            {mode === "dark" ? "Light theme" : "Dark theme"}
-          </Button>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+          >
+            <Brightness4Icon sx={{ color: "#757ce8" }} />
+            <Switch
+              checked={mode === "dark"}
+              onChange={toggleTheme}
+              color="default"
+              inputProps={{ "aria-label": "theme switch" }}
+            />
+            <Brightness7Icon sx={{ color: "#f5c518" }} />
+          </Box>
         </Box>
 
         <div className="nav-profile">

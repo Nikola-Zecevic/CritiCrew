@@ -7,11 +7,16 @@ import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 function Filter() {
   const [visibleCount, setVisibleCount] = useState(6);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [showGenreBox, setShowGenreBox] = useState(false);
+  const [sortRating, setSortRating] = useState("");
   const navigate = useNavigate();
 
   const handleLoadMore = () => {
@@ -35,7 +40,7 @@ function Filter() {
     setVisibleCount(6);
   };
 
-  const filteredMovies =
+  let filteredMovies =
     selectedGenres.length === 0
       ? allMovies
       : allMovies.filter((movie) =>
@@ -43,6 +48,12 @@ function Filter() {
             movie.genre.toLowerCase().includes(g.toLowerCase())
           )
         );
+
+  if (sortRating === "asc") {
+    filteredMovies = [...filteredMovies].sort((a, b) => a.rating - b.rating);
+  } else if (sortRating === "desc") {
+    filteredMovies = [...filteredMovies].sort((a, b) => b.rating - a.rating);
+  }
 
   return (
     <div className="filter-page">
@@ -107,6 +118,30 @@ function Filter() {
             </FormGroup>
           </div>
         )}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "1.5rem",
+            gap: "1rem",
+          }}
+        >
+          <FormControl sx={{ minWidth: 180 }} size="small">
+            <InputLabel id="sort-rating-label">Sort by rating</InputLabel>
+            <Select
+              labelId="sort-rating-label"
+              id="sort-rating"
+              value={sortRating}
+              label="Sort by rating"
+              onChange={(e) => setSortRating(e.target.value)}
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="asc">Rating: Low to High</MenuItem>
+              <MenuItem value="desc">Rating: High to Low</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
 
         <div className="movies-grid">
           {filteredMovies.length === 0 ? (
