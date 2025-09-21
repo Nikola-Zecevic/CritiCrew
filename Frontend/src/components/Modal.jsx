@@ -20,15 +20,17 @@ function Modal({ isOpen, onClose, movie }) {
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      PaperProps={{
-        className: "modal-content", // layout + animation in CSS
-        sx: {
-          bgcolor: "background.paper", // theme-aware
-          border: "2px solid #f5c518",
+      slotProps={{
+        paper: {
+          className: "modal-content", // layout + animation in CSS
+          sx: {
+            bgcolor: "background.paper", // theme-aware
+            border: "2px solid #f5c518",
+          },
         },
-      }}
-      BackdropProps={{
-        className: "modal-overlay",
+        backdrop: {
+          className: "modal-overlay",
+        },
       }}
     >
       {/* Close button */}
@@ -37,21 +39,56 @@ function Modal({ isOpen, onClose, movie }) {
       </IconButton>
 
       {/* Header */}
-      <DialogTitle className="modal-header">
+      <DialogTitle
+        className="modal-header"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 0.5,
+          p: "2rem 2rem 1rem",
+          borderBottom: "1px solid #333",
+          textAlign: "center",
+        }}
+      >
         <Typography
           variant="h4"
           component="h2"
-          className="modal-title"
           sx={{
-            fontSize: { xs: "2rem", md: "2.5rem" }, // responsive via sx
+            fontSize: { xs: "2rem", md: "2.5rem" },
+            fontWeight: 700,
+            color: "#f5c518",
+            mb: 0.5,
+            letterSpacing: 0.5,
           }}
         >
           {movie.title}
         </Typography>
-        <Typography variant="subtitle1" className="modal-year">
+        <Typography
+          variant="subtitle1"
+          sx={{
+            color: "#ccc",
+            fontSize: "1.1rem",
+            mb: 0.5,
+          }}
+        >
           {movie.year}
         </Typography>
-        <Box className="modal-rating">★ {movie.rating}/10</Box>
+        <Box
+          sx={{
+            display: "inline-block",
+            color: "#f5c518",
+            backgroundColor: "rgba(245, 197, 24, 0.2)",
+            px: 2,
+            py: 1,
+            borderRadius: 2.5,
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+            mt: 0.5,
+          }}
+        >
+          ★ {movie.rating}/10
+        </Box>
       </DialogTitle>
 
       {/* Body */}
@@ -63,10 +100,27 @@ function Modal({ isOpen, onClose, movie }) {
 
         {/* Details */}
         <Box className="modal-details">
-          <Typography variant="h6" className="section-title">
+          <Typography
+            variant="h6"
+            sx={{
+              color: "#f5c518",
+              fontWeight: "bold",
+              fontSize: "1.5rem",
+              mt: 3,
+              mb: 1.5,
+            }}
+          >
             Description
           </Typography>
-          <Typography className="modal-description">
+          <Typography
+            sx={{
+              lineHeight: 1.6,
+              fontSize: "1.1rem",
+              mt: 1,
+              mb: 3.5,
+              color: "#ccc",
+            }}
+          >
             {movie.description || "No description available."}
           </Typography>
 
@@ -83,7 +137,16 @@ function Modal({ isOpen, onClose, movie }) {
           </div>
 
           <div className="modal-reviews">
-            <Typography variant="h6" className="section-title">
+            <Typography
+              variant="h6"
+              sx={{
+                color: "#f5c518",
+                fontWeight: "bold",
+                fontSize: "1.5rem",
+                mt: 1.5, // reduced from 3
+                mb: 1.2, // slightly reduced
+              }}
+            >
               User Reviews
             </Typography>
             <UserReviews movieId={movie.id} />
