@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import styles from "../../styles/Page.module.css";
 import allMovies from "../../services/moviesService";
@@ -7,9 +7,10 @@ import MovieCard from "../../components/MovieCard";
 
 function Home() {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
   const moviesPerPage = 3;
 
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(allMovies.length / moviesPerPage);
 
   const currentMovies = useMemo(() => {
@@ -22,7 +23,7 @@ function Home() {
   }
 
   function handlePageChange(page) {
-    setCurrentPage(page);
+    setSearchParams({ page });
   }
 
   return (
