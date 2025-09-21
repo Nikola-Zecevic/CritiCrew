@@ -6,14 +6,16 @@ function AboutUsInfo() {
   return (
     <div className="page">
       <h1 className="hero-title">About Us</h1>
-
-      <AboutUsSection imageLink={cinema.jpg} reverse={false} section="first" />
-
       <AboutUsSection
-        imageLink={cinemappl.jpeg}
+        imageLink="/images/cinema.jpg"
+        reverse={true}
+        section="first"
+      />
+      <AboutUsSection
+        imageLink="/images/cinemappl.jpeg"
         reverse={true}
         section="second"
-      />
+      />{" "}
       <AboutUsContact />
     </div>
   );
