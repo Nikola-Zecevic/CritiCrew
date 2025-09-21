@@ -6,14 +6,13 @@
 }
 
 body {
-  background-color: #121212; /* IMDB's dark background */
+  background-color: #121212;
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     sans-serif;
   line-height: 1.6;
 }
 
-/* Main container to center content */
 .container {
   max-width: 1200px;
   margin: 0 auto;

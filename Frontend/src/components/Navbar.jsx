@@ -104,7 +104,7 @@ function Navbar() {
         </ul>
         <Box sx={{ p: 4, textAlign: "center" }}>
           <Button variant="contained" onClick={toggleTheme}>
-            Switch to {mode === "light" ? "Dark" : "Light"} Theme
+            {mode === "dark" ? "Light theme" : "Dark theme"}
           </Button>
         </Box>
 

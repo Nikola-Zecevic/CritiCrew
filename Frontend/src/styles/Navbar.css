@@ -1,7 +1,6 @@
-/* src/components/Navbar.css */
 .navbar {
-  background-color: #000000; /* Pure black like IMDB */
-  border-bottom: 2px solid #f5c518; /* IMDB's iconic yellow */
+  background-color: #000000;
+  border-bottom: 2px solid #f5c518;
   padding: 0;
   position: sticky;
   top: 0;
@@ -22,13 +21,13 @@
   font-size: 1.8rem;
   font-weight: bold;
   text-decoration: none;
-  color: #f5c518; /* IMDB yellow */
+  color: #f5c518;
   display: flex;
   align-items: center;
 }
 
 .navbar-logo:hover {
-  color: #ffdf5e; /* Lighter yellow on hover */
+  color: #ffdf5e;
 }
 
 .nav-menu {
@@ -44,9 +43,13 @@
   color: #ffffff;
   font-weight: 500;
   font-size: 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.8rem;
   position: relative;
   transition: color 0.3s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-link:hover {
@@ -208,6 +211,8 @@
   gap: 2rem;
   margin: 0;
   padding: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-link {

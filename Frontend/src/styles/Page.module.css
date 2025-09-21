@@ -120,8 +120,8 @@
   padding: 0.4rem 0.8rem;
   text-transform: none;
   transition: all 0.3s ease;
-  display: block; /* ovo pomaže da margin-top stvarno radi */
-  margin-top: 1.5rem; /* povećan razmak iznad dugmeta */
+  display: block;
+  margin-top: 1.5rem;
 }
 
 .readMoreBtn.MuiButton-root:hover {
