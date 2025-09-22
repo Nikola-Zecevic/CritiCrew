@@ -14,9 +14,9 @@ import {
   MenuItem,
   Box,
   Paper,
-  useTheme,
   Typography,
 } from "@mui/material";
+import { useThemeContext } from "../../contexts/ThemeContext";
 
 function Filter() {
   const [visibleCount, setVisibleCount] = useState(6);
@@ -24,7 +24,7 @@ function Filter() {
   const [showGenreBox, setShowGenreBox] = useState(false);
   const [sortRating, setSortRating] = useState("");
   const navigate = useNavigate();
-  const theme = useTheme();
+  const { mode } = useThemeContext();
 
   const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
@@ -60,11 +60,11 @@ function Filter() {
   return (
     <div className="filter-page">
       <main className="filter-content">
-        <h2 style={{ marginBottom: "1rem" }}>
+        <Typography variant="h2" sx={{ marginBottom: "1rem" }}>
           {selectedGenres.length > 0
             ? `Selected Genres: ${selectedGenres.join(", ")}`
             : "All Movies"}
-        </h2>
+        </Typography>
 
         {/* Control Buttons */}
         <Box
@@ -92,7 +92,7 @@ function Filter() {
               borderColor: "#f5c518",
               color: "#f5c518",
               fontWeight: "bold",
-              "&:hover": { borderColor: "#cc0000", color: "#cc0000" },
+              "&:hover": { borderColor: "#f5c518", color: "#f5c518" },
             }}
           >
             Reset filter
@@ -106,8 +106,8 @@ function Filter() {
             sx={{
               p: 2,
               mb: 3,
-              bgcolor: theme.palette.background.paper,
-              color: theme.palette.text.primary,
+              bgcolor: mode === "light" ? "#fff" : "#121212",
+              color: mode === "light" ? "#333" : "#FFD700",
             }}
           >
             <FormGroup>
@@ -162,9 +162,9 @@ function Filter() {
             display: "grid",
             gap: "1.5rem",
             gridTemplateColumns: {
-              xs: "1fr", // mobile
-              sm: "1fr 1fr", // tablet
-              md: "repeat(3, 1fr)", // desktop
+              xs: "1fr",
+              sm: "1fr 1fr",
+              md: "repeat(3, 1fr)",
             },
           }}
         >
@@ -187,15 +187,16 @@ function Filter() {
         {visibleCount < filteredMovies.length && filteredMovies.length > 0 && (
           <Button
             variant="contained"
-            color="secondary"
             onClick={handleLoadMore}
             sx={{
               mt: 3,
-              backgroundColor: "#f5c518",
+              backgroundColor: mode === "light" ? "#FFD700" : "#f5c518",
               color: "#000",
               fontWeight: "bold",
               fontSize: 20,
-              "&:hover": { backgroundColor: "#cc0000", color: "#fff" },
+              "&:hover": {
+                backgroundColor: mode === "light" ? "#FFD700" : "#f5c518",
+              },
             }}
           >
             Load More
