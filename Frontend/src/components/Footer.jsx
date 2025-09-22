@@ -1,34 +1,56 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import "../styles/footer.css";
+import { Box, Typography, useTheme } from "@mui/material";
 
 export default function Footer() {
+  const theme = useTheme();
+
   return (
-    <footer className="footer">
-      <div className="footer-content">
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: theme.palette.background.default,
+        borderTop: `2px solid ${theme.palette.primary.main}`,
+        color: theme.palette.text.primary,
+        padding: "2rem 0 1rem",
+        marginTop: "auto",
+      }}
+    >
+      <Box
+        className="footer-content"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 4,
+          flexWrap: "wrap",
+          mb: 2,
+          px: 2,
+        }}
+      >
         {/* CritiCrew info */}
-        <Box className="footer-section" sx={{ minWidth: 220 }}>
+        <Box sx={{ minWidth: 220 }}>
           <Typography
             variant="h5"
-            sx={{ color: "#f5c518", mb: 1, fontWeight: 700 }}
+            sx={{ color: theme.palette.primary.main, mb: 1, fontWeight: 700 }}
           >
             CritiCrew
           </Typography>
-          <Typography variant="body2" sx={{ color: "#ccc", lineHeight: 1.6 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.secondary, lineHeight: 1.6 }}
+          >
             Your ultimate destination for movie ratings, reviews, and
             information.
           </Typography>
         </Box>
 
         {/* Quick links */}
-        <Box className="footer-section" sx={{ minWidth: 180 }}>
+        <Box sx={{ minWidth: 180 }}>
           <Typography
             variant="h6"
             sx={{
-              color: "#f5c518",
+              color: theme.palette.primary.main,
               mb: 1,
               fontWeight: 600,
               fontSize: "1.2rem",
@@ -37,71 +59,36 @@ export default function Footer() {
             Quick Links
           </Typography>
           <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0 }}>
-            <Box component="li" sx={{ mb: 1 }}>
-              <RouterLink to="/" style={{ textDecoration: "none" }}>
-                <Box
-                  component="span"
-                  sx={{
-                    color: "#ccc",
-                    transition: "color 0.3s",
-                    "&:hover": { color: "#f5c518" },
-                  }}
-                >
-                  Home
-                </Box>
-              </RouterLink>
-            </Box>
-            <Box component="li" sx={{ mb: 1 }}>
-              <RouterLink to="/filter" style={{ textDecoration: "none" }}>
-                <Box
-                  component="span"
-                  sx={{
-                    color: "#ccc",
-                    transition: "color 0.3s",
-                    "&:hover": { color: "#f5c518" },
-                  }}
-                >
-                  Filter
-                </Box>
-              </RouterLink>
-            </Box>
-            <Box component="li" sx={{ mb: 1 }}>
-              <RouterLink to="/random" style={{ textDecoration: "none" }}>
-                <Box
-                  component="span"
-                  sx={{
-                    color: "#ccc",
-                    transition: "color 0.3s",
-                    "&:hover": { color: "#f5c518" },
-                  }}
-                >
-                  Random Movie
-                </Box>
-              </RouterLink>
-            </Box>
-            <Box component="li">
-              <RouterLink to="/about" style={{ textDecoration: "none" }}>
-                <Box
-                  component="span"
-                  sx={{
-                    color: "#ccc",
-                    transition: "color 0.3s",
-                    "&:hover": { color: "#f5c518" },
-                  }}
-                >
-                  About Us
-                </Box>
-              </RouterLink>
-            </Box>
+            {[
+              { label: "Home", to: "/" },
+              { label: "Filter", to: "/filter" },
+              { label: "Random Movie", to: "/random" },
+              { label: "About Us", to: "/about" },
+            ].map((link) => (
+              <Box component="li" sx={{ mb: 1 }} key={link.to}>
+                <RouterLink to={link.to} style={{ textDecoration: "none" }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      transition: "color 0.3s",
+                      "&:hover": { color: theme.palette.primary.main },
+                    }}
+                  >
+                    {link.label}
+                  </Box>
+                </RouterLink>
+              </Box>
+            ))}
           </Box>
         </Box>
 
         {/* Social links */}
-        <Box className="footer-section follow-us" sx={{ minWidth: 180 }}>
+        <Box sx={{ minWidth: 180 }}>
           <Typography
             variant="h6"
             sx={{
-              color: "#f5c518",
+              color: theme.palette.primary.main,
               mb: 1,
               fontWeight: 600,
               fontSize: "1.2rem",
@@ -111,14 +98,23 @@ export default function Footer() {
           </Typography>
           <SocialLinks />
         </Box>
-      </div>
+      </Box>
 
       {/* Footer bottom */}
-      <div className="footer-bottom">
-        <Typography variant="body2" sx={{ color: "#666", m: 0 }}>
+      <Box
+        sx={{
+          borderTop: `1px solid ${theme.palette.divider}`,
+          pt: 1,
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.text.secondary, m: 0 }}
+        >
           © 2025 CritiCrew. All rights reserved.
         </Typography>
-      </div>
-    </footer>
+      </Box>
+    </Box>
   );
 }
