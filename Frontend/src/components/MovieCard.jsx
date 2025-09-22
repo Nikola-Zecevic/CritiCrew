@@ -1,37 +1,112 @@
 import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
-import styles from "../styles/Page.module.css";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 
 export default function MovieCard({ movie, isFeatured = false }) {
-  if (isFeatured) {
-    return (
-      <div className={styles.featuredMovie}>
-        <img
-          src={movie.image}
-          alt={movie.title}
-          className={styles.featuredImage}
-        />
-        <div className={styles.featuredInfo}>
-          <h3 className={styles.movieTitle}>{movie.title}</h3>
-          <p className={styles.movieYear}>Year: {movie.year}</p>
-          <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
-          <p className={styles.movieDescription}>{movie.description}</p>
-          <Link to={`/movie/${movie.slug}`}>
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  return (
+    <Card
+      sx={{
+        display: isFeatured && !isSmallScreen ? "flex" : "block",
+        flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
+        borderRadius: 2,
+        overflow: "hidden",
+        boxShadow: 3,
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
+      <CardMedia
+        component="img"
+        image={movie.image}
+        alt={movie.title}
+        sx={{
+          width: isFeatured && !isSmallScreen ? "40%" : "100%",
+          height: isFeatured && !isSmallScreen ? "auto" : 280,
+          objectFit: "cover",
+        }}
+      />
+
+      <CardContent
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: 1,
+          p: isFeatured ? 3 : 2,
+        }}
+      >
+        <Typography
+          variant={isFeatured ? "h5" : "h6"}
+          sx={{
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+          }}
+        >
+          {movie.title}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.text.secondary }}
+        >
+          Year: {movie.year}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.secondary.main }}
+        >
+          ⭐ {movie.rating}/10
+        </Typography>
+
+        {isFeatured && (
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.primary, mt: 1 }}
+          >
+            {movie.description}
+          </Typography>
+        )}
+
+        {!isFeatured && (
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.primary }}
+          >
+            {movie.genre}
+          </Typography>
+        )}
+
+        <Box sx={{ mt: 2 }}>
+          <Link to={`/movie/${movie.slug}`} style={{ textDecoration: "none" }}>
             <Button
               variant="contained"
               sx={{
-                backgroundColor: "#f5c518",
-                color: "#222",
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.mode === "dark" ? "#000" : "#fff",
                 fontWeight: 600,
                 borderRadius: "6px",
                 textTransform: "none",
                 px: 2.5,
                 py: 1,
-                mt: 1.5,
                 boxShadow: "none",
                 "&:hover": {
-                  backgroundColor: "#ffe082",
-                  color: "#111",
+                  backgroundColor: theme.palette.secondary.main,
+                  color:
+                    theme.palette.mode === "dark"
+                      ? theme.palette.background.default
+                      : "#111",
                   boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
                 },
               }}
@@ -39,43 +114,8 @@ export default function MovieCard({ movie, isFeatured = false }) {
               Read More
             </Button>
           </Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.movieCard}>
-      <img src={movie.image} alt={movie.title} className={styles.movieImage} />
-      <div className={styles.movieInfo}>
-        <h3 className={styles.movieTitle}>{movie.title}</h3>
-        <p className={styles.movieYear}>Year: {movie.year}</p>
-        <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
-        <p className={styles.movieGenres}>{movie.genre}</p>
-        <Link to={`/movie/${movie.slug}`}>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: "#f5c518",
-              color: "#222",
-              fontWeight: 600,
-              borderRadius: "6px",
-              textTransform: "none",
-              px: 2.5,
-              py: 1,
-              mt: 1.5,
-              boxShadow: "none",
-              "&:hover": {
-                backgroundColor: "#ffe082",
-                color: "#111",
-                boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
-              },
-            }}
-          >
-            Read More
-          </Button>
-        </Link>
-      </div>
-    </div>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }

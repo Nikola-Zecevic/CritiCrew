@@ -32,6 +32,28 @@ function Modal({ isOpen, onClose, movie }) {
           overflowY: "auto",
           position: "relative",
           animation: "modalSlideIn 0.3s ease-out",
+
+          /* custom scrollbar styling (kept) */
+          "&::-webkit-scrollbar": {
+            width: "10px",
+            height: "10px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: theme.palette.mode === "dark" ? "#0b0b0b" : "#f1f1f1",
+            borderRadius: 8,
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: theme.palette.primary.main,
+            borderRadius: 8,
+            border: `2px solid ${theme.palette.background.default}`,
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: theme.palette.primary.light,
+          },
+
+          /* Firefox fallback */
+          scrollbarWidth: "thin",
+          scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.default}`,
         },
       }}
       BackdropProps={{

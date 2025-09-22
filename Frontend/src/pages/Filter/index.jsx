@@ -3,14 +3,19 @@ import { useNavigate } from "react-router-dom";
 import allMovies from "../../services/moviesService";
 import "../../styles/Filter.css";
 import MovieCard from "../../components/MovieCard";
-import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
+import {
+  Button,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  Paper,
+  useTheme,
+} from "@mui/material";
 
 function Filter() {
   const [visibleCount, setVisibleCount] = useState(6);
@@ -18,14 +23,10 @@ function Filter() {
   const [showGenreBox, setShowGenreBox] = useState(false);
   const [sortRating, setSortRating] = useState("");
   const navigate = useNavigate();
+  const theme = useTheme();
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 3);
-  };
-
-  function handleMovieClick(movie) {
-    navigate(`/movie/${movie.slug}`);
-  }
+  const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
+  const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
 
   const allGenres = Array.from(
     new Set(
@@ -63,12 +64,15 @@ function Filter() {
             ? `Selected Genres: ${selectedGenres.join(", ")}`
             : "All Movies"}
         </h2>
-        <div
-          style={{
+
+        {/* Control Buttons */}
+        <Box
+          sx={{
             display: "flex",
             justifyContent: "center",
+            flexWrap: "wrap",
             gap: "1rem",
-            marginBottom: "1.5rem",
+            mb: "1.5rem",
           }}
         >
           <Button
@@ -93,10 +97,19 @@ function Filter() {
           >
             Reset filter
           </Button>
-        </div>
+        </Box>
 
+        {/* Genre Box */}
         {showGenreBox && (
-          <div className="genre-box">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              mb: 3,
+              bgcolor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+            }}
+          >
             <FormGroup>
               {allGenres.map((genre) => (
                 <FormControlLabel
@@ -116,14 +129,15 @@ function Filter() {
                 />
               ))}
             </FormGroup>
-          </div>
+          </Paper>
         )}
 
-        <div
-          style={{
+        {/* Sort by Rating */}
+        <Box
+          sx={{
             display: "flex",
             justifyContent: "center",
-            marginBottom: "1.5rem",
+            mb: "1.5rem",
             gap: "1rem",
           }}
         >
@@ -141,24 +155,33 @@ function Filter() {
               <MenuItem value="desc">Rating: High to Low</MenuItem>
             </Select>
           </FormControl>
-        </div>
+        </Box>
 
-        <div className="movies-grid">
+        {/* Movies Grid */}
+        <Box
+          className="movies-grid"
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1.5rem",
+          }}
+        >
           {filteredMovies.length === 0 ? (
             <p className="no-results">No movies found.</p>
           ) : (
             filteredMovies.slice(0, visibleCount).map((movie) => (
-              <div
+              <Box
                 key={movie.id}
                 onClick={() => handleMovieClick(movie)}
-                style={{ cursor: "pointer" }}
+                sx={{ cursor: "pointer" }}
               >
                 <MovieCard movie={movie} />
-              </div>
+              </Box>
             ))
           )}
-        </div>
+        </Box>
 
+        {/* Load More Button */}
         {visibleCount < filteredMovies.length && filteredMovies.length > 0 && (
           <Button
             variant="contained"
