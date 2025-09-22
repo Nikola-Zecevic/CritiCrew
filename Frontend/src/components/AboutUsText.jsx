@@ -1,4 +1,10 @@
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { useThemeContext } from "../contexts/ThemeContext";
+
 function AboutUsText({ section }) {
+  const { mode } = useThemeContext();
+
   const texts = {
     first: [
       "We're a small team of film enthusiasts who believe a great movie is more than entertainment—it's a shared experience that brings people together. It all started with our own movie nights, where we saw how powerful stories could spark laughter, debate, and create lasting memories.",
@@ -11,13 +17,21 @@ function AboutUsText({ section }) {
   };
 
   return (
-    <div className="text-content">
+    <Box sx={{ flex: 1, padding: "20px" }}>
       {texts[section].map((text, index) => (
-        <p key={index} className="hero-text">
+        <Typography
+          key={index}
+          sx={{
+            fontSize: "1.1rem",
+            lineHeight: 1.6,
+            marginBottom: "1.5rem",
+            color: mode === "dark" ? "#FFD700" : "#000000", // GOLD in dark, BLACK in light
+          }}
+        >
           {text}
-        </p>
+        </Typography>
       ))}
-    </div>
+    </Box>
   );
 }
 
