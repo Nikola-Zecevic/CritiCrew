@@ -6,11 +6,13 @@ import {
   IconButton,
   Typography,
   Box,
+  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserReviews from "./UserReviews";
 
 function Modal({ isOpen, onClose, movie }) {
+  const theme = useTheme();
   if (!movie) return null;
 
   return (
@@ -21,9 +23,9 @@ function Modal({ isOpen, onClose, movie }) {
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: "#1a1a1a",
-          border: "2px solid #f5c518",
-          borderRadius: "12px",
+          bgcolor: theme.palette.background.default,
+          border: `2px solid ${theme.palette.primary.main}`,
+          borderRadius: 3,
           maxWidth: "900px",
           width: "90%",
           maxHeight: "90vh",
@@ -34,7 +36,10 @@ function Modal({ isOpen, onClose, movie }) {
       }}
       BackdropProps={{
         sx: {
-          backgroundColor: "rgba(0,0,0,0.9)",
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? "rgba(0,0,0,0.9)"
+              : "rgba(0,0,0,0.5)",
           backdropFilter: "blur(2px)",
         },
       }}
@@ -47,8 +52,8 @@ function Modal({ isOpen, onClose, movie }) {
           position: "absolute",
           top: "1.2rem",
           left: "1.2rem",
-          bgcolor: "#f5c518",
-          color: "#000",
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.getContrastText(theme.palette.primary.main),
           borderRadius: "50%",
           width: 40,
           height: 40,
@@ -56,7 +61,7 @@ function Modal({ isOpen, onClose, movie }) {
           fontWeight: "bold",
           zIndex: 10,
           "&:hover": {
-            bgcolor: "#ffdf5e",
+            bgcolor: theme.palette.primary.light,
             transform: "scale(1.1)",
           },
         }}
@@ -72,7 +77,7 @@ function Modal({ isOpen, onClose, movie }) {
           alignItems: "center",
           gap: 0.5,
           p: "2rem 2rem 1rem",
-          borderBottom: "1px solid #333",
+          borderBottom: `1px solid ${theme.palette.divider}`,
           textAlign: "center",
         }}
       >
@@ -82,7 +87,7 @@ function Modal({ isOpen, onClose, movie }) {
           sx={{
             fontSize: { xs: "2rem", md: "2.5rem" },
             fontWeight: 700,
-            color: "#f5c518",
+            color: theme.palette.primary.main,
             mb: 0.5,
             letterSpacing: 0.5,
           }}
@@ -92,7 +97,7 @@ function Modal({ isOpen, onClose, movie }) {
         <Typography
           variant="subtitle1"
           sx={{
-            color: "#ccc",
+            color: theme.palette.text.secondary,
             fontSize: "1.1rem",
             mb: 0.5,
           }}
@@ -102,8 +107,11 @@ function Modal({ isOpen, onClose, movie }) {
         <Box
           sx={{
             display: "inline-block",
-            color: "#f5c518",
-            backgroundColor: "rgba(245, 197, 24, 0.2)",
+            color: theme.palette.primary.main,
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(245, 197, 24, 0.2)"
+                : theme.palette.action.hover,
             px: 2,
             py: 1,
             borderRadius: 2.5,
@@ -137,19 +145,19 @@ function Modal({ isOpen, onClose, movie }) {
               width: "100%",
               maxWidth: { xs: 200, md: 280 },
               height: "auto",
-              borderRadius: "8px",
-              boxShadow: "0 8px 25px rgba(0,0,0,0.5)",
+              borderRadius: 2,
+              boxShadow: theme.shadows[6],
               mt: { xs: 0, md: 2 },
             }}
           />
         </Box>
 
         {/* Details */}
-        <Box sx={{ color: "#ccc", mt: 0 }}>
+        <Box sx={{ color: theme.palette.text.secondary, mt: 0 }}>
           <Typography
             variant="h6"
             sx={{
-              color: "#f5c518",
+              color: theme.palette.primary.main,
               fontWeight: "bold",
               fontSize: "1.5rem",
               mt: 3,
@@ -164,7 +172,7 @@ function Modal({ isOpen, onClose, movie }) {
               fontSize: "1.1rem",
               mt: 1,
               mb: 3.5,
-              color: "#ccc",
+              color: theme.palette.text.secondary,
             }}
           >
             {movie.description || "No description available."}
@@ -175,33 +183,39 @@ function Modal({ isOpen, onClose, movie }) {
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 1,
               }}
             >
-              <strong style={{ color: "#f5c518" }}>Genre:</strong>{" "}
+              <strong style={{ color: theme.palette.primary.main }}>
+                Genre:
+              </strong>{" "}
               {movie.genre || "Drama"}
             </Box>
             <Box
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 1,
               }}
             >
-              <strong style={{ color: "#f5c518" }}>Duration:</strong>{" "}
+              <strong style={{ color: theme.palette.primary.main }}>
+                Duration:
+              </strong>{" "}
               {movie.duration || "142 min"}
             </Box>
             <Box
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
+                bgcolor: theme.palette.background.paper,
+                borderRadius: 1,
               }}
             >
-              <strong style={{ color: "#f5c518" }}>Director:</strong>{" "}
+              <strong style={{ color: theme.palette.primary.main }}>
+                Director:
+              </strong>{" "}
               {movie.director || "Frank Darabont"}
             </Box>
           </Box>
@@ -209,14 +223,14 @@ function Modal({ isOpen, onClose, movie }) {
           <Box
             sx={{
               pt: 0.5,
-              borderTop: "2.5px solid #f5c518",
+              borderTop: `2.5px solid ${theme.palette.primary.main}`,
               mt: 2,
             }}
           >
             <Typography
               variant="h6"
               sx={{
-                color: "#f5c518",
+                color: theme.palette.primary.main,
                 fontWeight: "bold",
                 fontSize: "1.5rem",
                 mt: 1.5,
