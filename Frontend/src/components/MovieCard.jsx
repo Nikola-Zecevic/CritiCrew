@@ -1,40 +1,63 @@
+
+import React from "react";
 import { Link } from "react-router-dom";
-import styles from "../styles/Page.module.css";
+import Card from "@mui/material/Card";
+import CardMedia from "@mui/material/CardMedia";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 
 export default function MovieCard({ movie, isFeatured = false }) {
   if (isFeatured) {
     return (
-      <div className={styles.featuredMovie}>
-        <img
-          src={movie.image}
+      <Card sx={{ display: 'flex', mb: 3, boxShadow: 6, borderRadius: 3, background: '#232323', color: '#fff' }}>
+        <CardMedia
+          component="img"
+          image={movie.image}
           alt={movie.title}
-          className={styles.featuredImage}
+          sx={{ width: 220, borderRadius: 3, objectFit: 'cover', m: 2 }}
         />
-        <div className={styles.featuredInfo}>
-          <h3 className={styles.movieTitle}>{movie.title}</h3>
-          <p className={styles.movieYear}>Year: {movie.year}</p>
-          <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
-          <p className={styles.movieDescription}>{movie.description}</p>
-          <Link to={`/movie/${movie.slug}`} className={styles.readMoreBtn}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1, p: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>{movie.title}</Typography>
+          <Typography variant="subtitle2" color="#f5c518" sx={{ mb: 1 }}>Year: {movie.year}</Typography>
+          <Typography variant="body2" sx={{ color: '#f5c518', mb: 1 }}>★ {movie.rating}/10</Typography>
+          <Typography variant="body2" sx={{ mb: 2 }}>{movie.description}</Typography>
+          <Button
+            component={Link}
+            to={`/movie/${movie.slug}`}
+            variant="contained"
+            sx={{ background: '#f5c518', color: '#000', fontWeight: 'bold', borderRadius: 2, mt: 1, width: 140 }}
+          >
             Read More
-          </Link>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Card>
     );
   }
 
   return (
-    <div className={styles.movieCard}>
-      <img src={movie.image} alt={movie.title} className={styles.movieImage} />
-      <div className={styles.movieInfo}>
-        <h3 className={styles.movieTitle}>{movie.title}</h3>
-        <p className={styles.movieYear}>Year: {movie.year}</p>
-        <p className={styles.movieRating}>⭐ {movie.rating}/10</p>
-        <p className={styles.movieGenres}>{movie.genre}</p>
-        <Link to={`/movie/${movie.slug}`} className={styles.readMoreBtn}>
+    <Card sx={{ maxWidth: 320, m: 2, boxShadow: 3, borderRadius: 3, background: '#232323', color: '#fff' }}>
+      <CardMedia
+        component="img"
+        image={movie.image}
+        alt={movie.title}
+        sx={{ height: 340, objectFit: 'cover' }}
+      />
+      <CardContent>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>{movie.title}</Typography>
+        <Typography variant="subtitle2" color="#f5c518" sx={{ mb: 1 }}>Year: {movie.year}</Typography>
+        <Typography variant="body2" sx={{ color: '#f5c518', mb: 1 }}>★ {movie.rating}/10</Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>{movie.genre}</Typography>
+        <Button
+          component={Link}
+          to={`/movie/${movie.slug}`}
+          variant="contained"
+          sx={{ background: '#f5c518', color: '#000', fontWeight: 'bold', borderRadius: 2, mt: 1 }}
+        >
           Read More
-        </Link>
-      </div>
-    </div>
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
