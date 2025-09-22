@@ -1,64 +1,57 @@
+
 import React from "react";
-import "../styles/Modal.css";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Box from "@mui/material/Box";
 import UserReviews from "./UserReviews";
 
 function Modal({ isOpen, onClose, movie }) {
   if (!isOpen) return null;
 
-  function handleOverlayClick(e) {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  }
-
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>
-          ✕
-        </button>
-
-        <div className="modal-header">
-          <h2 className="modal-title">{movie?.title}</h2>
-          <p className="modal-year">{movie?.year}</p>
-          <div className="modal-rating">⭐ {movie?.rating}/10</div>
-        </div>
-
-        <div className="modal-body">
-          <div className="modal-image">
-            <img
-              src={movie?.image}
-              alt={movie?.title}
-              className="modal-poster"
-            />
-          </div>
-
-          <div className="modal-details">
-            <h3>Description</h3>
-            <p className="modal-description">
-              {movie?.description || "No description available."}
-            </p>
-
-            <div className="modal-info">
-              <div className="info-item">
-                <strong>Genre:</strong> {movie?.genre || "Drama"}
-              </div>
-              <div className="info-item">
-                <strong>Duration:</strong> {movie?.duration || "142 min"}
-              </div>
-              <div className="info-item">
-                <strong>Director:</strong> {movie?.director || "Frank Darabont"}
-              </div>
-            </div>
-
-            <div className="modal-reviews">
-              <h3>User Reviews</h3>
-              <UserReviews movieId={movie?.id} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 0 }}>
+        <Box>
+          <Typography variant="h5" component="div">{movie?.title}</Typography>
+          <Typography variant="subtitle2" color="text.secondary">{movie?.year}</Typography>
+          <Typography variant="body2" sx={{ color: '#f5c518', fontWeight: 'bold', mt: 0.5 }}>
+            ★ {movie?.rating}/10
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} size="large">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
+        <Box sx={{ minWidth: 220, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+          <img
+            src={movie?.image}
+            alt={movie?.title}
+            style={{ width: 200, borderRadius: 12, boxShadow: '0 2px 12px #0008' }}
+          />
+        </Box>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>Description</Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {movie?.description || "No description available."}
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2"><strong>Genre:</strong> {movie?.genre || "Drama"}</Typography>
+            <Typography variant="body2"><strong>Duration:</strong> {movie?.duration || "142 min"}</Typography>
+            <Typography variant="body2"><strong>Director:</strong> {movie?.director || "Frank Darabont"}</Typography>
+          </Box>
+          <Box>
+            <Typography variant="h6" sx={{ mb: 1 }}>User Reviews</Typography>
+            <UserReviews movieId={movie?.id} />
+          </Box>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -1,9 +1,11 @@
+
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Pagination";
-import styles from "../../styles/Page.module.css";
 import allMovies from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 function Home() {
   const navigate = useNavigate();
@@ -26,39 +28,40 @@ function Home() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>🎬 Movie of the Day</h2>
-        <div
-          onClick={() => handleMovieClick(allMovies[0])}
-          style={{ cursor: "pointer" }}
-        >
+    <Box sx={{ minHeight: '100vh', background: '#181818', py: 4, px: { xs: 1, sm: 3 } }}>
+      {/* Movie of the Day */}
+      <Box sx={{ mb: 6, background: '#232323', borderRadius: 3, p: { xs: 2, sm: 4 }, boxShadow: 3 }}>
+        <Typography variant="h4" sx={{ color: '#f5c518', fontWeight: 'bold', mb: 3, letterSpacing: 1 }}>
+          🎬 Movie of the Day
+        </Typography>
+        <Box onClick={() => handleMovieClick(allMovies[0])} sx={{ cursor: 'pointer' }}>
           <MovieCard movie={allMovies[0]} isFeatured />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>🔥 Top Rated Movies</h2>
-
-        <div className={styles.movieGrid}>
+      {/* Top Rated Movies */}
+      <Box sx={{ background: '#232323', borderRadius: 3, p: { xs: 2, sm: 4 }, boxShadow: 3 }}>
+        <Typography variant="h4" sx={{ color: '#f5c518', fontWeight: 'bold', mb: 3, letterSpacing: 1 }}>
+          🔥 Top Rated Movies
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center', mb: 3 }}>
           {currentMovies.map((movie) => (
-            <div
+            <Box
               key={movie.id}
               onClick={() => handleMovieClick(movie)}
-              style={{ cursor: "pointer" }}
+              sx={{ cursor: 'pointer' }}
             >
               <MovieCard movie={movie} />
-            </div>
+            </Box>
           ))}
-        </div>
-
+        </Box>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 

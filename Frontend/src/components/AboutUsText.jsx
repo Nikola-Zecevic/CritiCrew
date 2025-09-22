@@ -1,3 +1,7 @@
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 function AboutUsText({ section }) {
   const texts = {
     first: [
@@ -11,13 +15,21 @@ function AboutUsText({ section }) {
   };
 
   return (
-    <div className="text-content">
+    <Box sx={{ flex: 1, padding: '20px' }}>
       {texts[section].map((text, index) => (
-        <p key={index} className="hero-text">
+        <Typography
+          key={index}
+          sx={{
+            fontSize: '1.1rem',
+            lineHeight: 1.6,
+            marginBottom: '1.5rem',
+            color: '#fff',
+          }}
+        >
           {text}
-        </p>
+        </Typography>
       ))}
-    </div>
+    </Box>
   );
 }
 

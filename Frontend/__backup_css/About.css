@@ -35,7 +35,7 @@
   margin-bottom: 60px;
   padding: 20px;
   border-radius: 10px;
-  background: #fff;
+  background: #474747;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
@@ -53,12 +53,6 @@
   padding: 20px;
 }
 
-.hero-text {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  color: #555;
-}
 
 .image-container {
   flex: 1;

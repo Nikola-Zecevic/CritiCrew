@@ -1,14 +1,54 @@
+
 import React from 'react';
+import Box from '@mui/material/Box';
 import AboutUsText from './AboutUsText';
 
 function AboutUsSection({ imageLink, reverse = false, section }) {
     return (
-        <div className={`section ${reverse ? 'reverse' : ''}`}>
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '40px',
+                marginBottom: '60px',
+                padding: '20px',
+                borderRadius: '10px',
+                background: '#474747',
+                boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                flexDirection: reverse ? 'row-reverse' : 'row',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                    transform: 'translateY(-5px)',
+                },
+                '@media (max-width: 768px)': {
+                    flexDirection: 'column',
+                },
+            }}
+        >
             <AboutUsText section={section} />
-            <div className="image-container">
-                <img src={imageLink} alt="Cinema" className="image" />
-            </div>
-        </div>
+            <Box
+                sx={{
+                    flex: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    borderRadius: '10px',
+                }}
+            >
+                <img
+                    src={imageLink}
+                    alt="Cinema"
+                    style={{
+                        maxWidth: '100%',
+                        height: 'auto',
+                        borderRadius: '10px',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                        transition: 'transform 0.3s ease',
+                    }}
+                />
+            </Box>
+        </Box>
     );
 }
 

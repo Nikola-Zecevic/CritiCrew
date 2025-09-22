@@ -1,27 +1,51 @@
+
 import React from "react";
-import cinemaImage from "../../public/images/cinema.jpg";
-import cinemaPeopleImage from "../../public/images/cinemappl.jpeg";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import AboutUsSection from "./AboutUsSection";
 import AboutUsContact from "./AboutUsContact";
 
 function AboutUsInfo() {
   return (
-    <div className="page">
-      <h1 className="hero-title">About Us</h1>
-
-      <AboutUsSection 
-        imageLink={cinemaImage} 
-        reverse={false} 
-        section="first" 
-      />
-
-      <AboutUsSection
-        imageLink={cinemaPeopleImage}
-        reverse={true}
-        section="second"
-      />
+    <Box
+      sx={{
+        maxWidth: 1200,
+        margin: '0 auto',
+        padding: '20px',
+        fontFamily: 'Arial, sans-serif',
+        color: '#333',
+        lineHeight: 1.6,
+      }}
+    >
+      <Typography
+        variant="h1"
+        sx={{
+          textAlign: 'center',
+          fontSize: '2.5rem',
+          marginBottom: '2rem',
+          color: '#ffdf5e',
+          position: 'relative',
+          paddingBottom: '15px',
+          '&:after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 100,
+            height: 4,
+            background: 'linear-gradient(90deg, #ffeb99, #eebe00)',
+            borderRadius: 2,
+            display: 'block',
+          },
+        }}
+      >
+        About Us
+      </Typography>
+      <AboutUsSection imageLink="/images/cinema.jpg" reverse={false} section="first" />
+      <AboutUsSection imageLink="/images/cinemappl.jpeg" reverse={true} section="second" />
       <AboutUsContact />
-    </div>
+    </Box>
   );
 }
 
