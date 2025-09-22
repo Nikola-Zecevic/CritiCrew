@@ -23,17 +23,15 @@ export default function AuthenticationPage() {
         alert(result.message);
       }
     } else {
-      // For now, fake signup: just alert and redirect
-      // Later, we can add logic to insert new user
       alert("Account created successfully! Please login.");
       navigate("/auth?mode=login");
     }
   }
 
   return (
-    // <AuthForm mode={mode} onSubmit={handleSubmit} />
-    <div className="auth-container">
-      <AuthForm mode={mode} onSubmit={handleSubmit} />
-    </div>
+    <AuthForm mode={mode} onSubmit={handleSubmit} />
+    // <div className="auth-container">
+    //   <AuthForm mode={mode} onSubmit={handleSubmit} />
+    // </div>
   );
 }
