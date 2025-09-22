@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   color: #333;
   line-height: 1.6;
 }
@@ -17,7 +17,7 @@
 }
 
 .hero-title:after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -79,16 +79,17 @@
   flex-direction: row-reverse;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
-  .section, .reverse {
+  .section,
+  .reverse {
     flex-direction: column;
   }
   .hero-title {
     font-size: 2rem;
   }
-  
-  .text-content, .image-container {
+
+  .text-content,
+  .image-container {
     width: 100%;
   }
 }

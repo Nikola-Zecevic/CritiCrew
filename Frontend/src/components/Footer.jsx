@@ -1,51 +1,120 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
-import "../styles/footer.css";
+import { Box, Typography, useTheme } from "@mui/material";
 
 export default function Footer() {
+  const theme = useTheme();
+
   return (
-    <footer className="footer">
-      <div className="footer-content">
+    <Box
+      component="footer"
+      sx={{
+        bgcolor: theme.palette.background.default,
+        borderTop: `2px solid ${theme.palette.primary.main}`,
+        color: theme.palette.text.primary,
+        padding: "2rem 0 1rem",
+        marginTop: "auto",
+      }}
+    >
+      <Box
+        className="footer-content"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 4,
+          flexWrap: "wrap",
+          mb: 2,
+          px: 2,
+        }}
+      >
         {/* CritiCrew info */}
-        <div className="footer-section">
-          <h3>CritiCrew</h3>
-          <p>
+        <Box sx={{ minWidth: 220 }}>
+          <Typography
+            variant="h5"
+            sx={{ color: theme.palette.primary.main, mb: 1, fontWeight: 700 }}
+          >
+            CritiCrew
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.secondary, lineHeight: 1.6 }}
+          >
             Your ultimate destination for movie ratings, reviews, and
             information.
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Quick links */}
-        <div className="footer-section">
-          <h4>Quick Links</h4>
-          <ul>
-            <li>
-              <RouterLink to="/">Home</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/filter">Filter</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/random">Random Movie</RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/about">About Us</RouterLink>
-            </li>
-          </ul>
-        </div>
+        <Box sx={{ minWidth: 180 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: theme.palette.primary.main,
+              mb: 1,
+              fontWeight: 600,
+              fontSize: "1.2rem",
+            }}
+          >
+            Quick Links
+          </Typography>
+          <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0 }}>
+            {[
+              { label: "Home", to: "/" },
+              { label: "Filter", to: "/filter" },
+              { label: "Random Movie", to: "/random" },
+              { label: "About Us", to: "/about" },
+            ].map((link) => (
+              <Box component="li" sx={{ mb: 1 }} key={link.to}>
+                <RouterLink to={link.to} style={{ textDecoration: "none" }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      transition: "color 0.3s",
+                      "&:hover": { color: theme.palette.primary.main },
+                    }}
+                  >
+                    {link.label}
+                  </Box>
+                </RouterLink>
+              </Box>
+            ))}
+          </Box>
+        </Box>
 
         {/* Social links */}
-        <div className="footer-section follow-us">
-          <h4>Follow Us</h4>
+        <Box sx={{ minWidth: 180 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              color: theme.palette.primary.main,
+              mb: 1,
+              fontWeight: 600,
+              fontSize: "1.2rem",
+            }}
+          >
+            Follow Us
+          </Typography>
           <SocialLinks />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Footer bottom */}
-      <div className="footer-bottom">
-        <p>© 2025 CritiCrew. All rights reserved.</p>
-      </div>
-    </footer>
+      <Box
+        sx={{
+          borderTop: `1px solid ${theme.palette.divider}`,
+          pt: 1,
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.text.secondary, m: 0 }}
+        >
+          © 2025 CritiCrew. All rights reserved.
+        </Typography>
+      </Box>
+    </Box>
   );
 }

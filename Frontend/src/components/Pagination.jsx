@@ -1,87 +1,46 @@
 import React from "react";
-import "../styles/Pagination.css";
+import { Pagination as MuiPagination, Box, useTheme } from "@mui/material";
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
-  const maxVisiblePages = 5;
-
-  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-  if (endPage - startPage + 1 < maxVisiblePages) {
-    startPage = Math.max(1, endPage - maxVisiblePages + 1);
-  }
-
-  const pageNumbers = [];
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
-
-  function handlePageClick(page) {
-    if (page >= 1 && page <= totalPages && page !== currentPage) {
-      onPageChange(page);
-    }
-  }
+  const theme = useTheme();
 
   return (
-    <div className="pagination">
-      <button
-        className={`pagination-button ${currentPage === 1 ? "disabled" : ""}`}
-        onClick={() => handlePageClick(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        ← Previous
-      </button>
-
-      <div className="pagination-numbers">
-        {startPage > 1 && (
-          <>
-            <button
-              className="pagination-number"
-              onClick={() => handlePageClick(1)}
-            >
-              1
-            </button>
-            {startPage > 2 && <span className="pagination-ellipsis">...</span>}
-          </>
-        )}
-
-        {pageNumbers.map((page) => (
-          <button
-            key={page}
-            className={`pagination-number ${
-              currentPage === page ? "active" : ""
-            }`}
-            onClick={() => handlePageClick(page)}
-          >
-            {page}
-          </button>
-        ))}
-
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && (
-              <span className="pagination-ellipsis">...</span>
-            )}
-            <button
-              className="pagination-number"
-              onClick={() => handlePageClick(totalPages)}
-            >
-              {totalPages}
-            </button>
-          </>
-        )}
-      </div>
-
-      <button
-        className={`pagination-button ${
-          currentPage === totalPages ? "disabled" : ""
-        }`}
-        onClick={() => handlePageClick(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      >
-        Next →
-      </button>
-    </div>
+    <Box
+      aria-label="pagination"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        my: 4,
+      }}
+    >
+      <MuiPagination
+        count={totalPages}
+        page={currentPage}
+        onChange={(e, page) => onPageChange(page)}
+        siblingCount={1}
+        boundaryCount={1}
+        showFirstButton
+        showLastButton
+        shape="rounded"
+        sx={{
+          "& .MuiPaginationItem-root": {
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
+            fontWeight: "bold",
+          },
+          "& .Mui-selected": {
+            bgcolor: "#f5c518 !important",
+            color: "#000",
+            borderColor: "#f5c518",
+          },
+          "& .MuiPaginationItem-root:hover": {
+            borderColor: "#f5c518",
+            color: "#f5c518",
+          },
+        }}
+      />
+    </Box>
   );
 }
 
