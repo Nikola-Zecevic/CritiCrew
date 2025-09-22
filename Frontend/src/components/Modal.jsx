@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserReviews from "./UserReviews";
-import "../styles/Modal.css";
 
 function Modal({ isOpen, onClose, movie }) {
   if (!movie) return null;
@@ -20,27 +19,53 @@ function Modal({ isOpen, onClose, movie }) {
       onClose={onClose}
       maxWidth="md"
       fullWidth
-      slotProps={{
-        paper: {
-          className: "modal-content", // layout + animation in CSS
-          sx: {
-            bgcolor: "background.paper", // theme-aware
-            border: "2px solid #f5c518",
-          },
+      PaperProps={{
+        sx: {
+          bgcolor: "#1a1a1a",
+          border: "2px solid #f5c518",
+          borderRadius: "12px",
+          maxWidth: "900px",
+          width: "90%",
+          maxHeight: "90vh",
+          overflowY: "auto",
+          position: "relative",
+          animation: "modalSlideIn 0.3s ease-out",
         },
-        backdrop: {
-          className: "modal-overlay",
+      }}
+      BackdropProps={{
+        sx: {
+          backgroundColor: "rgba(0,0,0,0.9)",
+          backdropFilter: "blur(2px)",
         },
       }}
     >
       {/* Close button */}
-      <IconButton aria-label="close" onClick={onClose} className="modal-close">
+      <IconButton
+        aria-label="close"
+        onClick={onClose}
+        sx={{
+          position: "absolute",
+          top: "1.2rem",
+          left: "1.2rem",
+          bgcolor: "#f5c518",
+          color: "#000",
+          borderRadius: "50%",
+          width: 40,
+          height: 40,
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+          zIndex: 10,
+          "&:hover": {
+            bgcolor: "#ffdf5e",
+            transform: "scale(1.1)",
+          },
+        }}
+      >
         <CloseIcon />
       </IconButton>
 
       {/* Header */}
       <DialogTitle
-        className="modal-header"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -92,14 +117,35 @@ function Modal({ isOpen, onClose, movie }) {
       </DialogTitle>
 
       {/* Body */}
-      <DialogContent className="modal-body">
+      <DialogContent
+        sx={{
+          p: { xs: "1rem", md: "2rem" },
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "300px 1fr" },
+          gap: "2rem",
+          alignItems: "flex-start",
+          textAlign: { xs: "center", md: "left" },
+        }}
+      >
         {/* Poster */}
-        <Box className="modal-image">
-          <img src={movie.image} alt={movie.title} className="modal-poster" />
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Box
+            component="img"
+            src={movie.image}
+            alt={movie.title}
+            sx={{
+              width: "100%",
+              maxWidth: { xs: 200, md: 280 },
+              height: "auto",
+              borderRadius: "8px",
+              boxShadow: "0 8px 25px rgba(0,0,0,0.5)",
+              mt: { xs: 0, md: 2 },
+            }}
+          />
         </Box>
 
         {/* Details */}
-        <Box className="modal-details">
+        <Box sx={{ color: "#ccc", mt: 0 }}>
           <Typography
             variant="h6"
             sx={{
@@ -124,33 +170,63 @@ function Modal({ isOpen, onClose, movie }) {
             {movie.description || "No description available."}
           </Typography>
 
-          <div className="modal-info">
-            <div className="info-item">
-              <strong>Genre:</strong> {movie.genre || "Drama"}
-            </div>
-            <div className="info-item">
-              <strong>Duration:</strong> {movie.duration || "142 min"}
-            </div>
-            <div className="info-item">
-              <strong>Director:</strong> {movie.director || "Frank Darabont"}
-            </div>
-          </div>
+          <Box>
+            <Box
+              sx={{
+                mb: 0.5,
+                p: 0.5,
+                background: "#2a2a2a",
+                borderRadius: "4px",
+              }}
+            >
+              <strong style={{ color: "#f5c518" }}>Genre:</strong>{" "}
+              {movie.genre || "Drama"}
+            </Box>
+            <Box
+              sx={{
+                mb: 0.5,
+                p: 0.5,
+                background: "#2a2a2a",
+                borderRadius: "4px",
+              }}
+            >
+              <strong style={{ color: "#f5c518" }}>Duration:</strong>{" "}
+              {movie.duration || "142 min"}
+            </Box>
+            <Box
+              sx={{
+                mb: 0.5,
+                p: 0.5,
+                background: "#2a2a2a",
+                borderRadius: "4px",
+              }}
+            >
+              <strong style={{ color: "#f5c518" }}>Director:</strong>{" "}
+              {movie.director || "Frank Darabont"}
+            </Box>
+          </Box>
 
-          <div className="modal-reviews">
+          <Box
+            sx={{
+              pt: 0.5,
+              borderTop: "2.5px solid #f5c518",
+              mt: 2,
+            }}
+          >
             <Typography
               variant="h6"
               sx={{
                 color: "#f5c518",
                 fontWeight: "bold",
                 fontSize: "1.5rem",
-                mt: 1.5, // reduced from 3
-                mb: 1.2, // slightly reduced
+                mt: 1.5,
+                mb: 1.2,
               }}
             >
               User Reviews
             </Typography>
             <UserReviews movieId={movie.id} />
-          </div>
+          </Box>
         </Box>
       </DialogContent>
     </Dialog>
