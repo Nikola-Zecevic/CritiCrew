@@ -15,6 +15,7 @@ import {
   Box,
   Paper,
   useTheme,
+  Typography,
 } from "@mui/material";
 
 function Filter() {
@@ -78,7 +79,6 @@ function Filter() {
           <Button
             variant="contained"
             color="primary"
-            className="toggle-genres-btn"
             onClick={() => setShowGenreBox((prev) => !prev)}
           >
             {showGenreBox ? "Hide genres" : "Filter by genres"}
@@ -125,7 +125,6 @@ function Filter() {
                     />
                   }
                   label={genre}
-                  className="genre-option"
                 />
               ))}
             </FormGroup>
@@ -159,21 +158,24 @@ function Filter() {
 
         {/* Movies Grid */}
         <Box
-          className="movies-grid"
           sx={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: "1.5rem",
+            gridTemplateColumns: {
+              xs: "1fr", // mobile
+              sm: "1fr 1fr", // tablet
+              md: "repeat(3, 1fr)", // desktop
+            },
           }}
         >
           {filteredMovies.length === 0 ? (
-            <p className="no-results">No movies found.</p>
+            <Typography>No movies found.</Typography>
           ) : (
             filteredMovies.slice(0, visibleCount).map((movie) => (
               <Box
                 key={movie.id}
                 onClick={() => handleMovieClick(movie)}
-                sx={{ cursor: "pointer" }}
+                sx={{ cursor: "pointer", height: "100%" }}
               >
                 <MovieCard movie={movie} />
               </Box>
@@ -186,7 +188,6 @@ function Filter() {
           <Button
             variant="contained"
             color="secondary"
-            className="load-more"
             onClick={handleLoadMore}
             sx={{
               mt: 3,
