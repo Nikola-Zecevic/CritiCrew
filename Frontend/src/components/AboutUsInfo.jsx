@@ -6,7 +6,8 @@ import AboutUsContact from "./AboutUsContact";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 function AboutUsInfo() {
-  const { theme } = useThemeContext();
+  const { theme, mode } = useThemeContext();
+  const textColor = mode === "dark" ? "#FFD700" : "#333";
 
   return (
     <Box
@@ -28,7 +29,7 @@ function AboutUsInfo() {
 
           fontSize: { xs: "2rem", md: "2.5rem" },
           mb: { xs: 3, md: 4 },
-          color: theme.palette.mode === "dark" ? "#ffdf5e" : "#e6b800",
+          color: textColor,
           position: "relative",
           pb: 2,
 
@@ -41,9 +42,7 @@ function AboutUsInfo() {
             width: 100,
             height: 4,
 
-            background: `linear-gradient(90deg, ${
-              theme.palette.mode === "dark" ? "#ffeb99" : "#ffe066"
-            }, ${theme.palette.mode === "dark" ? "#eebe00" : "#ffbf00"})`,
+            background: `linear-gradient(90deg, ${textColor}, ${textColor})`,
 
             borderRadius: 2,
             display: "block",

@@ -1,13 +1,18 @@
 import React from "react";
 import Button from "@mui/material/Button";
+import { useThemeContext } from "../contexts/ThemeContext.jsx";
 
 export default function RandomMovieButton({ onGetRandomMovie }) {
+  const { mode } = useThemeContext();
+  const buttonColor = mode === "dark" ? "#f5c518" : "#333";
+  const hoverColor = mode === "dark" ? "#ffdf5e" : "#555";
+
   return (
     <Button
       onClick={onGetRandomMovie}
       sx={{
-        background: '#f5c518',
-        color: '#000',
+        background: buttonColor,
+        color: mode === "dark" ? '#000' : '#fff',
         border: 'none',
         borderRadius: '16px',
         fontWeight: 'bold',
@@ -21,7 +26,7 @@ export default function RandomMovieButton({ onGetRandomMovie }) {
         alignItems: 'center',
         justifyContent: 'center',
         '&:hover': {
-          background: '#ffdf5e',
+          background: hoverColor,
           transform: 'scale(1.05)',
         },
       }}
