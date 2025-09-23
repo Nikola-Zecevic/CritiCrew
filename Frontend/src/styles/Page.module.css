@@ -61,6 +61,7 @@
   color: #ccc;
   line-height: 1.6;
   margin-top: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .movieGrid {
@@ -103,6 +104,20 @@
   margin: 0 0 1rem 0;
 }
 
+.movieGenres {
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+  color: #ccc;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.movieYear {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .heroTitle {
     font-size: 2rem;
@@ -123,41 +138,4 @@
   .movieGrid {
     grid-template-columns: 1fr;
   }
-}
-
-.readMoreBtn {
-  background: #f5c518;
-  color: #000;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: all 0.3s ease;
-  width: auto;
-  display: inline-block;
-}
-
-.featuredInfo .readMoreBtn {
-  align-self: flex-start;
-  width: auto;
-}
-
-.readMoreBtn:hover {
-  background: #ffdf5e;
-  transform: translateX(4px);
-}
-
-.movieYear {
-  color: #888;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.movieGenres {
-  margin-top: 0.25rem;
-  color: #ccc;
-  font-size: 1rem;
-  font-weight: bold;
 }

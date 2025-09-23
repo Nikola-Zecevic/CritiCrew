@@ -1,7 +1,10 @@
+
 import React, { useState } from "react";
-import styles from "../../styles/Random.module.css";
 import allMovies from "../../services/moviesService";
 import Modal from "../../components/Modal";
+import RandomMovieContainer from "../../components/RandomMovieContainer";
+import RandomMovieHeader from "../../components/RandomMovieHeader";
+import RandomMovieButton from "../../components/RandomMovieButton";
 
 export default function Random() {
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -16,12 +19,9 @@ export default function Random() {
   };
 
   return (
-    <div className={styles.page}>
-      <h1 className={styles.heroTitle}>Random Movie Picker</h1>
-      <p className={styles.heroText}>Click the button to get a random movie!</p>
-      <button className={styles.squareBtn} onClick={getRandomMovie}>
-        Get Random Movie
-      </button>
+    <RandomMovieContainer>
+      <RandomMovieHeader />
+      <RandomMovieButton onGetRandomMovie={getRandomMovie} />
       {selectedMovie && (
         <Modal
           isOpen={true}
@@ -29,6 +29,6 @@ export default function Random() {
           movie={selectedMovie}
         />
       )}
-    </div>
+    </RandomMovieContainer>
   );
 }

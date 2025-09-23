@@ -1,32 +1,61 @@
+import { Box, Typography, TextField, Button, Link, Paper } from "@mui/material";
+
 export default function AuthForm({ mode, onSubmit }) {
   return (
-    <div className="auth-box">
-      <h1>{mode === "signup" ? "Sign Up" : "Sign In"}</h1>
+    <Paper
+      elevation={4}
+      sx={{
+        p: 4,
+        maxWidth: 400,
+        mx: "auto",
+        mt: 8,
+        borderRadius: 3,
+      }}
+    >
+      <Typography variant="h4" align="center" gutterBottom>
+        {mode === "signup" ? "Sign Up" : "Sign In"}
+      </Typography>
 
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Email or Username</label>
-          <input type="text" name="email" required />
-        </div>
+      <Box
+        component="form"
+        onSubmit={onSubmit}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      >
+        <TextField
+          label="Email or Username"
+          name="email"
+          type="text"
+          required
+          fullWidth
+        />
+        <TextField
+          label="Password"
+          name="password"
+          type="password"
+          required
+          fullWidth
+        />
 
-        <div>
-          <label>Password</label>
-          <input type="password" name="password" required />
-        </div>
-
-        <button type="submit">
+        <Button type="submit" variant="contained" fullWidth>
           {mode === "signup" ? "Create Account" : "Login"}
-        </button>
-        <p>
+        </Button>
+
+        <Typography variant="body2" align="center" sx={{ mt: 2 }}>
           {mode === "login" ? (
-            <a href="/auth?mode=signup">Create new account</a>
+            <Link href="/auth?mode=signup" underline="hover">
+              Create new account
+            </Link>
           ) : (
-            <a href="/auth?mode=login">Already have an account? Login</a>
+            <Link href="/auth?mode=login" underline="hover">
+              Already have an account? Login
+            </Link>
           )}
-          <br></br>
-          <a href="/">Use without an account</a>
-        </p>
-      </form>
-    </div>
+          <br />
+          <Link href="/" underline="hover">
+            Use without an account
+          </Link>
+        </Typography>
+      </Box>
+    </Paper>
   );
 }
