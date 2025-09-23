@@ -1,10 +1,11 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 export default function Footer() {
-  const theme = useTheme();
+  const { theme } = useThemeContext(); // use ThemeContext instead of useTheme
 
   return (
     <Box
@@ -13,8 +14,9 @@ export default function Footer() {
         bgcolor: theme.palette.background.default,
         borderTop: `2px solid ${theme.palette.primary.main}`,
         color: theme.palette.text.primary,
-        padding: "2rem 0 1rem",
-        marginTop: "auto",
+        pt: 4,
+        pb: 2,
+        mt: "auto",
       }}
     >
       <Box
@@ -24,8 +26,8 @@ export default function Footer() {
           justifyContent: "center",
           gap: 4,
           flexWrap: "wrap",
-          mb: 2,
-          px: 2,
+          mb: 3,
+          px: { xs: 2, md: 0 },
         }}
       >
         {/* CritiCrew info */}

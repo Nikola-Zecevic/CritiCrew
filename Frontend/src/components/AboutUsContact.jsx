@@ -1,60 +1,97 @@
-
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import React from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function AboutUsContact() {
+  const { theme } = useThemeContext();
+
   return (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '40px',
-        marginBottom: '60px',
-        padding: '20px',
-        borderRadius: '10px',
-        background: '#474747',
-        boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
-        flexDirection: 'row',
-        transition: 'transform 0.3s ease',
-        '@media (max-width: 768px)': {
-          flexDirection: 'column',
-        },
+        display: "flex",
+        alignItems: "center",
+        gap: { xs: 2, md: "40px" },
+        mb: "60px",
+        p: { xs: 2, md: 3 },
+        borderRadius: 2,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: 3,
+        flexDirection: { xs: "column", md: "row" },
+        transition: "transform 0.3s ease",
+        width: "100%",
+        maxWidth: 1200,
+        mx: "auto",
       }}
     >
-      <Box sx={{ flex: 1, padding: '20px' }}>
+      <Box sx={{ flex: 1, p: { xs: 1, md: 3 } }}>
         <Typography
           variant="h2"
           sx={{
-            fontSize: '2.2rem',
-            color: '#fff',
-            marginBottom: '2rem',
-            textAlign: 'center',
+            fontSize: { xs: "1.8rem", md: "2.2rem" },
+            color: theme.palette.text.primary,
+            mb: 3,
+            textAlign: "center",
             fontWeight: 600,
+            wordWrap: "break-word",
+
           }}
         >
           Contact Us
         </Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Typography sx={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1.5rem' }}>
+
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <Typography
+            sx={{
+              fontSize: { xs: "1rem", md: "1.1rem" },
+              color: theme.palette.text.primary,
+              mb: 2,
+              wordWrap: "break-word",
+              textAlign: { xs: "center", md: "left" },
+            }}
+          >
             <strong>Email:</strong> hello@criticrew.com
           </Typography>
-          <Typography sx={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1.5rem' }}>
+
+          <Typography
+            sx={{
+              fontSize: { xs: "1rem", md: "1.1rem" },
+              color: theme.palette.text.primary,
+              mb: 2,
+              wordWrap: "break-word",
+              textAlign: { xs: "center", md: "left" },
+            }}
+          >
             <strong>Location:</strong> San Francisco, CA
           </Typography>
-          <Typography sx={{ fontSize: '1.1rem', color: '#fff', marginBottom: '1.5rem' }}>
-            Follow us on social media for the latest updates and film discussions:
+
+          <Typography
+            sx={{
+              fontSize: { xs: "0.95rem", md: "1.1rem" },
+              color: theme.palette.text.secondary,
+              mb: 2,
+              textAlign: { xs: "center", md: "left" },
+            }}
+          >
+            Follow us on social media for the latest updates and film
+            discussions:
           </Typography>
+
           <Box
             component="ul"
             sx={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0,
-              display: 'flex',
-              gap: '1.5rem',
-              justifyContent: 'center',
-              color: '#fff',
-              textAlign: 'center',
+              listStyle: "none",
+              p: 0,
+              m: 0,
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1.5,
+              justifyContent: "center",
+              alignItems: "center",
+              color: theme.palette.text.secondary,
+              textAlign: "center",
+
             }}
           >
             <li>Twitter: @CritiCrew</li>

@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import allMovies from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import { Box, Typography } from "@mui/material";
+import { useThemeContext } from "../../contexts/ThemeContext";
+
 
 function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { mode } = useThemeContext();
   const moviesPerPage = 3;
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -19,36 +21,35 @@ function Home() {
     return allMovies.slice(startIndex, startIndex + moviesPerPage);
   }, [currentPage, moviesPerPage]);
 
-  function handleMovieClick(movie) {
-    navigate(`/movie/${movie.slug}`);
-  }
+  const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
+  const handlePageChange = (page) => setSearchParams({ page });
 
-  function handlePageChange(page) {
-    setSearchParams({ page });
-  }
+  const textColor = mode === "dark" ? "#FFD700" : "#333";
+  const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        background: "#181818",
+        maxWidth: 1200,
+        mx: "auto",
+        px: 2,
         py: 4,
-        px: { xs: 1, sm: 3 },
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
       }}
     >
       {/* Movie of the Day */}
-      <Box
-        sx={{
-          mb: 6,
-          background: "#232323",
-          borderRadius: 3,
-          p: { xs: 2, sm: 4 },
-          boxShadow: 3,
-        }}
-      >
+      <Box sx={{ backgroundColor: sectionBg, p: 3, borderRadius: 2 }}>
         <Typography
           variant="h4"
-          sx={{ color: "#f5c518", fontWeight: "bold", mb: 3, letterSpacing: 1 }}
+          sx={{
+            color: textColor,
+            mb: 3,
+            textAlign: "center",
+            fontWeight: 700,
+          }}
+
         >
           🎬 Movie of the Day
         </Typography>
@@ -61,27 +62,29 @@ function Home() {
       </Box>
 
       {/* Top Rated Movies */}
-      <Box
-        sx={{
-          background: "#232323",
-          borderRadius: 3,
-          p: { xs: 2, sm: 4 },
-          boxShadow: 3,
-        }}
-      >
+      <Box sx={{ backgroundColor: sectionBg, p: 3, borderRadius: 2 }}>
         <Typography
           variant="h4"
-          sx={{ color: "#f5c518", fontWeight: "bold", mb: 3, letterSpacing: 1 }}
+          sx={{
+            color: textColor,
+            mb: 3,
+            textAlign: "center",
+            fontWeight: 700,
+          }}
         >
           🔥 Top Rated Movies
         </Typography>
+
         <Box
           sx={{
-            display: "flex",
-            flexWrap: "wrap",
+            display: "grid",
             gap: 3,
-            justifyContent: "center",
-            mb: 3,
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "1fr 1fr",
+              md: "repeat(3, 1fr)",
+            },
+
           }}
         >
           {currentMovies.map((movie) => (
@@ -94,11 +97,15 @@ function Home() {
             </Box>
           ))}
         </Box>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+
+        <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </Box>
+
       </Box>
     </Box>
   );

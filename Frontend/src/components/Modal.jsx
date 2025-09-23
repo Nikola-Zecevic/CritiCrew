@@ -9,8 +9,10 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserReviews from "./UserReviews";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function Modal({ isOpen, onClose, movie }) {
+  const { theme } = useThemeContext(); // now we have the MUI theme directly
   if (!movie) return null;
 
   return (
@@ -21,23 +23,42 @@ function Modal({ isOpen, onClose, movie }) {
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: "#1a1a1a",
-          border: "2px solid #f5c518",
-          borderRadius: "12px",
+          bgcolor: theme.palette.background.default,
+          border: `2px solid ${theme.palette.primary.main}`,
+          borderRadius: 3,
           maxWidth: "900px",
           width: "90%",
           maxHeight: "90vh",
           overflowY: "auto",
           position: "relative",
           animation: "modalSlideIn 0.3s ease-out",
+          "&::-webkit-scrollbar": { width: 10, height: 10 },
+          "&::-webkit-scrollbar-track": {
+            background: theme.palette.background.default,
+            borderRadius: 8,
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: theme.palette.primary.main,
+            borderRadius: 8,
+            border: `2px solid ${theme.palette.background.default}`,
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: theme.palette.secondary.main,
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.default}`,
         },
       }}
       BackdropProps={{
         sx: {
-          backgroundColor: "rgba(0,0,0,0.9)",
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? "rgba(0,0,0,0.9)"
+              : "rgba(0,0,0,0.5)",
           backdropFilter: "blur(2px)",
         },
       }}
+      aria-labelledby="movie-dialog-title"
     >
       {/* Close button */}
       <IconButton
@@ -47,8 +68,8 @@ function Modal({ isOpen, onClose, movie }) {
           position: "absolute",
           top: "1.2rem",
           left: "1.2rem",
-          bgcolor: "#f5c518",
-          color: "#000",
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
           borderRadius: "50%",
           width: 40,
           height: 40,
@@ -56,7 +77,7 @@ function Modal({ isOpen, onClose, movie }) {
           fontWeight: "bold",
           zIndex: 10,
           "&:hover": {
-            bgcolor: "#ffdf5e",
+            bgcolor: theme.palette.secondary.main,
             transform: "scale(1.1)",
           },
         }}
@@ -66,44 +87,51 @@ function Modal({ isOpen, onClose, movie }) {
 
       {/* Header */}
       <DialogTitle
+        id="movie-dialog-title"
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 0.5,
           p: "2rem 2rem 1rem",
-          borderBottom: "1px solid #333",
+          borderBottom: `1px solid ${theme.palette.text.secondary}`,
           textAlign: "center",
         }}
       >
         <Typography
           variant="h4"
-          component="h2"
+          component="div"
           sx={{
             fontSize: { xs: "2rem", md: "2.5rem" },
             fontWeight: 700,
-            color: "#f5c518",
+            color: theme.palette.primary.main,
             mb: 0.5,
             letterSpacing: 0.5,
           }}
         >
           {movie.title}
         </Typography>
+
         <Typography
           variant="subtitle1"
+          component="div"
           sx={{
-            color: "#ccc",
+            color: theme.palette.text.secondary,
             fontSize: "1.1rem",
             mb: 0.5,
           }}
         >
           {movie.year}
         </Typography>
+
         <Box
           sx={{
             display: "inline-block",
-            color: "#f5c518",
-            backgroundColor: "rgba(245, 197, 24, 0.2)",
+            color: theme.palette.primary.main,
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(245,197,24,0.18)"
+                : "rgba(0,0,0,0.05)",
             px: 2,
             py: 1,
             borderRadius: 2.5,
@@ -111,6 +139,7 @@ function Modal({ isOpen, onClose, movie }) {
             fontSize: "1.1rem",
             mt: 0.5,
           }}
+          aria-hidden
         >
           ★ {movie.rating}/10
         </Box>
@@ -137,19 +166,20 @@ function Modal({ isOpen, onClose, movie }) {
               width: "100%",
               maxWidth: { xs: 200, md: 280 },
               height: "auto",
-              borderRadius: "8px",
-              boxShadow: "0 8px 25px rgba(0,0,0,0.5)",
+              borderRadius: 2,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
               mt: { xs: 0, md: 2 },
             }}
           />
         </Box>
 
         {/* Details */}
-        <Box sx={{ color: "#ccc", mt: 0 }}>
+        <Box sx={{ color: theme.palette.text.primary, mt: 0 }}>
           <Typography
             variant="h6"
+            component="div"
             sx={{
-              color: "#f5c518",
+              color: theme.palette.primary.main,
               fontWeight: "bold",
               fontSize: "1.5rem",
               mt: 3,
@@ -158,65 +188,55 @@ function Modal({ isOpen, onClose, movie }) {
           >
             Description
           </Typography>
+
           <Typography
+            component="div"
             sx={{
               lineHeight: 1.6,
               fontSize: "1.1rem",
               mt: 1,
               mb: 3.5,
-              color: "#ccc",
+              color: theme.palette.text.secondary,
             }}
           >
             {movie.description || "No description available."}
           </Typography>
 
           <Box>
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
-              }}
-            >
-              <strong style={{ color: "#f5c518" }}>Genre:</strong>{" "}
-              {movie.genre || "Drama"}
-            </Box>
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
-              }}
-            >
-              <strong style={{ color: "#f5c518" }}>Duration:</strong>{" "}
-              {movie.duration || "142 min"}
-            </Box>
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                background: "#2a2a2a",
-                borderRadius: "4px",
-              }}
-            >
-              <strong style={{ color: "#f5c518" }}>Director:</strong>{" "}
-              {movie.director || "Frank Darabont"}
-            </Box>
+            {[
+              ["Genre", movie.genre || "Drama"],
+              ["Duration", movie.duration || "142 min"],
+              ["Director", movie.director || "Frank Darabont"],
+            ].map(([label, value]) => (
+              <Box
+                key={label}
+                sx={{
+                  mb: 0.5,
+                  p: 0.5,
+                  bgcolor: theme.palette.background.paper,
+                  borderRadius: 1,
+                }}
+              >
+                <strong style={{ color: theme.palette.primary.main }}>
+                  {label}:
+                </strong>{" "}
+                {value}
+              </Box>
+            ))}
           </Box>
 
           <Box
             sx={{
               pt: 0.5,
-              borderTop: "2.5px solid #f5c518",
+              borderTop: `2.5px solid ${theme.palette.primary.main}`,
               mt: 2,
             }}
           >
             <Typography
               variant="h6"
+              component="div"
               sx={{
-                color: "#f5c518",
+                color: theme.palette.primary.main,
                 fontWeight: "bold",
                 fontSize: "1.5rem",
                 mt: 1.5,
@@ -225,6 +245,7 @@ function Modal({ isOpen, onClose, movie }) {
             >
               User Reviews
             </Typography>
+
             <UserReviews movieId={movie.id} />
           </Box>
         </Box>

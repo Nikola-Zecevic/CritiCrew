@@ -3,16 +3,21 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import AboutUsSection from "./AboutUsSection";
 import AboutUsContact from "./AboutUsContact";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function AboutUsInfo() {
+  const { theme } = useThemeContext();
+
   return (
     <Box
       sx={{
         maxWidth: 1200,
-        margin: "0 auto",
-        padding: "20px",
+
+        mx: "auto",
+        p: { xs: 2, md: 3 },
         fontFamily: "Arial, sans-serif",
-        color: "#333",
+        color: theme.palette.text.primary,
+
         lineHeight: 1.6,
       }}
     >
@@ -20,11 +25,13 @@ function AboutUsInfo() {
         variant="h1"
         sx={{
           textAlign: "center",
-          fontSize: "2.5rem",
-          marginBottom: "2rem",
-          color: "#ffdf5e",
+
+          fontSize: { xs: "2rem", md: "2.5rem" },
+          mb: { xs: 3, md: 4 },
+          color: theme.palette.mode === "dark" ? "#ffdf5e" : "#e6b800",
           position: "relative",
-          paddingBottom: "15px",
+          pb: 2,
+
           "&:after": {
             content: '""',
             position: "absolute",
@@ -33,7 +40,11 @@ function AboutUsInfo() {
             transform: "translateX(-50%)",
             width: 100,
             height: 4,
-            background: "linear-gradient(90deg, #ffeb99, #eebe00)",
+
+            background: `linear-gradient(90deg, ${
+              theme.palette.mode === "dark" ? "#ffeb99" : "#ffe066"
+            }, ${theme.palette.mode === "dark" ? "#eebe00" : "#ffbf00"})`,
+
             borderRadius: 2,
             display: "block",
           },
@@ -41,6 +52,8 @@ function AboutUsInfo() {
       >
         About Us
       </Typography>
+
+
       <AboutUsSection
         imageLink="/images/cinema.jpg"
         reverse={false}
