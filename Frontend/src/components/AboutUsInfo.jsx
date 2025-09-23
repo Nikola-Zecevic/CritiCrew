@@ -12,10 +12,12 @@ function AboutUsInfo() {
     <Box
       sx={{
         maxWidth: 1200,
+
         mx: "auto",
         p: { xs: 2, md: 3 },
         fontFamily: "Arial, sans-serif",
         color: theme.palette.text.primary,
+
         lineHeight: 1.6,
       }}
     >
@@ -23,11 +25,13 @@ function AboutUsInfo() {
         variant="h1"
         sx={{
           textAlign: "center",
+
           fontSize: { xs: "2rem", md: "2.5rem" },
           mb: { xs: 3, md: 4 },
           color: theme.palette.mode === "dark" ? "#ffdf5e" : "#e6b800",
           position: "relative",
           pb: 2,
+
           "&:after": {
             content: '""',
             position: "absolute",
@@ -36,9 +40,11 @@ function AboutUsInfo() {
             transform: "translateX(-50%)",
             width: 100,
             height: 4,
+
             background: `linear-gradient(90deg, ${
               theme.palette.mode === "dark" ? "#ffeb99" : "#ffe066"
             }, ${theme.palette.mode === "dark" ? "#eebe00" : "#ffbf00"})`,
+
             borderRadius: 2,
             display: "block",
           },
@@ -46,6 +52,7 @@ function AboutUsInfo() {
       >
         About Us
       </Typography>
+
 
       <AboutUsSection
         imageLink="/images/cinema.jpg"
@@ -57,6 +64,7 @@ function AboutUsInfo() {
         reverse={true}
         section="second"
       />
+
       <AboutUsContact />
     </Box>
   );

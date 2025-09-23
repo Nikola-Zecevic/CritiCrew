@@ -1,10 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import allMovies from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
 import { Box, Typography } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
+
 
 function Home() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ function Home() {
             textAlign: "center",
             fontWeight: 700,
           }}
+
         >
           🎬 Movie of the Day
         </Typography>
@@ -82,6 +84,7 @@ function Home() {
               sm: "1fr 1fr",
               md: "repeat(3, 1fr)",
             },
+
           }}
         >
           {currentMovies.map((movie) => (
@@ -102,6 +105,7 @@ function Home() {
             onPageChange={handlePageChange}
           />
         </Box>
+
       </Box>
     </Box>
   );

@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   Box,
@@ -117,5 +118,6 @@ export default function MovieCard({ movie, isFeatured = false }) {
         </Box>
       </CardContent>
     </Card>
+
   );
 }

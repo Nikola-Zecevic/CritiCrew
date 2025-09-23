@@ -1,0 +1,208 @@
+.contact-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.section-title {
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.contact-item:hover {
+  transform: translateY(-3px);
+}
+
+.contact-icon {
+  font-size: 1.8rem;
+  color: #3498db;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 50%;
+}
+
+.contact-details h3 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.contact-details p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.social-section {
+  text-align: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.social-section h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.social-section p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.social-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.social-icon {
+  font-size: 1.3rem;
+  color: #3498db;
+  transition: all 0.3s ease;
+}
+
+.social-icon-wrapper:hover {
+  background: #3498db;
+}
+
+.social-icon-wrapper:hover .social-icon {
+  color: white;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+<<<<<<< HEAD:Frontend/__backup_css/Contact.css
+  gap: 30px; /* reduced from 40px */
+  margin-bottom: 40px; /* reduced from 60px */
+  padding: 15px; /* reduced from 20px */
+  color:#fff;
+=======
+  gap: 30px;
+  margin-bottom: 40px;
+  padding: 15px;
+>>>>>>> origin/frontend-ui:Frontend/src/styles/Contact.css
+  border-radius: 10px;
+  background: #1a1a1a;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.text-content {
+  flex: 1;
+}
+
+.hero-text {
+  font-size: 1.1rem;
+<<<<<<< HEAD:Frontend/__backup_css/Contact.css
+  line-height: 1.5; /* reduced from 1.6 */
+  margin-bottom: 1rem; /* reduced from 1.5rem */
+  color: whitesmoke;
+=======
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  color: #555;
+>>>>>>> origin/frontend-ui:Frontend/src/styles/Contact.css
+}
+
+.social-links li {
+  margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+  .contact-info {
+    gap: 0.3rem;
+  }
+
+  .contact-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .social-section {
+    padding: 0.5rem;
+  }
+
+  .hero-text {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  .section {
+    padding: 8px;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .text-content {
+    padding: 3px;
+  }
+
+  .social-links {
+    list-style: none;
+    text-align: center;
+    font-size: 0.5rem;
+    gap: 0.75rem;
+    margin-top: 0rem;
+  }
+
+  .social-icon-wrapper {
+    width: 25px;
+    height: 25px;
+  }
+
+  .social-icon {
+    font-size: 0.8rem;
+  }
+
+  .social-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .social-section p {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+}

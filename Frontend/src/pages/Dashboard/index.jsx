@@ -2,14 +2,31 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import usersFromFile from "../../apis/users.json";
-import "../../styles/Dashboard.css";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
+  Box,
+  Paper,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Stack,
+} from "@mui/material";
 
 export default function Dashboard() {
   const { currentUser, isAuthenticated, isAdmin, isSuperadmin, logout } =
     useAuth();
   const navigate = useNavigate();
-
-  // --- Users state (for superadmin table) ---
   const [users, setUsers] = useState(() => {
     const stored = localStorage.getItem("usersData");
     if (stored) {
@@ -52,7 +69,6 @@ export default function Dashboard() {
     const userToDelete = users.find((u) => u.id === id);
     if (!userToDelete) return;
 
-    // === IMPORTANT: prevent superadmin from deleting themself ===
     if (userToDelete.role === "superadmin" && currentUser?.id === id) {
       alert("You cannot delete your own superadmin account.");
       return;
@@ -64,7 +80,6 @@ export default function Dashboard() {
     const next = users.filter((u) => u.id !== id);
     persistUsers(next);
 
-    // if we deleted the currently logged in user (non-superadmin case), log them out
     if (currentUser?.id === id) {
       alert("You deleted your own account in the demo. Logging out.");
       logout();
@@ -74,7 +89,6 @@ export default function Dashboard() {
     }
   }
 
-  // --- Movies state (simple simulated add) ---
   const [movies, setMovies] = useState(() => {
     const stored = localStorage.getItem("moviesData");
     if (stored) {
@@ -121,125 +135,171 @@ export default function Dashboard() {
   }
 
   function renderUserActions(u) {
-    // keep superadmin rows safe: don't render actions for superadmin accounts
     if (u.role === "superadmin") {
-      return <em className="muted">superadmin</em>;
+      return (
+        <Typography variant="body2" color="text.secondary">
+          superadmin
+        </Typography>
+      );
     }
 
     if (u.role === "admin") {
       return (
-        <>
-          <button
-            className="btn btn-muted"
+        <Stack direction="row" spacing={1}>
+          <Button
+            size="small"
+            variant="outlined"
             onClick={() => {
               if (!confirm("Demote this admin to regular?")) return;
               demoteUser(u.id);
             }}
           >
             Demote
-          </button>
-          <button className="btn btn-danger" onClick={() => deleteUser(u.id)}>
+          </Button>
+          <Button
+            size="small"
+            color="error"
+            variant="contained"
+            onClick={() => deleteUser(u.id)}
+          >
             Delete
-          </button>
-        </>
+          </Button>
+        </Stack>
       );
     }
 
-    // regular user
     return (
-      <>
-        <button
-          className="btn btn-yellow"
+      <Stack direction="row" spacing={1}>
+        <Button
+          size="small"
+          color="warning"
+          variant="contained"
           onClick={() => {
             if (!confirm("Promote this user to admin?")) return;
             promoteUser(u.id);
           }}
         >
           Promote
-        </button>
-        <button className="btn btn-danger" onClick={() => deleteUser(u.id)}>
+        </Button>
+        <Button
+          size="small"
+          color="error"
+          variant="contained"
+          onClick={() => deleteUser(u.id)}
+        >
           Delete
-        </button>
-      </>
+        </Button>
+      </Stack>
     );
   }
-
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-        <p className="muted">
-          Welcome, {currentUser?.name} ({currentUser?.role})
-        </p>
-      </header>
+    <Box>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Dashboard
+          </Typography>
+          <Typography variant="body2">
+            Welcome, {currentUser?.name} ({currentUser?.role})
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-      <section className="movie-section card">
-        <h2>Add Movie (demo)</h2>
-        <form className="movie-form" onSubmit={handleAddMovie}>
-          <div className="row">
-            <input name="title" placeholder="Title" required />
-            <input name="year" placeholder="Year" />
-          </div>
-          <div className="row">
-            <input name="genre" placeholder="Genre" />
-          </div>
-          <div>
-            <textarea name="description" placeholder="Short description" />
-          </div>
-          <div className="row actions">
-            <button className="btn btn-yellow" type="submit">
-              Add Movie
-            </button>
-          </div>
-        </form>
+      <Container sx={{ mt: 4 }}>
+        <Card sx={{ mb: 4 }}>
+          <CardHeader title="Add Movie (demo)" />
+          <CardContent>
+            <Box component="form" onSubmit={handleAddMovie}>
+              <Stack spacing={2}>
+                <Stack direction="row" spacing={2}>
+                  <TextField name="title" label="Title" required fullWidth />
+                  <TextField name="year" label="Year" fullWidth />
+                </Stack>
+                <TextField name="genre" label="Genre" fullWidth />
+                <TextField
+                  name="description"
+                  label="Short description"
+                  multiline
+                  rows={3}
+                  fullWidth
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ alignSelf: "flex-start" }}
+                >
+                  Add Movie
+                </Button>
+              </Stack>
+            </Box>
 
-        <h3>Added movies (demo)</h3>
-        {movies.length === 0 ? (
-          <p className="muted">No movies added yet.</p>
-        ) : (
-          <ul className="movie-list">
-            {movies.map((m) => (
-              <li key={m.id} className="movie-item">
-                <strong>{m.title}</strong> {m.year ? `(${m.year})` : ""}
-                <div className="muted small">
-                  Added by {m.addedBy} — {new Date(m.addedAt).toLocaleString()}
-                </div>
-                {m.description && <p className="muted">{m.description}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {isSuperadmin && (
-        <section className="users-section card">
-          <h2>Users (manage)</h2>
-          {users.length === 0 ? (
-            <p className="muted">No users loaded.</p>
-          ) : (
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Username / Name</th>
-                  <th>Role</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.name || u.username || u.email}</td>
-                    <td>{u.role}</td>
-                    <td className="actions-td">{renderUserActions(u)}</td>
-                  </tr>
+            <Typography variant="h6" sx={{ mt: 3 }}>
+              Added movies (demo)
+            </Typography>
+            {movies.length === 0 ? (
+              <Typography color="text.secondary">
+                No movies added yet.
+              </Typography>
+            ) : (
+              <Stack spacing={2} sx={{ mt: 1 }}>
+                {movies.map((m) => (
+                  <Paper key={m.id} sx={{ p: 2 }}>
+                    <Typography variant="subtitle1">
+                      <strong>{m.title}</strong> {m.year ? `(${m.year})` : ""}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Added by {m.addedBy} —{" "}
+                      {new Date(m.addedAt).toLocaleString()}
+                    </Typography>
+                    {m.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {m.description}
+                      </Typography>
+                    )}
+                  </Paper>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </section>
-      )}
-    </div>
+              </Stack>
+            )}
+          </CardContent>
+        </Card>
+
+        {isSuperadmin && (
+          <Card>
+            <CardHeader title="Users (manage)" />
+            <CardContent>
+              {users.length === 0 ? (
+                <Typography color="text.secondary">No users loaded.</Typography>
+              ) : (
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell>Username / Name</TableCell>
+                        <TableCell>Role</TableCell>
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {users.map((u) => (
+                        <TableRow key={u.id}>
+                          <TableCell>{u.id}</TableCell>
+                          <TableCell>
+                            {u.name || u.username || u.email}
+                          </TableCell>
+                          <TableCell>{u.role}</TableCell>
+                          <TableCell>{renderUserActions(u)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </Container>
+    </Box>
   );
 }

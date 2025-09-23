@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useThemeContext } from "../contexts/ThemeContext";
 
+
 function AboutUsText({ section }) {
   const { theme } = useThemeContext();
 
@@ -18,6 +19,7 @@ function AboutUsText({ section }) {
 
   return (
     <Box sx={{ flex: 1, p: { xs: 2, md: 3 } }}>
+
       {texts[section].map((text, index) => (
         <Typography
           key={index}
@@ -29,6 +31,7 @@ function AboutUsText({ section }) {
               theme.palette.mode === "dark"
                 ? theme.palette.primary.main
                 : theme.palette.text.primary,
+
           }}
         >
           {text}

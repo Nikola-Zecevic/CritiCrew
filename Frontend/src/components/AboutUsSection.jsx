@@ -52,6 +52,7 @@ function AboutUsSection({ imageLink, reverse = false, section }) {
       </Box>
     </Box>
   );
+
 }
 
 export default AboutUsSection;

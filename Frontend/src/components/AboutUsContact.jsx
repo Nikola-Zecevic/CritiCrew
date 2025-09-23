@@ -34,10 +34,12 @@ function AboutUsContact() {
             textAlign: "center",
             fontWeight: 600,
             wordWrap: "break-word",
+
           }}
         >
           Contact Us
         </Typography>
+
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           <Typography
@@ -89,6 +91,7 @@ function AboutUsContact() {
               alignItems: "center",
               color: theme.palette.text.secondary,
               textAlign: "center",
+
             }}
           >
             <li>Twitter: @CritiCrew</li>
