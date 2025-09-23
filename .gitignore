@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
+*.pdb
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Alembic
+migrations/__pycache__/
+migrations/*.pyc
+migrations/versions/__pycache__/
+migrations/versions/*.pyc
+
+# Databases (local dev only)
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Test cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.cache/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
