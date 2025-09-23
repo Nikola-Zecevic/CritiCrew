@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import "../../styles/ProfilePage.css";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Stack,
+} from "@mui/material";
 
 export default function ProfilePage() {
   const { currentUser, isAuthenticated, updateUser, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Local form state
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Redirect guests -> login; populate form for logged-in user
   useEffect(() => {
     if (!isAuthenticated) {
-      // Redirect to login if not authenticated
       navigate("/auth?mode=login", { replace: true });
       return;
     }
-    // populate fields when currentUser becomes available
     setUsername(currentUser?.username || currentUser?.name || "");
   }, [isAuthenticated, currentUser, navigate]);
 
-  // If redirecting, render nothing
-  if (!isAuthenticated) return null;
-
-  // Safety: ensure currentUser exists
-  if (!currentUser) return null;
+  if (!isAuthenticated || !currentUser) return null;
 
   async function handleUpdateUsername(e) {
     e.preventDefault();
@@ -68,45 +67,62 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="profile-container">
-      <h1>Profile</h1>
+    <Paper
+      elevation={4}
+      sx={{
+        p: 4,
+        maxWidth: 500,
+        mx: "auto",
+        mt: 6,
+        borderRadius: 3,
+      }}
+    >
+      <Typography variant="h4" gutterBottom>
+        Profile
+      </Typography>
 
-      <p>
+      <Typography>
         <strong>Username:</strong> {currentUser.username}
-      </p>
-      <p>
+      </Typography>
+      <Typography sx={{ mb: 2 }}>
         <strong>Role:</strong> {currentUser.role}
-      </p>
+      </Typography>
 
-      <form onSubmit={handleUpdateUsername} className="profile-form">
-        <label>Change Username</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          disabled={saving}
-        />
-        <button type="submit" disabled={saving}>
-          Update Username
-        </button>
-      </form>
+      <Box component="form" onSubmit={handleUpdateUsername} sx={{ mb: 3 }}>
+        <Stack spacing={2}>
+          <TextField
+            label="Change Username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={saving}
+            fullWidth
+          />
+          <Button type="submit" variant="contained" disabled={saving}>
+            Update Username
+          </Button>
+        </Stack>
+      </Box>
 
-      <form onSubmit={handleChangePassword} className="profile-form">
-        <label>New Password</label>
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          disabled={saving}
-        />
-        <button type="submit" disabled={saving}>
-          Change Password
-        </button>
-      </form>
+      <Box component="form" onSubmit={handleChangePassword} sx={{ mb: 3 }}>
+        <Stack spacing={2}>
+          <TextField
+            label="New Password"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            disabled={saving}
+            fullWidth
+          />
+          <Button type="submit" variant="contained" disabled={saving}>
+            Change Password
+          </Button>
+        </Stack>
+      </Box>
 
-      <button className="logout-btn" onClick={handleLogout}>
+      <Button variant="outlined" color="error" fullWidth onClick={handleLogout}>
         Logout
-      </button>
-    </div>
+      </Button>
+    </Paper>
   );
 }

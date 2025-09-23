@@ -1,33 +1,45 @@
 import React from "react";
-import "../styles/Footer.css";
+import { Instagram, Twitter, YouTube } from "@mui/icons-material";
+
+import { Box, IconButton, useTheme } from "@mui/material";
 
 const socialMedia = [
-  {
-    name: "Facebook",
-    url: "https://www.facebook.com",
-    icon: "/images/facebook.png",
-  },
-  {
-    name: "Instagram",
-    url: "https://www.instagram.com",
-    icon: "/images/instagram.webp",
-  },
-  { name: "X", url: "https://www.x.com", icon: "/images/x.webp" },
+  { name: "Instagram", url: "https://www.instagram.com", icon: <Instagram /> },
+  { name: "X", url: "https://www.x.com", icon: <Twitter /> }, // Using Twitter icon for X
+  { name: "YouTube", url: "https://www.youtube.com", icon: <YouTube /> },
 ];
 
 export default function SocialLinks() {
+  const theme = useTheme();
+
   return (
-    <div className="social-links">
+    <Box
+      sx={{
+        display: "flex",
+        gap: 2,
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       {socialMedia.map((social) => (
-        <a
+        <IconButton
           key={social.name}
+          component="a"
           href={social.url}
           target="_blank"
           rel="noopener noreferrer"
+          sx={{
+            color: theme.palette.text.secondary,
+            transition: "transform 0.2s ease, color 0.2s ease",
+            "&:hover": {
+              color: theme.palette.primary.main,
+              transform: "scale(1.1)",
+            },
+          }}
         >
-          <img src={social.icon} alt={social.name} className="social-icon" />
-        </a>
+          {social.icon}
+        </IconButton>
       ))}
-    </div>
+    </Box>
   );
 }
