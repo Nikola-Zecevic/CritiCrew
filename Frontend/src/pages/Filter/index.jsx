@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import allMovies from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
 import {
@@ -18,14 +18,42 @@ import {
 import { useThemeContext } from "../../contexts/ThemeContext";
 
 function Filter() {
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [showGenreBox, setShowGenreBox] = useState(false);
-  const [sortRating, setSortRating] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { mode } = useThemeContext();
 
-  const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
+  // Read state from URL
+  const queryParams = new URLSearchParams(location.search);
+  const initialVisible = parseInt(queryParams.get("visibleCount")) || 6;
+  const initialGenres = queryParams.get("genres")
+    ? queryParams.get("genres").split(",")
+    : [];
+  const initialSort = queryParams.get("sortRating") || "";
+
+  const [visibleCount, setVisibleCount] = useState(initialVisible);
+  const [selectedGenres, setSelectedGenres] = useState(initialGenres);
+  const [showGenreBox, setShowGenreBox] = useState(false);
+  const [sortRating, setSortRating] = useState(initialSort);
+
+  // Update URL when state changes
+  const updateURL = (
+    newVisible,
+    newGenres = selectedGenres,
+    newSort = sortRating
+  ) => {
+    const params = new URLSearchParams();
+    if (newVisible > 6) params.set("visibleCount", newVisible);
+    if (newGenres.length > 0) params.set("genres", newGenres.join(","));
+    if (newSort) params.set("sortRating", newSort);
+    navigate({ search: params.toString() }, { replace: true });
+  };
+
+  const handleLoadMore = () => {
+    const newCount = visibleCount + 3;
+    setVisibleCount(newCount);
+    updateURL(newCount);
+  };
+
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
 
   const allGenres = Array.from(
@@ -35,10 +63,17 @@ function Filter() {
   );
 
   const toggleGenre = (genre) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
-    );
+    const newGenres = selectedGenres.includes(genre)
+      ? selectedGenres.filter((g) => g !== genre)
+      : [...selectedGenres, genre];
+    setSelectedGenres(newGenres);
     setVisibleCount(6);
+    updateURL(6, newGenres);
+  };
+
+  const handleSortChange = (value) => {
+    setSortRating(value);
+    updateURL(visibleCount, selectedGenres, value);
   };
 
   let filteredMovies =
@@ -99,8 +134,13 @@ function Filter() {
         </Button>
         <Button
           variant="outlined"
-          onClick={() => setSelectedGenres([])}
-          disabled={selectedGenres.length === 0}
+          onClick={() => {
+            setSelectedGenres([]);
+            setVisibleCount(6);
+            setSortRating("");
+            updateURL(6, [], "");
+          }}
+          disabled={selectedGenres.length === 0 && sortRating === ""}
           sx={{
             borderColor: highlightColor,
             color: highlightColor,
@@ -146,7 +186,7 @@ function Filter() {
           <Select
             labelId="sort-rating-label"
             value={sortRating}
-            onChange={(e) => setSortRating(e.target.value)}
+            onChange={(e) => handleSortChange(e.target.value)}
           >
             <MenuItem value="">None</MenuItem>
             <MenuItem value="asc">Rating: Low to High</MenuItem>

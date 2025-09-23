@@ -6,13 +6,15 @@ import MovieCard from "../../components/MovieCard";
 import { Box, Typography } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
-
 function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useThemeContext();
-  const moviesPerPage = 3;
 
+  // Default to 'light' if mode is null
+  const themeMode = mode ?? "dark";
+
+  const moviesPerPage = 3;
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(allMovies.length / moviesPerPage);
 
@@ -24,8 +26,8 @@ function Home() {
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
   const handlePageChange = (page) => setSearchParams({ page });
 
-  const textColor = mode === "dark" ? "#FFD700" : "#333";
-  const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
+  const textColor = themeMode === "dark" ? "#FFD700" : "#333";
+  const sectionBg = themeMode === "dark" ? "#121212" : "#f9f9f9";
 
   return (
     <Box
@@ -49,7 +51,6 @@ function Home() {
             textAlign: "center",
             fontWeight: 700,
           }}
-
         >
           🎬 Movie of the Day
         </Typography>
@@ -84,7 +85,6 @@ function Home() {
               sm: "1fr 1fr",
               md: "repeat(3, 1fr)",
             },
-
           }}
         >
           {currentMovies.map((movie) => (
@@ -105,7 +105,6 @@ function Home() {
             onPageChange={handlePageChange}
           />
         </Box>
-
       </Box>
     </Box>
   );
