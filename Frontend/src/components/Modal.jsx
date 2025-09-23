@@ -6,14 +6,34 @@ import {
   IconButton,
   Typography,
   Box,
-  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import UserReviews from "./UserReviews";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function Modal({ isOpen, onClose, movie }) {
-  const theme = useTheme();
+  const { mode } = useThemeContext();
   if (!movie) return null;
+
+  // Define theme colors based on mode
+  const colors = {
+    dark: {
+      background: "#0b0b0b",
+      surface: "#121212",
+      text: "#fff",
+      secondaryText: "#aaa",
+      primary: "#FFD700", // gold
+      border: "#FFD700",
+    },
+    light: {
+      background: "#fff",
+      surface: "#f5f5f5",
+      text: "#000",
+      secondaryText: "#666",
+      primary: "#000",
+      border: "#000",
+    },
+  }[mode || "light"];
 
   return (
     <Dialog
@@ -23,8 +43,8 @@ function Modal({ isOpen, onClose, movie }) {
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: theme.palette.background.default,
-          border: `2px solid ${theme.palette.primary.main}`,
+          bgcolor: colors.background,
+          border: `2px solid ${colors.border}`,
           borderRadius: 3,
           maxWidth: "900px",
           width: "90%",
@@ -33,38 +53,36 @@ function Modal({ isOpen, onClose, movie }) {
           position: "relative",
           animation: "modalSlideIn 0.3s ease-out",
 
-          /* custom scrollbar styling (kept) */
+          /* custom scrollbar styling */
           "&::-webkit-scrollbar": {
             width: "10px",
             height: "10px",
           },
           "&::-webkit-scrollbar-track": {
-            background: theme.palette.mode === "dark" ? "#0b0b0b" : "#f1f1f1",
+            background: mode === "dark" ? "#0b0b0b" : "#f1f1f1",
             borderRadius: 8,
           },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: colors.primary,
             borderRadius: 8,
-            border: `2px solid ${theme.palette.background.default}`,
+            border: `2px solid ${colors.background}`,
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: theme.palette.primary.light,
+            backgroundColor: mode === "dark" ? "#e6c200" : "#333",
           },
 
-          /* Firefox fallback */
           scrollbarWidth: "thin",
-          scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.default}`,
+          scrollbarColor: `${colors.primary} ${colors.background}`,
         },
       }}
       BackdropProps={{
         sx: {
           backgroundColor:
-            theme.palette.mode === "dark"
-              ? "rgba(0,0,0,0.9)"
-              : "rgba(0,0,0,0.5)",
+            mode === "dark" ? "rgba(0,0,0,0.9)" : "rgba(0,0,0,0.5)",
           backdropFilter: "blur(2px)",
         },
       }}
+      aria-labelledby="movie-dialog-title"
     >
       {/* Close button */}
       <IconButton
@@ -74,8 +92,8 @@ function Modal({ isOpen, onClose, movie }) {
           position: "absolute",
           top: "1.2rem",
           left: "1.2rem",
-          bgcolor: theme.palette.primary.main,
-          color: theme.palette.getContrastText(theme.palette.primary.main),
+          bgcolor: colors.primary,
+          color: mode === "dark" ? "#000" : "#fff",
           borderRadius: "50%",
           width: 40,
           height: 40,
@@ -83,7 +101,7 @@ function Modal({ isOpen, onClose, movie }) {
           fontWeight: "bold",
           zIndex: 10,
           "&:hover": {
-            bgcolor: theme.palette.primary.light,
+            bgcolor: mode === "dark" ? "#e6c200" : "#333",
             transform: "scale(1.1)",
           },
         }}
@@ -93,47 +111,49 @@ function Modal({ isOpen, onClose, movie }) {
 
       {/* Header */}
       <DialogTitle
+        id="movie-dialog-title"
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 0.5,
           p: "2rem 2rem 1rem",
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          borderBottom: `1px solid ${colors.secondaryText}`,
           textAlign: "center",
         }}
       >
         <Typography
           variant="h4"
-          component="h2"
+          component="div"
           sx={{
             fontSize: { xs: "2rem", md: "2.5rem" },
             fontWeight: 700,
-            color: theme.palette.primary.main,
+            color: colors.primary,
             mb: 0.5,
             letterSpacing: 0.5,
           }}
         >
           {movie.title}
         </Typography>
+
         <Typography
           variant="subtitle1"
+          component="div"
           sx={{
-            color: theme.palette.text.secondary,
+            color: colors.secondaryText,
             fontSize: "1.1rem",
             mb: 0.5,
           }}
         >
           {movie.year}
         </Typography>
+
         <Box
           sx={{
             display: "inline-block",
-            color: theme.palette.primary.main,
+            color: colors.primary,
             backgroundColor:
-              theme.palette.mode === "dark"
-                ? "rgba(245, 197, 24, 0.2)"
-                : theme.palette.action.hover,
+              mode === "dark" ? "rgba(245, 197, 24, 0.18)" : "rgba(0,0,0,0.05)",
             px: 2,
             py: 1,
             borderRadius: 2.5,
@@ -141,6 +161,7 @@ function Modal({ isOpen, onClose, movie }) {
             fontSize: "1.1rem",
             mt: 0.5,
           }}
+          aria-hidden
         >
           ★ {movie.rating}/10
         </Box>
@@ -168,18 +189,19 @@ function Modal({ isOpen, onClose, movie }) {
               maxWidth: { xs: 200, md: 280 },
               height: "auto",
               borderRadius: 2,
-              boxShadow: theme.shadows[6],
+              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
               mt: { xs: 0, md: 2 },
             }}
           />
         </Box>
 
         {/* Details */}
-        <Box sx={{ color: theme.palette.text.secondary, mt: 0 }}>
+        <Box sx={{ color: colors.text, mt: 0 }}>
           <Typography
             variant="h6"
+            component="div"
             sx={{
-              color: theme.palette.primary.main,
+              color: colors.primary,
               fontWeight: "bold",
               fontSize: "1.5rem",
               mt: 3,
@@ -188,13 +210,15 @@ function Modal({ isOpen, onClose, movie }) {
           >
             Description
           </Typography>
+
           <Typography
+            component="div"
             sx={{
               lineHeight: 1.6,
               fontSize: "1.1rem",
               mt: 1,
               mb: 3.5,
-              color: theme.palette.text.secondary,
+              color: colors.secondaryText,
             }}
           >
             {movie.description || "No description available."}
@@ -205,39 +229,35 @@ function Modal({ isOpen, onClose, movie }) {
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                bgcolor: theme.palette.background.paper,
+                bgcolor: colors.surface,
                 borderRadius: 1,
               }}
             >
-              <strong style={{ color: theme.palette.primary.main }}>
-                Genre:
-              </strong>{" "}
+              <strong style={{ color: colors.primary }}>Genre:</strong>{" "}
               {movie.genre || "Drama"}
             </Box>
+
             <Box
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                bgcolor: theme.palette.background.paper,
+                bgcolor: colors.surface,
                 borderRadius: 1,
               }}
             >
-              <strong style={{ color: theme.palette.primary.main }}>
-                Duration:
-              </strong>{" "}
+              <strong style={{ color: colors.primary }}>Duration:</strong>{" "}
               {movie.duration || "142 min"}
             </Box>
+
             <Box
               sx={{
                 mb: 0.5,
                 p: 0.5,
-                bgcolor: theme.palette.background.paper,
+                bgcolor: colors.surface,
                 borderRadius: 1,
               }}
             >
-              <strong style={{ color: theme.palette.primary.main }}>
-                Director:
-              </strong>{" "}
+              <strong style={{ color: colors.primary }}>Director:</strong>{" "}
               {movie.director || "Frank Darabont"}
             </Box>
           </Box>
@@ -245,14 +265,15 @@ function Modal({ isOpen, onClose, movie }) {
           <Box
             sx={{
               pt: 0.5,
-              borderTop: `2.5px solid ${theme.palette.primary.main}`,
+              borderTop: `2.5px solid ${colors.primary}`,
               mt: 2,
             }}
           >
             <Typography
               variant="h6"
+              component="div"
               sx={{
-                color: theme.palette.primary.main,
+                color: colors.primary,
                 fontWeight: "bold",
                 fontSize: "1.5rem",
                 mt: 1.5,
@@ -261,6 +282,7 @@ function Modal({ isOpen, onClose, movie }) {
             >
               User Reviews
             </Typography>
+
             <UserReviews movieId={movie.id} />
           </Box>
         </Box>
