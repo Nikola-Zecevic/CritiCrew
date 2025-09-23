@@ -14,9 +14,9 @@ export const ThemeProviderContext = ({ children }) => {
     [mode]
   );
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, toggleTheme, theme }}>
       <ThemeProvider theme={theme}>
-        <CssBaseline></CssBaseline>
+        <CssBaseline />
         {children}
       </ThemeProvider>
     </ThemeContext.Provider>

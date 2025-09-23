@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 function AboutUsText({ section }) {
-  const { mode } = useThemeContext();
+  const { theme } = useThemeContext();
 
   const texts = {
     first: [
@@ -17,15 +17,18 @@ function AboutUsText({ section }) {
   };
 
   return (
-    <Box sx={{ flex: 1, padding: "20px" }}>
+    <Box sx={{ flex: 1, p: { xs: 2, md: 3 } }}>
       {texts[section].map((text, index) => (
         <Typography
           key={index}
           sx={{
-            fontSize: "1.1rem",
+            fontSize: { xs: "1rem", md: "1.1rem" },
             lineHeight: 1.6,
-            marginBottom: "1.5rem",
-            color: mode === "dark" ? "#FFD700" : "#000000", // GOLD in dark, BLACK in light
+            mb: 3,
+            color:
+              theme.palette.mode === "dark"
+                ? theme.palette.primary.main
+                : theme.palette.text.primary,
           }}
         >
           {text}

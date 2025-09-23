@@ -22,7 +22,7 @@ import { useThemeContext } from "../contexts/ThemeContext";
 
 function UserReviews({ movieId }) {
   const { currentUser, isAuthenticated } = useAuth();
-  const { mode } = useThemeContext();
+  const { theme } = useThemeContext(); // useThemeContext
 
   const [reviews, setReviews] = useState(
     reviewsData.filter((r) => r.movieId === movieId)
@@ -30,7 +30,6 @@ function UserReviews({ movieId }) {
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(3);
 
-  // Confirmation dialog state
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
 
@@ -55,10 +54,7 @@ function UserReviews({ movieId }) {
   };
 
   const handleConfirmDelete = () => {
-    if (deleteIndex === null) {
-      setConfirmOpen(false);
-      return;
-    }
+    if (deleteIndex === null) return setConfirmOpen(false);
     setReviews((prev) => prev.filter((_, i) => i !== deleteIndex));
     setDeleteIndex(null);
     setConfirmOpen(false);
@@ -69,24 +65,13 @@ function UserReviews({ movieId }) {
     setConfirmOpen(false);
   };
 
-  // small helpers for theme-safe colors
-  const textPrimary = mode === "dark" ? "#FFD700" : "#333";
-  const cardBg = mode === "dark" ? "#121212" : "#fff";
-  const secondaryText = mode === "dark" ? "#ffeb3b" : "#757575";
-  const subtleText = mode === "dark" ? "#aaa" : "#666";
-  const btnBg = mode === "dark" ? "#FFD700" : "#000";
-  const btnColor = mode === "dark" ? "#000" : "#fff";
-
   return (
     <Box sx={{ mt: 2 }}>
       {/* Reviews list */}
       {reviews.length === 0 ? (
         <Typography
           variant="body2"
-          sx={{
-            fontStyle: "italic",
-            color: subtleText,
-          }}
+          sx={{ fontStyle: "italic", color: theme.palette.text.secondary }}
         >
           No user reviews yet.
         </Typography>
@@ -96,9 +81,9 @@ function UserReviews({ movieId }) {
             <Card
               key={`${movieId}-${index}`}
               sx={{
-                backgroundColor: cardBg,
+                backgroundColor: theme.palette.background.paper,
                 borderRadius: 2,
-                borderLeft: `3px solid ${mode === "dark" ? "#FFD700" : "#333"}`,
+                borderLeft: `3px solid ${theme.palette.primary.main}`,
                 boxShadow: "none",
               }}
             >
@@ -115,7 +100,7 @@ function UserReviews({ movieId }) {
                     variant="subtitle1"
                     sx={{
                       fontWeight: "bold",
-                      color: textPrimary,
+                      color: theme.palette.text.primary,
                     }}
                   >
                     {review.user}
@@ -126,15 +111,13 @@ function UserReviews({ movieId }) {
                       value={review.rating}
                       readOnly
                       max={5}
-                      sx={{
-                        color: mode === "dark" ? "#FFD700" : "#333",
-                      }}
+                      sx={{ color: theme.palette.primary.main }}
                     />
                     <Typography
                       variant="body2"
                       sx={{
                         fontSize: "0.9rem",
-                        color: secondaryText,
+                        color: theme.palette.text.secondary,
                       }}
                     >
                       ({review.rating}/5)
@@ -145,7 +128,7 @@ function UserReviews({ movieId }) {
                         <IconButton
                           size="small"
                           onClick={() => handleDeleteClick(index)}
-                          sx={{ color: "red" }}
+                          sx={{ color: theme.palette.error.main }}
                           aria-label="delete review"
                         >
                           <DeleteIcon fontSize="small" />
@@ -159,7 +142,7 @@ function UserReviews({ movieId }) {
                 <Typography
                   variant="body2"
                   sx={{
-                    color: textPrimary,
+                    color: theme.palette.text.primary,
                     lineHeight: 1.4,
                   }}
                 >
@@ -173,14 +156,7 @@ function UserReviews({ movieId }) {
 
       {/* Add new review */}
       {isAuthenticated ? (
-        <Box
-          sx={{
-            mt: 3,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
+        <Box sx={{ mt: 3, display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Your Comment"
             value={comment}
@@ -190,16 +166,19 @@ function UserReviews({ movieId }) {
             fullWidth
             sx={{
               "& .MuiOutlinedInput-root": {
-                backgroundColor: mode === "dark" ? "#0f0f0f" : "#fff",
+                backgroundColor: theme.palette.background.default,
               },
               "& .MuiInputBase-input": {
-                color: mode === "dark" ? "#FFD700" : "#000",
+                color: theme.palette.text.primary,
               },
             }}
           />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Typography variant="body2" sx={{ color: textPrimary }}>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.palette.text.primary }}
+            >
               Your Rating:
             </Typography>
             <Rating
@@ -207,9 +186,7 @@ function UserReviews({ movieId }) {
               value={rating}
               onChange={(_, newValue) => setRating(newValue ?? rating)}
               max={5}
-              sx={{
-                color: mode === "dark" ? "#FFD700" : "#333",
-              }}
+              sx={{ color: theme.palette.primary.main }}
             />
           </Box>
 
@@ -218,9 +195,9 @@ function UserReviews({ movieId }) {
             onClick={handleAddReview}
             sx={{
               alignSelf: "flex-start",
-              backgroundColor: btnBg,
-              color: btnColor,
-              "&:hover": { opacity: 0.95 },
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.getContrastText(theme.palette.primary.main),
+              "&:hover": { opacity: 0.9 },
             }}
           >
             Add Review
@@ -232,7 +209,7 @@ function UserReviews({ movieId }) {
           sx={{
             mt: 3,
             fontStyle: "italic",
-            color: subtleText,
+            color: theme.palette.text.secondary,
           }}
         >
           Sign in to add a review.

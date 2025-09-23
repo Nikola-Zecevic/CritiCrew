@@ -4,81 +4,90 @@ import Typography from "@mui/material/Typography";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 function AboutUsContact() {
-  const { mode } = useThemeContext();
-
-  const bgColor = mode === "dark" ? "#474747" : "#e0e0e0";
-  const textColor = mode === "dark" ? "#fff" : "#333";
+  const { theme } = useThemeContext();
 
   return (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: "40px",
-        marginBottom: "60px",
-        padding: "20px",
-        borderRadius: "10px",
-        background: bgColor,
-        boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-        flexDirection: "row",
+        gap: { xs: 2, md: "40px" },
+        mb: "60px",
+        p: { xs: 2, md: 3 },
+        borderRadius: 2,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: 3,
+        flexDirection: { xs: "column", md: "row" },
         transition: "transform 0.3s ease",
-        "@media (max-width: 768px)": {
-          flexDirection: "column",
-        },
+        width: "100%",
+        maxWidth: 1200,
+        mx: "auto",
       }}
     >
-      <Box sx={{ flex: 1, padding: "20px" }}>
+      <Box sx={{ flex: 1, p: { xs: 1, md: 3 } }}>
         <Typography
           variant="h2"
           sx={{
-            fontSize: "2.2rem",
-            color: textColor,
-            marginBottom: "2rem",
+            fontSize: { xs: "1.8rem", md: "2.2rem" },
+            color: theme.palette.text.primary,
+            mb: 3,
             textAlign: "center",
             fontWeight: 600,
+            wordWrap: "break-word",
           }}
         >
           Contact Us
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           <Typography
             sx={{
-              fontSize: "1.1rem",
-              color: textColor,
-              marginBottom: "1.5rem",
+              fontSize: { xs: "1rem", md: "1.1rem" },
+              color: theme.palette.text.primary,
+              mb: 2,
+              wordWrap: "break-word",
+              textAlign: { xs: "center", md: "left" },
             }}
           >
             <strong>Email:</strong> hello@criticrew.com
           </Typography>
+
           <Typography
             sx={{
-              fontSize: "1.1rem",
-              color: textColor,
-              marginBottom: "1.5rem",
+              fontSize: { xs: "1rem", md: "1.1rem" },
+              color: theme.palette.text.primary,
+              mb: 2,
+              wordWrap: "break-word",
+              textAlign: { xs: "center", md: "left" },
             }}
           >
             <strong>Location:</strong> San Francisco, CA
           </Typography>
+
           <Typography
             sx={{
-              fontSize: "1.1rem",
-              color: textColor,
-              marginBottom: "1.5rem",
+              fontSize: { xs: "0.95rem", md: "1.1rem" },
+              color: theme.palette.text.secondary,
+              mb: 2,
+              textAlign: { xs: "center", md: "left" },
             }}
           >
             Follow us on social media for the latest updates and film
             discussions:
           </Typography>
+
           <Box
             component="ul"
             sx={{
               listStyle: "none",
-              padding: 0,
-              margin: 0,
+              p: 0,
+              m: 0,
               display: "flex",
-              gap: "1.5rem",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1.5,
               justifyContent: "center",
-              color: textColor,
+              alignItems: "center",
+              color: theme.palette.text.secondary,
               textAlign: "center",
             }}
           >

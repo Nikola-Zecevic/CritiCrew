@@ -12,28 +12,8 @@ import UserReviews from "./UserReviews";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 function Modal({ isOpen, onClose, movie }) {
-  const { mode } = useThemeContext();
+  const { theme } = useThemeContext(); // now we have the MUI theme directly
   if (!movie) return null;
-
-  // Define theme colors based on mode
-  const colors = {
-    dark: {
-      background: "#0b0b0b",
-      surface: "#121212",
-      text: "#fff",
-      secondaryText: "#aaa",
-      primary: "#FFD700", // gold
-      border: "#FFD700",
-    },
-    light: {
-      background: "#fff",
-      surface: "#f5f5f5",
-      text: "#000",
-      secondaryText: "#666",
-      primary: "#000",
-      border: "#000",
-    },
-  }[mode || "light"];
 
   return (
     <Dialog
@@ -43,8 +23,8 @@ function Modal({ isOpen, onClose, movie }) {
       fullWidth
       PaperProps={{
         sx: {
-          bgcolor: colors.background,
-          border: `2px solid ${colors.border}`,
+          bgcolor: theme.palette.background.default,
+          border: `2px solid ${theme.palette.primary.main}`,
           borderRadius: 3,
           maxWidth: "900px",
           width: "90%",
@@ -52,33 +32,29 @@ function Modal({ isOpen, onClose, movie }) {
           overflowY: "auto",
           position: "relative",
           animation: "modalSlideIn 0.3s ease-out",
-
-          /* custom scrollbar styling */
-          "&::-webkit-scrollbar": {
-            width: "10px",
-            height: "10px",
-          },
+          "&::-webkit-scrollbar": { width: 10, height: 10 },
           "&::-webkit-scrollbar-track": {
-            background: mode === "dark" ? "#0b0b0b" : "#f1f1f1",
+            background: theme.palette.background.default,
             borderRadius: 8,
           },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: colors.primary,
+            backgroundColor: theme.palette.primary.main,
             borderRadius: 8,
-            border: `2px solid ${colors.background}`,
+            border: `2px solid ${theme.palette.background.default}`,
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: mode === "dark" ? "#e6c200" : "#333",
+            backgroundColor: theme.palette.secondary.main,
           },
-
           scrollbarWidth: "thin",
-          scrollbarColor: `${colors.primary} ${colors.background}`,
+          scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.default}`,
         },
       }}
       BackdropProps={{
         sx: {
           backgroundColor:
-            mode === "dark" ? "rgba(0,0,0,0.9)" : "rgba(0,0,0,0.5)",
+            theme.palette.mode === "dark"
+              ? "rgba(0,0,0,0.9)"
+              : "rgba(0,0,0,0.5)",
           backdropFilter: "blur(2px)",
         },
       }}
@@ -92,8 +68,8 @@ function Modal({ isOpen, onClose, movie }) {
           position: "absolute",
           top: "1.2rem",
           left: "1.2rem",
-          bgcolor: colors.primary,
-          color: mode === "dark" ? "#000" : "#fff",
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
           borderRadius: "50%",
           width: 40,
           height: 40,
@@ -101,7 +77,7 @@ function Modal({ isOpen, onClose, movie }) {
           fontWeight: "bold",
           zIndex: 10,
           "&:hover": {
-            bgcolor: mode === "dark" ? "#e6c200" : "#333",
+            bgcolor: theme.palette.secondary.main,
             transform: "scale(1.1)",
           },
         }}
@@ -118,7 +94,7 @@ function Modal({ isOpen, onClose, movie }) {
           alignItems: "center",
           gap: 0.5,
           p: "2rem 2rem 1rem",
-          borderBottom: `1px solid ${colors.secondaryText}`,
+          borderBottom: `1px solid ${theme.palette.text.secondary}`,
           textAlign: "center",
         }}
       >
@@ -128,7 +104,7 @@ function Modal({ isOpen, onClose, movie }) {
           sx={{
             fontSize: { xs: "2rem", md: "2.5rem" },
             fontWeight: 700,
-            color: colors.primary,
+            color: theme.palette.primary.main,
             mb: 0.5,
             letterSpacing: 0.5,
           }}
@@ -140,7 +116,7 @@ function Modal({ isOpen, onClose, movie }) {
           variant="subtitle1"
           component="div"
           sx={{
-            color: colors.secondaryText,
+            color: theme.palette.text.secondary,
             fontSize: "1.1rem",
             mb: 0.5,
           }}
@@ -151,9 +127,11 @@ function Modal({ isOpen, onClose, movie }) {
         <Box
           sx={{
             display: "inline-block",
-            color: colors.primary,
+            color: theme.palette.primary.main,
             backgroundColor:
-              mode === "dark" ? "rgba(245, 197, 24, 0.18)" : "rgba(0,0,0,0.05)",
+              theme.palette.mode === "dark"
+                ? "rgba(245,197,24,0.18)"
+                : "rgba(0,0,0,0.05)",
             px: 2,
             py: 1,
             borderRadius: 2.5,
@@ -196,12 +174,12 @@ function Modal({ isOpen, onClose, movie }) {
         </Box>
 
         {/* Details */}
-        <Box sx={{ color: colors.text, mt: 0 }}>
+        <Box sx={{ color: theme.palette.text.primary, mt: 0 }}>
           <Typography
             variant="h6"
             component="div"
             sx={{
-              color: colors.primary,
+              color: theme.palette.primary.main,
               fontWeight: "bold",
               fontSize: "1.5rem",
               mt: 3,
@@ -218,54 +196,39 @@ function Modal({ isOpen, onClose, movie }) {
               fontSize: "1.1rem",
               mt: 1,
               mb: 3.5,
-              color: colors.secondaryText,
+              color: theme.palette.text.secondary,
             }}
           >
             {movie.description || "No description available."}
           </Typography>
 
           <Box>
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                bgcolor: colors.surface,
-                borderRadius: 1,
-              }}
-            >
-              <strong style={{ color: colors.primary }}>Genre:</strong>{" "}
-              {movie.genre || "Drama"}
-            </Box>
-
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                bgcolor: colors.surface,
-                borderRadius: 1,
-              }}
-            >
-              <strong style={{ color: colors.primary }}>Duration:</strong>{" "}
-              {movie.duration || "142 min"}
-            </Box>
-
-            <Box
-              sx={{
-                mb: 0.5,
-                p: 0.5,
-                bgcolor: colors.surface,
-                borderRadius: 1,
-              }}
-            >
-              <strong style={{ color: colors.primary }}>Director:</strong>{" "}
-              {movie.director || "Frank Darabont"}
-            </Box>
+            {[
+              ["Genre", movie.genre || "Drama"],
+              ["Duration", movie.duration || "142 min"],
+              ["Director", movie.director || "Frank Darabont"],
+            ].map(([label, value]) => (
+              <Box
+                key={label}
+                sx={{
+                  mb: 0.5,
+                  p: 0.5,
+                  bgcolor: theme.palette.background.paper,
+                  borderRadius: 1,
+                }}
+              >
+                <strong style={{ color: theme.palette.primary.main }}>
+                  {label}:
+                </strong>{" "}
+                {value}
+              </Box>
+            ))}
           </Box>
 
           <Box
             sx={{
               pt: 0.5,
-              borderTop: `2.5px solid ${colors.primary}`,
+              borderTop: `2.5px solid ${theme.palette.primary.main}`,
               mt: 2,
             }}
           >
@@ -273,7 +236,7 @@ function Modal({ isOpen, onClose, movie }) {
               variant="h6"
               component="div"
               sx={{
-                color: colors.primary,
+                color: theme.palette.primary.main,
                 fontWeight: "bold",
                 fontSize: "1.5rem",
                 mt: 1.5,

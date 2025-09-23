@@ -1,8 +1,9 @@
 import React from "react";
-import { Pagination as MuiPagination, Box, useTheme } from "@mui/material";
+import { Pagination as MuiPagination, Box } from "@mui/material";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
-  const theme = useTheme();
+  const { theme } = useThemeContext(); // use the MUI theme directly
 
   return (
     <Box
@@ -30,13 +31,16 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
             fontWeight: "bold",
           },
           "& .Mui-selected": {
-            bgcolor: "#f5c518 !important",
-            color: "#000",
-            borderColor: "#f5c518",
+            bgcolor: theme.palette.secondary.main + " !important",
+            color:
+              theme.palette.mode === "dark"
+                ? theme.palette.background.default
+                : "#000",
+            borderColor: theme.palette.secondary.main,
           },
           "& .MuiPaginationItem-root:hover": {
-            borderColor: "#f5c518",
-            color: "#f5c518",
+            borderColor: theme.palette.secondary.main,
+            color: theme.palette.secondary.main,
           },
         }}
       />

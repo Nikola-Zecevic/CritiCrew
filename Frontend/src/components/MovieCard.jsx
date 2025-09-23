@@ -6,12 +6,12 @@ import {
   CardMedia,
   Typography,
   Button,
-  useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 export default function MovieCard({ movie, isFeatured = false }) {
-  const theme = useTheme();
+  const { theme } = useThemeContext(); // get the MUI theme from ThemeContext
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (

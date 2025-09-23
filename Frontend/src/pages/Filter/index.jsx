@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import allMovies from "../../services/moviesService";
-import "../../styles/Filter.css";
 import MovieCard from "../../components/MovieCard";
 import {
+  Box,
+  Paper,
+  Typography,
   Button,
-  Checkbox,
   FormGroup,
   FormControlLabel,
+  Checkbox,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Box,
-  Paper,
-  Typography,
 } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
@@ -57,153 +56,151 @@ function Filter() {
     filteredMovies = [...filteredMovies].sort((a, b) => b.rating - a.rating);
   }
 
+  const bgPaper = mode === "light" ? "#fff" : "#121212";
+  const textColor = mode === "light" ? "#333" : "#FFD700";
+  const highlightColor = "#f5c518";
+
   return (
-    <div className="filter-page">
-      <main className="filter-content">
-        <Typography variant="h2" sx={{ marginBottom: "1rem" }}>
-          {selectedGenres.length > 0
-            ? `Selected Genres: ${selectedGenres.join(", ")}`
-            : "All Movies"}
-        </Typography>
+    <Box
+      sx={{
+        maxWidth: 1200,
+        mx: "auto",
+        px: 2,
+        py: 4,
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+      }}
+    >
+      <Typography
+        variant="h2"
+        sx={{ textAlign: "center", color: textColor, mb: 2 }}
+      >
+        {selectedGenres.length > 0
+          ? `Selected Genres: ${selectedGenres.join(", ")}`
+          : "All Movies"}
+      </Typography>
 
-        {/* Control Buttons */}
-        <Box
+      {/* Control Buttons */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={() => setShowGenreBox((prev) => !prev)}
+          sx={{ fontWeight: "bold" }}
+        >
+          {showGenreBox ? "Hide genres" : "Filter by genres"}
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setSelectedGenres([])}
+          disabled={selectedGenres.length === 0}
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            gap: "1rem",
-            mb: "1.5rem",
+            borderColor: highlightColor,
+            color: highlightColor,
+            fontWeight: "bold",
+            "&:hover": { borderColor: highlightColor, color: highlightColor },
           }}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setShowGenreBox((prev) => !prev)}
-          >
-            {showGenreBox ? "Hide genres" : "Filter by genres"}
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => setSelectedGenres([])}
-            disabled={selectedGenres.length === 0}
-            sx={{
-              borderColor: "#f5c518",
-              color: "#f5c518",
-              fontWeight: "bold",
-              "&:hover": { borderColor: "#f5c518", color: "#f5c518" },
-            }}
-          >
-            Reset filter
-          </Button>
-        </Box>
+          Reset filter
+        </Button>
+      </Box>
 
-        {/* Genre Box */}
-        {showGenreBox && (
-          <Paper
-            elevation={3}
-            sx={{
-              p: 2,
-              mb: 3,
-              bgcolor: mode === "light" ? "#fff" : "#121212",
-              color: mode === "light" ? "#333" : "#FFD700",
-            }}
-          >
-            <FormGroup>
-              {allGenres.map((genre) => (
-                <FormControlLabel
-                  key={genre}
-                  control={
-                    <Checkbox
-                      checked={selectedGenres.includes(genre)}
-                      onChange={() => toggleGenre(genre)}
-                      sx={{
-                        color: "#f5c518",
-                        "&.Mui-checked": { color: "#f5c518" },
-                      }}
-                    />
-                  }
-                  label={genre}
-                />
-              ))}
-            </FormGroup>
-          </Paper>
-        )}
-
-        {/* Sort by Rating */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mb: "1.5rem",
-            gap: "1rem",
-          }}
+      {/* Genre Box */}
+      {showGenreBox && (
+        <Paper
+          elevation={3}
+          sx={{ p: 2, mb: 3, bgcolor: bgPaper, color: textColor }}
         >
-          <FormControl sx={{ minWidth: 180 }} size="small">
-            <InputLabel id="sort-rating-label">Sort by rating</InputLabel>
-            <Select
-              labelId="sort-rating-label"
-              id="sort-rating"
-              value={sortRating}
-              label="Sort by rating"
-              onChange={(e) => setSortRating(e.target.value)}
+          <FormGroup>
+            {allGenres.map((genre) => (
+              <FormControlLabel
+                key={genre}
+                control={
+                  <Checkbox
+                    checked={selectedGenres.includes(genre)}
+                    onChange={() => toggleGenre(genre)}
+                    sx={{
+                      color: highlightColor,
+                      "&.Mui-checked": { color: highlightColor },
+                    }}
+                  />
+                }
+                label={genre}
+              />
+            ))}
+          </FormGroup>
+        </Paper>
+      )}
+
+      {/* Sort by Rating */}
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <FormControl sx={{ minWidth: 180 }} size="small">
+          <InputLabel id="sort-rating-label">Sort by rating</InputLabel>
+          <Select
+            labelId="sort-rating-label"
+            value={sortRating}
+            onChange={(e) => setSortRating(e.target.value)}
+          >
+            <MenuItem value="">None</MenuItem>
+            <MenuItem value="asc">Rating: Low to High</MenuItem>
+            <MenuItem value="desc">Rating: High to Low</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Movies Grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr 1fr",
+            md: "repeat(3, 1fr)",
+          },
+        }}
+      >
+        {filteredMovies.length === 0 ? (
+          <Typography sx={{ color: textColor }}>No movies found.</Typography>
+        ) : (
+          filteredMovies.slice(0, visibleCount).map((movie) => (
+            <Box
+              key={movie.id}
+              onClick={() => handleMovieClick(movie)}
+              sx={{ cursor: "pointer", height: "100%" }}
             >
-              <MenuItem value="">None</MenuItem>
-              <MenuItem value="asc">Rating: Low to High</MenuItem>
-              <MenuItem value="desc">Rating: High to Low</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+              <MovieCard movie={movie} />
+            </Box>
+          ))
+        )}
+      </Box>
 
-        {/* Movies Grid */}
-        <Box
+      {/* Load More Button */}
+      {visibleCount < filteredMovies.length && filteredMovies.length > 0 && (
+        <Button
+          variant="contained"
+          onClick={handleLoadMore}
           sx={{
-            display: "grid",
-            gap: "1.5rem",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "1fr 1fr",
-              md: "repeat(3, 1fr)",
-            },
+            mt: 3,
+            backgroundColor: highlightColor,
+            color: "#000",
+            fontWeight: "bold",
+            fontSize: 20,
+            "&:hover": { backgroundColor: highlightColor },
+            alignSelf: "center",
           }}
         >
-          {filteredMovies.length === 0 ? (
-            <Typography>No movies found.</Typography>
-          ) : (
-            filteredMovies.slice(0, visibleCount).map((movie) => (
-              <Box
-                key={movie.id}
-                onClick={() => handleMovieClick(movie)}
-                sx={{ cursor: "pointer", height: "100%" }}
-              >
-                <MovieCard movie={movie} />
-              </Box>
-            ))
-          )}
-        </Box>
-
-        {/* Load More Button */}
-        {visibleCount < filteredMovies.length && filteredMovies.length > 0 && (
-          <Button
-            variant="contained"
-            onClick={handleLoadMore}
-            sx={{
-              mt: 3,
-              backgroundColor: mode === "light" ? "#FFD700" : "#f5c518",
-              color: "#000",
-              fontWeight: "bold",
-              fontSize: 20,
-              "&:hover": {
-                backgroundColor: mode === "light" ? "#FFD700" : "#f5c518",
-              },
-            }}
-          >
-            Load More
-          </Button>
-        )}
-      </main>
-    </div>
+          Load More
+        </Button>
+      )}
+    </Box>
   );
 }
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
-import { Box, TextField, IconButton, useTheme } from "@mui/material";
+import { Box, TextField, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useThemeContext } from "../contexts/ThemeContext";
 import { LightMode, DarkMode } from "@mui/icons-material";
@@ -10,8 +10,7 @@ import { LightMode, DarkMode } from "@mui/icons-material";
 function Navbar() {
   const { currentUser, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const { mode, toggleTheme } = useThemeContext();
-  const theme = useTheme();
+  const { theme, mode, toggleTheme } = useThemeContext();
 
   const {
     searchQuery,
@@ -67,23 +66,23 @@ function Navbar() {
 
   return (
     <>
-      {/* Floating theme toggle - top left */}
+      {/* Theme toggle */}
       <IconButton
         onClick={toggleTheme}
         sx={{
           position: "fixed",
           top: 16,
           left: 16,
-          bgcolor: "background.paper",
+          bgcolor: theme.palette.background.paper,
           boxShadow: 3,
-          "&:hover": { bgcolor: "yellow" },
+          "&:hover": { bgcolor: theme.palette.primary.light },
           zIndex: 2000,
         }}
       >
         {mode === "light" ? <DarkMode /> : <LightMode />}
       </IconButton>
 
-      {/* Floating profile avatar - top right */}
+      {/* Mobile profile avatar */}
       <Box
         component={Link}
         to="/profile"
@@ -98,7 +97,7 @@ function Navbar() {
           bgcolor: theme.palette.background.paper,
           color: theme.palette.primary.main,
           fontWeight: "bold",
-          display: { xs: "flex", md: "none" }, // samo na mob
+          display: { xs: "flex", md: "none" },
           alignItems: "center",
           justifyContent: "center",
           textDecoration: "none",
@@ -114,6 +113,7 @@ function Navbar() {
         {getInitials(currentUser?.name)}
       </Box>
 
+      {/* Navbar */}
       <Box
         component="nav"
         sx={{
@@ -177,11 +177,10 @@ function Navbar() {
                 variant="outlined"
                 sx={{
                   flex: 1,
-                  bgcolor: mode === "dark" ? "#222" : "#fff",
+                  bgcolor: theme.palette.background.paper,
                   borderRadius: "6px 0 0 6px",
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor:
-                      mode === "dark" ? "#333" : theme.palette.divider,
+                    borderColor: theme.palette.divider,
                   },
                   "& .MuiInputBase-input": {
                     color: theme.palette.text.primary,
@@ -208,6 +207,7 @@ function Navbar() {
               </IconButton>
             </Box>
 
+            {/* Suggestions */}
             {showSuggestions && searchResults.length > 0 && (
               <Box
                 sx={{
@@ -247,7 +247,7 @@ function Navbar() {
             )}
           </Box>
 
-          {/* Menu links */}
+          {/* Nav links */}
           <Box
             component="ul"
             sx={{
@@ -277,7 +277,7 @@ function Navbar() {
             )}
           </Box>
 
-          {/* Profile avatar desktop only */}
+          {/* Desktop profile */}
           <Box
             component={Link}
             to="/profile"
