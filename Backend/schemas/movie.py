@@ -1,14 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import date
 
 class MovieBase(BaseModel):
     title: str
-    year: int
-    description: Optional[str] = None
+    director: str
+    description: str
     image: Optional[str] = None
-    genre: Optional[str] = None
-    slug: Optional[str] = None
-    rating: Optional[float] = 0.0  # prosečna ocena, placeholder za sada
+    release_date: Optional[date] = None
 
 class MovieCreate(MovieBase):
     pass
@@ -16,3 +15,14 @@ class MovieCreate(MovieBase):
 class MovieRead(MovieBase):
     id: int
 
+class MovieResponse(BaseModel):
+    """Schema for frontend response with calculated fields"""
+    id: int
+    title: str
+    director: str
+    year: int
+    rating: float
+    description: str
+    genres: list[str]
+    image: Optional[str] = None
+    slug: str
