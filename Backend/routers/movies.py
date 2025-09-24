@@ -1,0 +1,67 @@
+from fastapi import APIRouter, HTTPException, Depends
+from sqlmodel import Session, select
+from typing import List
+from database.database import engine
+from models.movie import Movie
+from schemas.movies import MovieCreate, MovieRead
+
+router = APIRouter(prefix="/movies", tags=["movies"])
+
+# GET svi filmovi
+@router.get("/", response_model=List[MovieRead])
+def get_movies():
+    with Session(engine) as session:
+        statement = select(Movie)
+        movies = session.exec(statement).all()
+        return movies
+
+# GET film po id
+@router.get("/{movie_id}", response_model=MovieRead)
+def get_movie(movie_id: int):
+    with Session(engine) as session:
+        movie = session.get(Movie, movie_id)
+        if not movie:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        return movie
+
+# POST novi film (admin/superadmin)
+@router.post("/", response_model=MovieRead)
+def create_movie(movie: MovieCreate):
+    # TODO: check admin/superadmin
+    with Session(engine) as session:
+        movie_data = movie.model_dump()
+        new_movie = Movie(**movie_data)
+        session.add(new_movie)
+        session.commit()
+        session.refresh(new_movie)
+        return new_movie
+
+# DELETE film po id (admin/superadmin)
+@router.delete("/{movie_id}")
+def delete_movie(movie_id: int):
+    # TODO: check admin/superadmin
+    with Session(engine) as session:
+        movie = session.get(Movie, movie_id)
+        if not movie:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        session.delete(movie)
+        session.commit()
+        return {"message": "Movie deleted"}
+
+# PUT update filma 
+@router.put("/{movie_id}", response_model=MovieRead)
+def update_movie(movie_id: int, movie_update: MovieCreate):
+    # TODO: check admin/superadmin
+    with Session(engine) as session:
+        movie = session.get(Movie, movie_id)
+        if not movie:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        
+        update_data = movie_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(movie, field, value)
+        
+        session.add(movie)
+        session.commit()
+        session.refresh(movie)
+        return movie
