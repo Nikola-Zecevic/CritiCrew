@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from typing import List
 from database.database import engine
 from models.movie import Movie
-from schemas.movies import MovieCreate, MovieRead
+from schemas.movie import MovieCreate, MovieRead
 
 router = APIRouter(prefix="/movies", tags=["movies"])
 
@@ -29,7 +29,8 @@ def get_movie(movie_id: int):
 def create_movie(movie: MovieCreate):
     # TODO: check admin/superadmin
     with Session(engine) as session:
-        new_movie = Movie.model_validate(movie)
+        movie_data = movie.model_dump()
+        new_movie = Movie(**movie_data)
         session.add(new_movie)
         session.commit()
         session.refresh(new_movie)
@@ -47,8 +48,20 @@ def delete_movie(movie_id: int):
         session.commit()
         return {"message": "Movie deleted"}
 
-# PUT update filma (zakomentarisano za sada)
-# @router.put("/{movie_id}", response_model=MovieRead)
-# def update_movie(movie_id: int, movie: MovieCreate):
-#     # TODO: check admin/superadmin
-#     pass
+# PUT update filma 
+@router.put("/{movie_id}", response_model=MovieRead)
+def update_movie(movie_id: int, movie_update: MovieCreate):
+    # TODO: check admin/superadmin
+    with Session(engine) as session:
+        movie = session.get(Movie, movie_id)
+        if not movie:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        
+        update_data = movie_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(movie, field, value)
+        
+        session.add(movie)
+        session.commit()
+        session.refresh(movie)
+        return movie
