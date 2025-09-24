@@ -32,7 +32,6 @@ def get_movie_genres(session: Session, movie_id: Optional[int]) -> List[str]:
     if not genre_ids:
         return []
     
-    # Get genres one by one to avoid in_ issues
     genres = []
     for genre_id in genre_ids:
         if genre_id is not None:
@@ -48,11 +47,10 @@ def create_movie_slug(title: str) -> str:
     """Create URL-friendly slug from movie title"""
     return title.lower().replace(" ", "-").replace(":", "").replace("'", "")
 
-# GET /movies-view/filter?genre=Action&sort=desc
 @router.get("/filter", response_model=List[MovieResponse])
 def filter_movies(
     genre: Optional[str] = None,
-    sort: Optional[str] = "desc"  # rating asc/desc
+    sort: Optional[str] = "desc"  
 ):
     with Session(engine) as session:
         statement = select(Movie)
