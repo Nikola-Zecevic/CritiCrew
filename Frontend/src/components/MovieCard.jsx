@@ -10,6 +10,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useThemeContext } from "../contexts/ThemeContext";
+import { getDisplayRating } from "../utils/ratingUtils";
 
 export default function MovieCard({ movie, isFeatured = false }) {
   const { theme } = useThemeContext(); // get the MUI theme from ThemeContext
@@ -68,7 +69,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           variant="body2"
           sx={{ color: theme.palette.secondary.main }}
         >
-          ⭐ {movie.rating}/10
+          ⭐ {getDisplayRating(movie)}/5
         </Typography>
 
         {isFeatured && (

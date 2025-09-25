@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,13 +6,91 @@ import {
   IconButton,
   Typography,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ShareIcon from "@mui/icons-material/Share";
 import UserReviews from "./UserReviews";
 import { useThemeContext } from "../contexts/ThemeContext";
+import moviesService from "../services/moviesService";
+import { getDisplayRating } from "../utils/ratingUtils";
 
 function Modal({ isOpen, onClose, movie }) {
   const { theme } = useThemeContext(); // now we have the MUI theme directly
+  const [currentRating, setCurrentRating] = useState(movie?.rating || 0);
+  const [isUserRating, setIsUserRating] = useState(movie?.isUserRating || false);
+  const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
+  
+  // Update current rating when movie changes
+  useEffect(() => {
+    if (movie) {
+      setCurrentRating(movie.rating);
+      setIsUserRating(movie.isUserRating || false);
+    }
+  }, [movie]);
+
+  // Function to calculate new average rating
+  const updateMovieRating = (reviews) => {
+    let newRating;
+    let isFromUserReviews;
+    
+    if (!reviews || reviews.length === 0) {
+      // If no reviews, keep original movie rating
+      newRating = movie.rating;
+      isFromUserReviews = false;
+    } else {
+      // Calculate average of user reviews (already on 0-5 scale)
+      const userRatingSum = reviews.reduce((sum, review) => sum + review.rating, 0);
+      newRating = userRatingSum / reviews.length;
+      isFromUserReviews = true;
+    }
+    
+    // Update local state for immediate UI update
+    setCurrentRating(newRating);
+    setIsUserRating(isFromUserReviews);
+    
+    // Update cached movie data so other components see the change
+    moviesService.updateMovieRating(movie.id, newRating);
+  };
+
+  // Function to handle sharing movie link
+  const handleShare = async () => {
+    try {
+      const movieUrl = `${window.location.origin}/movie/${movie.slug}`;
+      
+      // Try to use the Web Share API first (mobile devices)
+      if (navigator.share) {
+        await navigator.share({
+          title: movie.title,
+          text: `Check out this movie: ${movie.title}`,
+          url: movieUrl,
+        });
+        console.log('✅ Movie shared successfully via Web Share API');
+      } else {
+        // Fallback to clipboard API
+        await navigator.clipboard.writeText(movieUrl);
+        setShareSnackbarOpen(true);
+        console.log('✅ Movie link copied to clipboard');
+      }
+    } catch (error) {
+      console.error('Failed to share movie:', error);
+      // Fallback: try to copy to clipboard even if Web Share failed
+      try {
+        await navigator.clipboard.writeText(`${window.location.origin}/movie/${movie.slug}`);
+        setShareSnackbarOpen(true);
+      } catch (clipboardError) {
+        console.error('Failed to copy to clipboard:', clipboardError);
+        // Last resort: show a manual copy option
+        alert(`Copy this link to share: ${window.location.origin}/movie/${movie.slug}`);
+      }
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setShareSnackbarOpen(false);
+  };
+
   if (!movie) return null;
 
   return (
@@ -85,6 +163,31 @@ function Modal({ isOpen, onClose, movie }) {
         <CloseIcon />
       </IconButton>
 
+      {/* Share button */}
+      <IconButton
+        aria-label="share movie"
+        onClick={handleShare}
+        sx={{
+          position: "absolute",
+          top: "1.2rem",
+          right: "1.2rem",
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
+          borderRadius: "50%",
+          width: 40,
+          height: 40,
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+          zIndex: 10,
+          "&:hover": {
+            bgcolor: theme.palette.secondary.main,
+            transform: "scale(1.1)",
+          },
+        }}
+      >
+        <ShareIcon />
+      </IconButton>
+
       {/* Header */}
       <DialogTitle
         id="movie-dialog-title"
@@ -141,7 +244,7 @@ function Modal({ isOpen, onClose, movie }) {
           }}
           aria-hidden
         >
-          ★ {movie.rating}/10
+          ★ {getDisplayRating({ rating: currentRating, isUserRating })}/5
         </Box>
       </DialogTitle>
 
@@ -246,10 +349,26 @@ function Modal({ isOpen, onClose, movie }) {
               User Reviews
             </Typography>
 
-            <UserReviews movieId={movie.id} />
+            <UserReviews movieId={movie.id} onReviewsChange={updateMovieRating} />
           </Box>
         </Box>
       </DialogContent>
+
+      {/* Share success notification */}
+      <Snackbar
+        open={shareSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity="success" 
+          sx={{ width: '100%' }}
+        >
+          Movie link copied to clipboard!
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }

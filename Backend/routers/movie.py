@@ -29,7 +29,23 @@ def get_movie(movie_id: int):
 def create_movie(movie: MovieCreate):
     # TODO: check admin/superadmin
     with Session(engine) as session:
+        # Get all existing movie IDs to find the next available ID
+        existing_movies = session.exec(select(Movie)).all()
+        existing_ids = [movie.id for movie in existing_movies if movie.id is not None]
+        existing_ids.sort()
+        
+        # Calculate the next available ID
+        next_id = 1
+        for existing_id in existing_ids:
+            if existing_id == next_id:
+                next_id += 1
+            else:
+                break  # Found a gap, use next_id
+        
+        # Create movie with calculated ID
         movie_data = movie.model_dump()
+        movie_data['id'] = next_id
+        
         new_movie = Movie(**movie_data)
         session.add(new_movie)
         session.commit()

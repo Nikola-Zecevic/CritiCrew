@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import reviewsData from "../services/reviews";
+import React, { useState, useEffect } from "react";
+import apiService from "../services/apiService";
 import {
   Box,
   Card,
@@ -15,37 +15,116 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useAuth } from "../contexts/AuthContext";
 import { useThemeContext } from "../contexts/ThemeContext";
 
-function UserReviews({ movieId }) {
+function UserReviews({ movieId, onReviewsChange }) {
   const { currentUser, isAuthenticated } = useAuth();
-  const { theme } = useThemeContext(); // useThemeContext
+  const { theme } = useThemeContext();
 
-  const [reviews, setReviews] = useState(
-    reviewsData.filter((r) => r.movieId === movieId)
-  );
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(3);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
 
-  const handleAddReview = () => {
-    if (!isAuthenticated || !comment.trim() || !rating) return;
-
-    const newReview = {
-      movieId,
-      user: currentUser?.name || "Anonymous",
-      rating,
-      comment: comment.trim(),
+  // Load reviews from API when component mounts
+  useEffect(() => {
+    const loadReviews = async () => {
+      if (!movieId) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        console.log(`🎬 Loading reviews for movie ${movieId}...`);
+        
+        const reviewsData = await apiService.getMovieReviews(movieId);
+        
+        // Transform API data to match component expectations
+        const transformedReviews = reviewsData.map(review => ({
+          id: review.id,
+          movieId: review.movie?.id || movieId,
+          user: review.user?.username || 'Anonymous',
+          rating: review.rating,
+          comment: review.review_text,
+          date: review.review_date
+        }));
+        
+        setReviews(transformedReviews);
+        console.log(`✅ Loaded ${transformedReviews.length} reviews`);
+        
+        // Notify parent component about reviews change
+        if (onReviewsChange) {
+          onReviewsChange(transformedReviews);
+        }
+      } catch (error) {
+        console.error('Failed to load reviews:', error);
+        setError('Unable to load reviews. Please try again later.');
+        setReviews([]); // Show empty state instead of fake data
+        
+        // Notify parent component about empty reviews
+        if (onReviewsChange) {
+          onReviewsChange([]);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
-    setReviews((prev) => [...prev, newReview]);
-    setComment("");
-    setRating(3);
+    loadReviews();
+  }, [movieId]);
+
+  const handleAddReview = async () => {
+    if (!isAuthenticated || !comment.trim() || !rating) {
+      return;
+    }
+
+    try {
+      const reviewData = {
+        movie_id: movieId,
+        user_id: currentUser?.id || 1, // You'll need to get real user ID from auth
+        rating,
+        review_text: comment.trim(),
+      };
+
+      console.log('🎬 Creating new review...', reviewData);
+      const newReview = await apiService.createReview(reviewData);
+      
+      // Transform and add to local state
+      const transformedReview = {
+        id: newReview.id,
+        movieId: newReview.movie?.id || movieId,
+        user: newReview.user?.username || currentUser?.name || 'Anonymous',
+        rating: newReview.rating,
+        comment: newReview.review_text,
+        date: newReview.review_date
+      };
+
+      setReviews((prev) => {
+        const updatedReviews = [...prev, transformedReview];
+        
+        // Notify parent component about reviews change
+        if (onReviewsChange) {
+          onReviewsChange(updatedReviews);
+        }
+        
+        return updatedReviews;
+      });
+      setComment("");
+      setRating(3);
+      console.log('✅ Review created successfully');
+    } catch (error) {
+      console.error('Failed to create review:', error);
+      // You might want to show an error message to the user
+      alert('Failed to add review. Please try again.');
+    }
   };
 
   const handleDeleteClick = (index) => {
@@ -53,11 +132,37 @@ function UserReviews({ movieId }) {
     setConfirmOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteIndex === null) return setConfirmOpen(false);
-    setReviews((prev) => prev.filter((_, i) => i !== deleteIndex));
-    setDeleteIndex(null);
-    setConfirmOpen(false);
+    
+    const reviewToDelete = reviews[deleteIndex];
+    
+    try {
+      // If the review has an ID, delete it from the API
+      if (reviewToDelete.id) {
+        await apiService.deleteReview(reviewToDelete.id);
+        console.log('✅ Review deleted successfully');
+      }
+      
+      // Remove from local state
+      setReviews((prev) => {
+        const updatedReviews = prev.filter((_, i) => i !== deleteIndex);
+        
+        // Notify parent component about reviews change
+        if (onReviewsChange) {
+          onReviewsChange(updatedReviews);
+        }
+        
+        return updatedReviews;
+      });
+      setDeleteIndex(null);
+      setConfirmOpen(false);
+    } catch (error) {
+      console.error('Failed to delete review:', error);
+      alert('Failed to delete review. Please try again.');
+      setDeleteIndex(null);
+      setConfirmOpen(false);
+    }
   };
 
   const handleCancelDelete = () => {
@@ -68,7 +173,20 @@ function UserReviews({ movieId }) {
   return (
     <Box sx={{ mt: 2 }}>
       {/* Reviews list */}
-      {reviews.length === 0 ? (
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+            Loading reviews...
+          </Typography>
+        </Box>
+      ) : error ? (
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.error.main, fontStyle: "italic" }}
+        >
+          {error}
+        </Typography>
+      ) : reviews.length === 0 ? (
         <Typography
           variant="body2"
           sx={{ fontStyle: "italic", color: theme.palette.text.secondary }}

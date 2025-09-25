@@ -21,13 +21,55 @@ export default function AuthForm({ mode, onSubmit }) {
         onSubmit={onSubmit}
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
-        <TextField
-          label="Email or Username"
-          name="email"
-          type="text"
-          required
-          fullWidth
-        />
+        {mode === "signup" && (
+          <>
+            <TextField
+              label="First Name"
+              name="name"
+              type="text"
+              required
+              fullWidth
+            />
+            <TextField
+              label="Last Name"
+              name="surname"
+              type="text"
+              required
+              fullWidth
+            />
+            <TextField
+              label="Address"
+              name="address"
+              type="text"
+              fullWidth
+            />
+            <TextField
+              label="Email"
+              name="email"
+              type="email"
+              required
+              fullWidth
+            />
+            <TextField
+              label="Username"
+              name="username"
+              type="text"
+              required
+              fullWidth
+            />
+          </>
+        )}
+        
+        {mode === "login" && (
+          <TextField
+            label="Email or Username"
+            name="identifier"
+            type="text"
+            required
+            fullWidth
+          />
+        )}
+        
         <TextField
           label="Password"
           name="password"

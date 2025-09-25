@@ -5,7 +5,7 @@ import moviesService from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
 import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
-
+import { getMovieOfTheDay } from "../../utils/movieOfTheDay";
 
 function Home() {
   const navigate = useNavigate();
@@ -33,6 +33,14 @@ function Home() {
     };
 
     loadMovies();
+
+    // Listen for rating updates
+    const unsubscribe = moviesService.addRatingUpdateListener((movieId, newRating, updatedMovies) => {
+      console.log(`🔄 Home: Received rating update for movie ${movieId}, refreshing movie list`);
+      setAllMovies([...updatedMovies]); // Create new array to trigger re-render
+    });
+
+    return unsubscribe; // Cleanup listener on unmount
   }, []);
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -48,6 +56,9 @@ function Home() {
 
   const textColor = mode === "dark" ? "#FFD700" : "#333";
   const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
+
+  // ✅ Get today's movie (deterministic, no repeats until list cycles)
+  const movieOfTheDay = getMovieOfTheDay(allMovies); 
 
   if (loading) {
     return (
@@ -105,13 +116,24 @@ function Home() {
         >
           🎬 Movie of the Day
         </Typography>
-        {allMovies.length > 0 && (
+        {movieOfTheDay ? (
           <Box
-            onClick={() => handleMovieClick(allMovies[0])}
+            onClick={() => handleMovieClick(movieOfTheDay)}
             sx={{ cursor: "pointer" }}
           >
-            <MovieCard movie={allMovies[0]} isFeatured />
+            <MovieCard movie={movieOfTheDay} isFeatured />
           </Box>
+        ) : (
+          <Typography
+            variant="body1"
+            sx={{
+              color: textColor,
+              textAlign: "center",
+              fontStyle: "italic",
+            }}
+          >
+            Loading movie of the day...
+          </Typography>
         )}
       </Box>
 

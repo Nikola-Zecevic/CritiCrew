@@ -204,17 +204,18 @@ export default function Navbar() {
     //   </Toolbar>
     // </AppBar>
     <>
-      {/* Theme toggle */}
+      {/* Theme toggle - Mobile floating button */}
       <IconButton
         onClick={toggleTheme}
         sx={{
           position: "fixed",
-          top: 16,
+          top: { xs: 80, sm: 85 },
           left: 16,
           bgcolor: theme.palette.background.paper,
           boxShadow: 3,
           "&:hover": { bgcolor: theme.palette.primary.light },
           zIndex: 2000,
+          display: { xs: "flex", md: "none" }, // Only show on mobile
         }}
       >
         {mode === "light" ? <DarkMode /> : <LightMode />}
@@ -226,7 +227,7 @@ export default function Navbar() {
         to="/profile"
         sx={{
           position: "fixed",
-          top: 16,
+          top: { xs: 80, sm: 85 },
           right: 16,
           width: 44,
           height: 44,
@@ -260,6 +261,7 @@ export default function Navbar() {
           position: "sticky",
           top: 0,
           zIndex: 1200,
+          mt: { xs: 0, md: 0 }, // Remove any top margin that might cause issues
         }}
       >
         <Box
@@ -269,10 +271,11 @@ export default function Navbar() {
             justifyContent: "space-between",
             maxWidth: 1200,
             mx: "auto",
-            px: 3,
-            gap: 3,
-            py: { xs: 2, md: 1.5 },
+            px: { xs: 2, sm: 3 },
+            gap: { xs: 2, md: 3 },
+            py: { xs: 1.5, md: 1.5 },
             flexDirection: { xs: "column", md: "row" },
+            minHeight: { xs: "auto", md: 64 }, // Ensure consistent height
           }}
         >
           {/* Logo */}
@@ -281,11 +284,16 @@ export default function Navbar() {
             to="/"
             sx={{
               color: theme.palette.primary.main,
-              fontSize: { xs: "2.2rem", md: "2.4rem" },
+              fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.4rem" },
               fontWeight: "bold",
               textDecoration: "none",
               textAlign: { xs: "center", md: "left" },
               width: { xs: "100%", md: "auto" },
+              px: { xs: 1, md: 0 }, // Add horizontal padding on mobile
+              py: { xs: 0.5, md: 0 }, // Add vertical padding on mobile
+              whiteSpace: "nowrap", // Prevent text wrapping
+              overflow: "hidden", // Handle overflow gracefully
+              order: { xs: 1, md: 0 }, // Control order on mobile
             }}
           >
             CritiCrew
@@ -295,10 +303,11 @@ export default function Navbar() {
           <Box
             sx={{
               flex: 1,
-              maxWidth: 550,
+              maxWidth: { xs: "100%", md: 450 },
               width: "100%",
               position: "relative",
               order: { xs: 3, md: 0 },
+              px: { xs: 1, md: 0 }, // Add padding on mobile
             }}
           >
             <Box
@@ -391,12 +400,13 @@ export default function Navbar() {
             sx={{
               display: "flex",
               listStyle: "none",
-              gap: { xs: 2, md: 5 },
+              gap: { xs: 1.5, sm: 2, md: 4 },
               m: 0,
               p: 0,
               order: { xs: 2, md: 0 },
               justifyContent: "center",
               flexWrap: "wrap",
+              width: { xs: "100%", md: "auto" },
             }}
           >
             {navLinks.map((link) => (
@@ -415,32 +425,53 @@ export default function Navbar() {
             )}
           </Box>
 
-          {/* Desktop profile */}
+          {/* Desktop controls */}
           <Box
-            component={Link}
-            to="/profile"
             sx={{
               display: { xs: "none", md: "flex" },
-              width: 46,
-              height: 46,
-              borderRadius: "50%",
-              border: `2px solid ${theme.palette.primary.main}`,
-              bgcolor: theme.palette.background.paper,
-              color: theme.palette.primary.main,
-              fontWeight: "bold",
               alignItems: "center",
-              justifyContent: "center",
-              textDecoration: "none",
-              "&:hover": {
-                bgcolor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(
-                  theme.palette.primary.main
-                ),
-                transform: "scale(1.05)",
-              },
+              gap: 2,
             }}
           >
-            {getInitials(currentUser?.name)}
+            {/* Desktop theme toggle */}
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`,
+                "&:hover": { bgcolor: theme.palette.primary.light },
+              }}
+            >
+              {mode === "light" ? <DarkMode /> : <LightMode />}
+            </IconButton>
+
+            {/* Desktop profile */}
+            <Box
+              component={Link}
+              to="/profile"
+              sx={{
+                width: 46,
+                height: 46,
+                borderRadius: "50%",
+                border: `2px solid ${theme.palette.primary.main}`,
+                bgcolor: theme.palette.background.paper,
+                color: theme.palette.primary.main,
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  transform: "scale(1.05)",
+                },
+              }}
+            >
+              {getInitials(currentUser?.name)}
+            </Box>
           </Box>
         </Box>
       </Box>

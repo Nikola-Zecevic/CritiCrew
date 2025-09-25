@@ -150,6 +150,27 @@ class ApiService {
     });
   }
 
+  async deleteReview(reviewId) {
+    return await this.makeRequest(`/reviews/${reviewId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // User authentication API calls
+  async registerUser(userData) {
+    return await this.makeRequest('/users/register', {
+      method: 'POST',
+      data: userData,
+    });
+  }
+
+  async loginUser(credentials) {
+    return await this.makeRequest('/users/login', {
+      method: 'POST',
+      data: credentials,
+    });
+  }
+
   // Utility method for GET requests
   async get(endpoint, params = {}) {
     return await this.makeRequest(endpoint, {
@@ -179,6 +200,19 @@ class ApiService {
     return await this.makeRequest(endpoint, {
       method: 'DELETE',
     });
+  }
+
+  // Movie creation
+  async createMovie(movieData) {
+    return await this.makeRequest('/movies', {
+      method: 'POST',
+      data: movieData,
+    });
+  }
+
+  // Alias for getAllMovies (for Dashboard compatibility)
+  async getMovies() {
+    return await this.getAllMovies();
   }
 }
 

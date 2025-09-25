@@ -31,6 +31,8 @@ app.add_middleware(
 app.include_router(movie.router)
 app.include_router(movies_view.router)
 app.include_router(review.router)
+from routers import upload
+app.include_router(upload.router)
 
 # Test endpoint for CORS and deployment verification
 @app.get("/test-cors")

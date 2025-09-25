@@ -2,6 +2,7 @@
 import React from "react";
 import Navbar from "./Navbar";
 import ApiTestButton from "./ApiTestButton";
+import CacheDebugPanel from "./CacheDebugPanel";
 import "../styles/index.css";
 
 function Layout({ children }) {
@@ -9,6 +10,7 @@ function Layout({ children }) {
     <>
       <Navbar />
       <ApiTestButton />
+      <CacheDebugPanel />
       <main className="main-content">
         <div className="container">{children}</div>
       </main>
