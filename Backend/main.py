@@ -20,19 +20,8 @@ app = FastAPI(
 # Add CORS middleware - More permissive for development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000", 
-        "http://localhost:5173", 
-        "http://localhost:5174",
-        "http://localhost:5175",  # Add more ports just in case
-        "http://127.0.0.1:3000", 
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5174",
-        "http://127.0.0.1:5175",
-        "https://criti-crew-dtyi.vercel.app",
-        "https://*.vercel.app"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=False,  # Must be False when allow_origins is "*"
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=["*"],
     expose_headers=["*"]
