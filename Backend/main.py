@@ -17,22 +17,25 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Add CORS middleware
+# Add CORS middleware - More permissive for development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000", 
         "http://localhost:5173", 
-        "http://localhost:5174",  # Add port 5174 as well
+        "http://localhost:5174",
+        "http://localhost:5175",  # Add more ports just in case
         "http://127.0.0.1:3000", 
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
-        "https://criti-crew-dtyi.vercel.app",  # Your Vercel frontend
-        "https://*.vercel.app"  # Allow all Vercel subdomains
+        "http://127.0.0.1:5175",
+        "https://criti-crew-dtyi.vercel.app",
+        "https://*.vercel.app"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Include routers
