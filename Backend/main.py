@@ -40,6 +40,11 @@ app.include_router(movie.router)
 app.include_router(movies_view.router)
 app.include_router(review.router)
 
+# Test endpoint for CORS and deployment verification
+@app.get("/test-cors")
+def test_cors():
+    return {"message": "CORS is working!", "timestamp": "2025-09-25", "status": "success"}
+
 @app.get("/")
 def read_root():
     return {"message": "🎬 CritiCrew Movies API is running!", "docs": "/docs"}
