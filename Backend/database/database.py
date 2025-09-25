@@ -8,7 +8,15 @@ from models.review import Review
 from models.movie_genre_link import MovieGenreLink
 
 
-engine = create_engine(settings.db_url, echo=True)
+# Configure engine with SSL settings for Aiven
+engine = create_engine(
+    settings.db_url,
+    echo=True,
+    connect_args={
+        "ssl_disabled": False,
+        "charset": "utf8mb4"
+    }
+)
 
 
 def init_db():
