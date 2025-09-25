@@ -1,20 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
 import allMovies from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
 import { Box, Typography } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
+import { getMovieOfTheDay } from "../../utils/movieOfTheDay";
 
 function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useThemeContext();
-
-  // Default to 'light' if mode is null
-  const themeMode = mode ?? "dark";
-
   const moviesPerPage = 3;
+
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(allMovies.length / moviesPerPage);
 
@@ -26,8 +24,11 @@ function Home() {
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
   const handlePageChange = (page) => setSearchParams({ page });
 
-  const textColor = themeMode === "dark" ? "#FFD700" : "#333";
-  const sectionBg = themeMode === "dark" ? "#121212" : "#f9f9f9";
+  const textColor = mode === "dark" ? "#FFD700" : "#333";
+  const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
+
+  // ✅ Get today's movie (deterministic, no repeats until list cycles)
+  const movieOfTheDay = getMovieOfTheDay();
 
   return (
     <Box
@@ -55,10 +56,10 @@ function Home() {
           🎬 Movie of the Day
         </Typography>
         <Box
-          onClick={() => handleMovieClick(allMovies[0])}
+          onClick={() => handleMovieClick(movieOfTheDay)}
           sx={{ cursor: "pointer" }}
         >
-          <MovieCard movie={allMovies[0]} isFeatured />
+          <MovieCard movie={movieOfTheDay} isFeatured />
         </Box>
       </Box>
 
