@@ -181,11 +181,14 @@ function Filter() {
 
       {/* Sort by Rating */}
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-        <FormControl sx={{ minWidth: 180 }} size="small">
+        <FormControl sx={{ minWidth: 180 }} size="small" variant="outlined">
           <InputLabel id="sort-rating-label">Sort by rating</InputLabel>
+
           <Select
             labelId="sort-rating-label"
+            id="sort-rating-select"
             value={sortRating}
+            label="Sort by rating"
             onChange={(e) => handleSortChange(e.target.value)}
           >
             <MenuItem value="">None</MenuItem>
@@ -194,7 +197,6 @@ function Filter() {
           </Select>
         </FormControl>
       </Box>
-
       {/* Movies Grid */}
       <Box
         sx={{
