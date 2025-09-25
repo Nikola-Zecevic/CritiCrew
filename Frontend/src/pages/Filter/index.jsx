@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import allMovies from "../../services/moviesService";
+import moviesService from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
 import {
   Box,
@@ -14,6 +14,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
@@ -22,8 +24,28 @@ function Filter() {
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [showGenreBox, setShowGenreBox] = useState(false);
   const [sortRating, setSortRating] = useState("");
+  const [allMovies, setAllMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { mode } = useThemeContext();
+
+  useEffect(() => {
+    const loadMovies = async () => {
+      try {
+        setLoading(true);
+        const movies = await moviesService.getAllMovies();
+        setAllMovies(movies);
+      } catch (err) {
+        setError('Failed to load movies: ' + err.message);
+        console.error('Error loading movies:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMovies();
+  }, []);
 
   const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
@@ -59,6 +81,36 @@ function Filter() {
   const bgPaper = mode === "light" ? "#fff" : "#121212";
   const textColor = mode === "light" ? "#333" : "#FFD700";
   const highlightColor = "#f5c518";
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          px: 2,
+          py: 4,
+        }}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box

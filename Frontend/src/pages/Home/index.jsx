@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
-import allMovies from "../../services/moviesService";
+import moviesService from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
 
@@ -11,7 +11,29 @@ function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useThemeContext();
+  
+  const [allMovies, setAllMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   const moviesPerPage = 3;
+
+  useEffect(() => {
+    const loadMovies = async () => {
+      try {
+        setLoading(true);
+        const movies = await moviesService.getAllMovies();
+        setAllMovies(movies);
+      } catch (err) {
+        setError('Failed to load movies: ' + err.message);
+        console.error('Error loading movies:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMovies();
+  }, []);
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(allMovies.length / moviesPerPage);
@@ -19,13 +41,43 @@ function Home() {
   const currentMovies = useMemo(() => {
     const startIndex = (currentPage - 1) * moviesPerPage;
     return allMovies.slice(startIndex, startIndex + moviesPerPage);
-  }, [currentPage, moviesPerPage]);
+  }, [allMovies, currentPage, moviesPerPage]);
 
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
   const handlePageChange = (page) => setSearchParams({ page });
 
   const textColor = mode === "dark" ? "#FFD700" : "#333";
   const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          px: 2,
+          py: 4,
+        }}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -53,12 +105,14 @@ function Home() {
         >
           🎬 Movie of the Day
         </Typography>
-        <Box
-          onClick={() => handleMovieClick(allMovies[0])}
-          sx={{ cursor: "pointer" }}
-        >
-          <MovieCard movie={allMovies[0]} isFeatured />
-        </Box>
+        {allMovies.length > 0 && (
+          <Box
+            onClick={() => handleMovieClick(allMovies[0])}
+            sx={{ cursor: "pointer" }}
+          >
+            <MovieCard movie={allMovies[0]} isFeatured />
+          </Box>
+        )}
       </Box>
 
       {/* Top Rated Movies */}
