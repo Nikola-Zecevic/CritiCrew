@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     
     DB_USERNAME: str
     DB_PASSWORD: SecretStr
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 3306
+    DB_HOST: str
+    DB_PORT: int
     DB_NAME: str
 
     
