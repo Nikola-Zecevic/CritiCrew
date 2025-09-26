@@ -137,7 +137,8 @@ def register(db:Session, user_data):#:Register
         hashed_password=hashed_password,
         name=user_data.name,
         surname=user_data.surname,
-        address=user_data.address
+        address=user_data.address,
+        role_id = 1
         
     )
     db.add(new_user)
@@ -153,14 +154,7 @@ def register2(db:Session, user_data):#:Register
     if get_user_by_email(db, email):
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Ensure we have a default role - check if roles exist
-    default_role = get_role_by_name(db, "regular")
-    if not default_role:
-        # Create default role if it doesn't exist
-        from models.role import Role
-        default_role = Role(name="regular")
-        db.add(default_role)
-        db.flush()  # Get the ID without committing
+
     
     hashed_password = hash_password(user_data.password)
     new_user = User(
@@ -170,7 +164,7 @@ def register2(db:Session, user_data):#:Register
         name=user_data.name,
         surname=user_data.surname,
         address=user_data.address,
-        role_id=default_role.id
+        role_id=1
     )
     try:
         db.add(new_user)
