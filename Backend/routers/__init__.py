@@ -1,2 +1,4 @@
 import routers.user
-__all__ = ["user"]
+import routers.movie
+import routers.review
+__all__ = ["user", "movie", "review"]
