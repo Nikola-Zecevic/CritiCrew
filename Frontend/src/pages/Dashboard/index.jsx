@@ -35,7 +35,17 @@ export default function Dashboard() {
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // 8 movies per page for grid layout
+  
+  // Responsive items per page calculation
+  const getItemsPerPage = () => {
+    if (window.innerWidth >= 1536) { return 15; } // xl: 5 columns × 3 rows
+    if (window.innerWidth >= 1200) { return 12; } // lg: 4 columns × 3 rows
+    if (window.innerWidth >= 900) { return 9; }   // md: 3 columns × 3 rows
+    if (window.innerWidth >= 600) { return 6; }   // sm: 2 columns × 3 rows
+    return 3; // xs: 1 column × 3 rows
+  };
+  
+  const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage());
 
   // Edit dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -79,6 +89,21 @@ export default function Dashboard() {
 
     loadMovies();
   }, []);
+
+  // Handle window resize for responsive pagination
+  useEffect(() => {
+    const handleResize = () => {
+      const newItemsPerPage = getItemsPerPage();
+      if (newItemsPerPage !== itemsPerPage) {
+        setItemsPerPage(newItemsPerPage);
+        // Reset to page 1 when items per page changes to avoid empty pages
+        setCurrentPage(1);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [itemsPerPage, getItemsPerPage]);
 
   const showNotification = (message, severity = 'success') => {
     setNotification({
