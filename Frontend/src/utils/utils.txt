@@ -1,3 +1,0 @@
-Sadrži  pomoćne  funkcije  (utility  functions)  koje 
-pojednostavljuju  rad  sa  podacima,  manipulaciju  stringovima, 
-formatiranje datuma, validaciju inputa i slično.

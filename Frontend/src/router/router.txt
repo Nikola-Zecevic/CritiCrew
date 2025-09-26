@@ -1,3 +1,0 @@
-Sadrži kompletnu logiku rutiranja aplikacije pomoću React 
-Router-a, uključujući definisanje svih ruta i user permission handling 
-(npr. zaštita ruta za autorizovane korisnike).
