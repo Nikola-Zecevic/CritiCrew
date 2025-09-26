@@ -152,6 +152,7 @@ def register2(db:Session, user_data):#:Register
         raise HTTPException(status_code=400, detail="Username already registered")
     if get_user_by_email(db, email):
         raise HTTPException(status_code=400, detail="Email already registered")
+    
     hashed_password = hash_password(user_data.password)
     new_user = User(
         username=username,
@@ -160,7 +161,7 @@ def register2(db:Session, user_data):#:Register
         name=user_data.name,
         surname=user_data.surname,
         address=user_data.address,
-        role_id=1  # default to 'regular' role
+
     )
     try:
         db.add(new_user)
@@ -168,7 +169,8 @@ def register2(db:Session, user_data):#:Register
         db.refresh(new_user)
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to create user") from e
+        print(f"Database error during user registration: {str(e)}")  # For debugging
+        raise HTTPException(status_code=500, detail=f"Failed to create user: {str(e)}") from e
     return new_user
     
 

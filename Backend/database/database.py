@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine, Session, select
 from .config import settings
 from models.user import User
 from models.role import Role
@@ -24,8 +24,27 @@ engine = create_engine(
 
 
 def init_db():
-    
+    # Create all tables
     SQLModel.metadata.create_all(engine)
+    
+    # Initialize default roles
+    with Session(engine) as session:
+        from models.role import Role
+        
+        # Check if roles exist, if not create them
+        if not session.exec(select(Role).where(Role.name == "regular")).first():
+            regular_role = Role(name="regular")
+            session.add(regular_role)
+        
+        if not session.exec(select(Role).where(Role.name == "admin")).first():
+            admin_role = Role(name="admin") 
+            session.add(admin_role)
+            
+        if not session.exec(select(Role).where(Role.name == "superadmin")).first():
+            superadmin_role = Role(name="superadmin")
+            session.add(superadmin_role)
+        
+        session.commit()
 
 
 def get_session():

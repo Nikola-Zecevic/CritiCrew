@@ -22,11 +22,11 @@ def is_superadmin(user):
     role_name = role_name_of_user(user)
     return role_name == "superadmin"
 
-def require_admin_or_superadmin(user: User = Depends(user_views.get_current_user)):
+def require_admin_or_superadmin(user: User = Depends(user_views.get_current_user2)):
     if not is_admin_or_superadmin(user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Operation not permitted")
     return user
-def require_superadmin(user: User = Depends(user_views.get_current_user)):
+def require_superadmin(user: User = Depends(user_views.get_current_user2)):
     if not is_superadmin(user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Operation not permitted")
     return user
@@ -37,7 +37,7 @@ def list_all_users(session:Session = Depends(get_session), current_user:User=Dep
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED )
 def register_user(user_data:Register, session:Session = Depends(get_session)):
-    return user_views.register(session, user_data)
+    return user_views.register2(session, user_data)
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id:int, session:Session = Depends(get_session), current_user:User=Depends(require_superadmin)):
@@ -52,7 +52,7 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
-    return user_views.login(session, form_data)
+    return user_views.login2(session, form_data)
 
 @router.put("/{user_id}/promote", response_model=UserRead)
 def promote_user(user_id:int, session:Session = Depends(get_session), current_user:User=Depends(require_superadmin)):
