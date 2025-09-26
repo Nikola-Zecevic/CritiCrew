@@ -238,7 +238,7 @@ def demote_admin_to_regular(db:Session, target_user:User):
     regular_role = get_role_by_name(db, "regular")
     if not regular_role:
         raise HTTPException(status_code=400, detail="Regular role not found")
-    target_user.role_id = regular_role.id
+    target_user.role_id = 1
     db.add(target_user)
     db.commit()
     db.refresh(target_user)
