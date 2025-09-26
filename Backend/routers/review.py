@@ -1,81 +1,186 @@
-from fastapi import APIRouter, HTTPException
+from typing import List, Optional, Any
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlmodel import Session, select
-from typing import List
-from database.database import engine
+import views.user as user_views  # assumes views.user.get_current_user exists
+from database.database import get_session
 from models.review import Review
-from models.user import User
 from models.movie import Movie
-from schemas.review import ReviewCreate, ReviewRead, UserInReview, MovieInReview
-
+from models.user import User
+from schemas.review import ReviewCreate, ReviewRead
 router = APIRouter(prefix="/reviews", tags=["reviews"])
+# ---------------------
+# Helpers / auth checks
+# ---------------------
 
-# GET svi reviewi za film
-@router.get("/movie/{movie_id}", response_model=List[ReviewRead])
-def get_reviews_for_movie(movie_id: int):
-    with Session(engine) as session:
-        statement = select(Review).where(Review.movie_id == movie_id)
-        reviews = session.exec(statement).all()
 
-        results = []
-        for review in reviews:
-            results.append(
-                ReviewRead(
-                    id=review.id,
-                    rating=review.rating,
-                    review_text=review.review_text,
-                    review_date=review.review_date,
-                    user=UserInReview(id=review.user.id, username=review.user.username) if review.user else None,
-                    movie=MovieInReview(id=review.movie.id, title=review.movie.title) if review.movie else None,
-                )
-            )
-        return results
+def _role_name_of_user(user: Optional[User]) -> Optional[str]:
+    """Safe role name getter (works if user.role is None)."""
+    return getattr(getattr(user, "role", None), "name", None)
 
-# POST novi review
-@router.post("/", response_model=ReviewRead)
-def create_review(review: ReviewCreate):
-    # TODO: proveri da li je user ulogovan (nije guest)
-    # TODO: dozvoli samo ako je role == "user" ili "admin" ili "superadmin"
 
-    with Session(engine) as session:
-        movie = session.get(Movie, review.movie_id)
-        if not movie:
-            raise HTTPException(status_code=404, detail="Movie not found")
+def is_admin_or_superadmin(user: User) -> bool:
+    return _role_name_of_user(user) in ("admin", "superadmin")
 
-        user = session.get(User, review.user_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
 
-        new_review = Review(
-            rating=review.rating,
-            review_text=review.review_text,
-            user_id=review.user_id,
-            movie_id=review.movie_id,
-        )
-        session.add(new_review)
-        session.commit()
-        session.refresh(new_review)
+def require_logged_in_user(user: User = Depends(user_views.get_current_user)) -> User:
+    """Ensure the request is authenticated (get_current_user should raise 401 if not)."""
+    return user
 
-        return ReviewRead(
-            id=new_review.id,
-            rating=new_review.rating,
-            review_text=new_review.review_text,
-            review_date=new_review.review_date,
-            user=UserInReview(id=user.id, username=user.username),
-            movie=MovieInReview(id=movie.id, title=movie.title),
-        )
 
-# DELETE review
-@router.delete("/{review_id}")
-def delete_review(review_id: int, user_id: int):
-    # TODO: proveri da li je user ulogovan
-    # TODO: dozvoli samo ako je role == "admin" ili "superadmin"
+def _get_review_or_404(review_id: int, session: Session) -> Review:
+    review = session.get(Review, review_id)
+    if not review:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
+    return review
 
-    with Session(engine) as session:
-        review = session.get(Review, review_id)
-        if not review:
-            raise HTTPException(status_code=404, detail="Review not found")
 
-        session.delete(review)
-        session.commit()
-        return {"message": "Review deleted"}
+def require_review_owner(
+    review_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_logged_in_user),
+) -> Review:
+    """
+    Dependency: ensures the current user is the review owner.
+    Returns the Review instance (fewer DB round trips in handlers).
+    """
+    review = _get_review_or_404(review_id, session)
+    if review.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Only the review owner can perform this action")
+    return review
 
+
+def require_review_owner_or_admin(
+    review_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_logged_in_user),
+) -> Review:
+    """
+    Dependency: owner OR admin/superadmin allowed.
+    Returns the Review instance.
+    """
+    review = _get_review_or_404(review_id, session)
+    if review.user_id == current_user.id or is_admin_or_superadmin(current_user):
+        return review
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Operation not permitted")
+# ---------------------
+# Read endpoints
+# ---------------------
+
+
+@router.get("/", response_model=List[ReviewRead])
+def list_reviews(movie_id: Optional[int] = Query(None, description="Optional filter by movie_id"),
+                 session: Session = Depends(get_session)):
+    """
+    List reviews. Optional filter by movie_id.
+    """
+    stmt = select(Review)
+    if movie_id is not None:
+        stmt = stmt.where(Review.movie_id == movie_id)
+    reviews = session.exec(stmt).all()
+    return reviews
+
+
+@router.get("/{review_id}", response_model=ReviewRead)
+def get_review(review_id: int, session: Session = Depends(get_session)):
+    """
+    Get a single review by id.
+    """
+    return _get_review_or_404(review_id, session)
+# ---------------------
+# Create (any logged-in user)
+# ---------------------
+
+
+@router.post("/", response_model=ReviewRead, status_code=status.HTTP_201_CREATED)
+def create_review(
+    review_in: ReviewCreate,
+    current_user: User = Depends(require_logged_in_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Any authenticated user can post a review. The review will be created with user_id = current_user.id.
+    """
+    # Support both Pydantic v2 (model_dump) and v1 (dict)
+    if hasattr(review_in, "model_dump"):
+        payload = review_in.model_dump()
+    else:
+        payload = review_in.dict()
+    # movie_id is required
+    movie_id = payload.get("movie_id")
+    if movie_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="movie_id is required")
+    # Ensure movie exists
+    movie = session.get(Movie, movie_id)
+    if not movie:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Movie not found")
+    # Rating validation (adjust bounds to your app rules: 1-5 or 1-10)
+    rating = payload.get("rating")
+    if rating is not None:
+        if not isinstance(rating, int) or not (1 <= rating <= 10):
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail="rating must be an integer between 1 and 10")
+    # Force the authenticated user as the author
+    payload["user_id"] = current_user.id
+    payload.pop("id", None)  # ignore provided id if any
+    new_review = Review(**payload)
+    session.add(new_review)
+    session.commit()
+    session.refresh(new_review)
+    return new_review
+# ---------------------
+# Update (ONLY owner)
+# ---------------------
+
+
+@router.put("/{review_id}", response_model=ReviewRead)
+def update_review(
+    review_id: int,
+    review_update: ReviewCreate,
+    # returns the Review instance
+    review: Review = Depends(require_review_owner),
+    session: Session = Depends(get_session),
+):
+    """
+    Only the review owner may update their review.
+    This disallows changing ownership or the movie association.
+    """
+    # Support Pydantic v2 or v1 partial dump
+    if hasattr(review_update, "model_dump"):
+        update_data = review_update.model_dump(exclude_unset=True)
+    else:
+        update_data = review_update.dict(exclude_unset=True)
+    # Prevent changing ownership / movie / id via this endpoint
+    for forbidden in ("user_id", "movie_id", "id"):
+        update_data.pop(forbidden, None)
+    # Validate rating if provided
+    if "rating" in update_data:
+        r = update_data["rating"]
+        if not isinstance(r, int) or not (1 <= r <= 10):
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail="rating must be an integer between 1 and 10")
+    for field, value in update_data.items():
+        setattr(review, field, value)
+    session.add(review)
+    session.commit()
+    session.refresh(review)
+    return review
+# ---------------------
+# Delete (owner OR admin/superadmin)
+# ---------------------
+
+
+@router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_review(
+    review_id: int,
+    # ensures owner OR admin
+    review: Review = Depends(require_review_owner_or_admin),
+    session: Session = Depends(get_session),
+):
+    session.delete(review)
+    session.commit()
+    return
