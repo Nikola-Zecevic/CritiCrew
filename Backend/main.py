@@ -1,63 +1,54 @@
 from fastapi import FastAPI
+
+#from fastapi.middleware.cors import CORSMiddleware
+#from contextlib import asynccontextmanager
+#from database.database import init_db
+#from routers import movie, review
+
+from routers import __all__ as all_routers
+from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from database.database import init_db
-from routers import movie, review
+from importlib import import_module
+load_dotenv()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    init_db()
-    yield
 
-app = FastAPI(
-    title="CritiCrew Movies API",
-    description="API for movie reviews and ratings",
-    version="1.0.0",
-    lifespan=lifespan
-)
+app = FastAPI()
 
-# Add CORS middleware - More permissive for development
+
+origins = []  
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=False,  # Must be False when allow_origins is "*"
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"]
 )
 
-# Include routers
-app.include_router(movie.router)
-app.include_router(review.router)
+for module_name in all_routers:
+    module = import_module(f"routers.{module_name}")
+    app.include_router(module.router)
 
-# Test endpoint for CORS and deployment verification
-@app.get("/test-cors")
-def test_cors():
-    return {"message": "CORS is working!", "timestamp": "2025-09-25", "status": "success"}
 
-@app.get("/")
-def read_root():
-    return {"message": "🎬 CritiCrew Movies API is running with ID management!", "docs": "/docs"}
 
-@app.get("/test-db")
-def test_database():
-    """Test database connection"""
-    from sqlmodel import Session, select
-    from models.movie import Movie
-    from database.database import engine
-    
-    try:
-        with Session(engine) as session:
-            statement = select(Movie)
-            movies = session.exec(statement).all()
-            return {
-                "status": "success", 
-                "message": "✅ Database connected successfully!",
-                "movies_count": len(movies),
-                "sample_movie": movies[0].title if movies else "No movies in database"
-            }
-    except Exception as e:
-        return {
-            "status": "error", 
-            "message": f"❌ Database connection failed: {str(e)}"
-        }
+
+# from fastapi import FastAPI
+# from contextlib import asynccontextmanager
+# from database.database import init_db
+
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     init_db()
+#     yield
+
+# app = FastAPI(lifespan=lifespan)
+
+# @app.get("/")
+# def read_root():
+#     return {"message": "Movies API is running!"}
+
+
+# for module_name in all_routers:
+#     module = import_module(f"routers.{module_name}")
+#     app.include_router(module.router)
+

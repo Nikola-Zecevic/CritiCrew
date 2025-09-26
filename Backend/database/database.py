@@ -8,6 +8,7 @@ from models.review import Review
 from models.movie_genre_link import MovieGenreLink
 
 
+
 # Configure engine with SSL settings for Aiven
 engine = create_engine(
     settings.db_url,
@@ -18,6 +19,9 @@ engine = create_engine(
     }
 )
 
+#engine = create_engine(settings.db_url, echo=True, pool_pre_ping=True)
+
+
 
 def init_db():
     
@@ -27,4 +31,14 @@ def init_db():
 def get_session():
     
     with Session(engine) as session:
+
         yield session
+
+def get_db():
+    db = Session(engine)
+    try:
+        yield db
+    finally:
+        db.close()
+
+
