@@ -28,9 +28,14 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-
+        # Extract the actual password value from SecretStr
+        password = self.DB_PASSWORD.get_secret_value()
+        # URL encode credentials to handle special characters
+        user_encoded = quote_plus(self.DB_USERNAME)
+        password_encoded = quote_plus(password)
+        
         return (
-            f"mysql+pymysql://{self.DB_USERNAME}:{self.DB_PASSWORD}"
+            f"mysql+pymysql://{user_encoded}:{password_encoded}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
             f"?ssl_disabled=false&charset=utf8mb4"
         )
