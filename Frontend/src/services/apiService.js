@@ -136,8 +136,17 @@ class ApiService {
   }
 
   // Movie-related API calls
-  async getAllMovies() {
-    return await this.makeRequest('/movies/', { method: 'GET' });
+  async getAllMovies(genre = null, sort = 'desc') {
+    const params = new URLSearchParams();
+    if (genre) {
+      params.append('genre', genre);
+    }
+    if (sort) {
+      params.append('sort', sort);
+    }
+    
+    const url = params.toString() ? `/movies/?${params.toString()}` : '/movies/';
+    return await this.makeRequest(url, { method: 'GET' });
   }
 
   async getMovieById(id) {
@@ -153,7 +162,7 @@ class ApiService {
       params.append('sort', sort);
     }
     
-    return await this.makeRequest(`/movies-view/filter?${params.toString()}`, { method: 'GET' });
+    return await this.makeRequest(`/movies/?${params.toString()}`, { method: 'GET' });
   }
 
   // Review-related API calls (for future use)

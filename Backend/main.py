@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database.database import init_db
-from views import movies as movies_view
 from routers import movie, review
 
 @asynccontextmanager
@@ -29,7 +28,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(movie.router)
-app.include_router(movies_view.router)
 app.include_router(review.router)
 
 # Test endpoint for CORS and deployment verification

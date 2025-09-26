@@ -15,6 +15,12 @@ class MovieCreate(MovieBase):
 class MovieRead(MovieBase):
     id: int
 
+class MovieReadWithGenres(MovieBase):
+    """Movie schema with genres for enhanced API responses"""
+    id: int
+    genres: list[str] = []
+    rating: float = 0.0
+
 class MovieResponse(BaseModel):
     """Schema for frontend response with calculated fields"""
     id: int

@@ -37,15 +37,15 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   
   // Responsive items per page calculation
-  const getItemsPerPage = () => {
+  const getItemsPerPage = React.useCallback(() => {
     if (window.innerWidth >= 1536) { return 15; } // xl: 5 columns × 3 rows
     if (window.innerWidth >= 1200) { return 12; } // lg: 4 columns × 3 rows
     if (window.innerWidth >= 900) { return 9; }   // md: 3 columns × 3 rows
     if (window.innerWidth >= 600) { return 6; }   // sm: 2 columns × 3 rows
     return 3; // xs: 1 column × 3 rows
-  };
+  }, []);
   
-  const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage());
+  const [itemsPerPage, setItemsPerPage] = useState(() => getItemsPerPage());
 
   // Edit dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -68,10 +68,31 @@ export default function Dashboard() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedMovies = filteredMovies.slice(startIndex, endIndex);
 
+  // Debug logging for pagination
+  React.useEffect(() => {
+    console.log('Pagination Debug:', {
+      totalMovies: movies.length,
+      filteredMovies: filteredMovies.length,
+      itemsPerPage,
+      currentPage,
+      totalPages,
+      startIndex,
+      endIndex,
+      paginatedMoviesCount: paginatedMovies.length
+    });
+  }, [movies.length, filteredMovies.length, itemsPerPage, currentPage, totalPages, startIndex, endIndex, paginatedMovies.length]);
+
   // Reset to page 1 when search term changes
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+  // Reset to page 1 if current page exceeds total pages
+  React.useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
 
   // Load movies from API
   useEffect(() => {
@@ -118,8 +139,10 @@ export default function Dashboard() {
   };
 
   // Pagination handler
-  const handlePageChange = (event, newPage) => {
-    setCurrentPage(newPage);
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
 
   // Edit movie handlers
@@ -220,8 +243,8 @@ export default function Dashboard() {
           onDeleteMovie={handleDeleteMovie}
           paginatedMovies={paginatedMovies}
           filteredMovies={filteredMovies}
-          currentPage={currentPage}
-          totalPages={totalPages}
+          currentPage={currentPage || 1}
+          totalPages={totalPages || 1}
           onPageChange={handlePageChange}
         />
       </Container>
