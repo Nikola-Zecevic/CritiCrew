@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Query
+from fastapi import APIRouter, HTTPException, Depends, Query, status
 from sqlmodel import Session, select
 from typing import List, Optional
 from database.database import engine
@@ -11,6 +11,7 @@ from views.movie_views import (
     get_movies_with_filters,
     build_movie_response_data
 )
+from routers.user import require_admin_or_superadmin, User
 
 router = APIRouter(prefix="/movies", tags=["movies"])
 
@@ -64,8 +65,8 @@ def get_movie(movie_id: int):
 
 # POST novi film (admin/superadmin)
 @router.post("/", response_model=MovieRead)
-def create_movie(movie: MovieCreate):
-    # TODO: check admin/superadmin
+def create_movie(movie: MovieCreate, current_user: User = Depends(require_admin_or_superadmin)):
+    
     with Session(engine) as session:
         # Get all existing movie IDs to find the next available ID
         existing_movies = session.exec(select(Movie)).all()
@@ -92,8 +93,8 @@ def create_movie(movie: MovieCreate):
 
 # DELETE film po id (admin/superadmin)
 @router.delete("/{movie_id}")
-def delete_movie(movie_id: int):
-    # TODO: check admin/superadmin
+def delete_movie(movie_id: int, current_user: User = Depends(require_admin_or_superadmin)):
+    
     with Session(engine) as session:
         movie = session.get(Movie, movie_id)
         if not movie:
@@ -104,7 +105,7 @@ def delete_movie(movie_id: int):
 
 # PUT update filma 
 @router.put("/{movie_id}", response_model=MovieRead)
-def update_movie(movie_id: int, movie_update: MovieCreate):
+def update_movie(movie_id: int, movie_update: MovieCreate, current_user: User = Depends(require_admin_or_superadmin)):
     # TODO: check admin/superadmin
     with Session(engine) as session:
         movie = session.get(Movie, movie_id)
