@@ -100,33 +100,23 @@ def create_review(
     current_user: User = Depends(require_logged_in_user),
     session: Session = Depends(get_session),
 ):
-    """
-    Any authenticated user can post a review. The review will be created with user_id = current_user.id.
-    """
-    # Support both Pydantic v2 (model_dump) and v1 (dict)
-    if hasattr(review_in, "model_dump"):
-        payload = review_in.model_dump()
-    else:
-        payload = review_in.dict()
-    # movie_id is required
+    payload = review_in.model_dump() if hasattr(review_in, "model_dump") else review_in.dict()
+
     movie_id = payload.get("movie_id")
-    if movie_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="movie_id is required")
-    # Ensure movie exists
+    if not movie_id:
+        raise HTTPException(status_code=422, detail="movie_id is required")
+
     movie = session.get(Movie, movie_id)
     if not movie:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Movie not found")
-    # Rating validation (adjust bounds to your app rules: 1-5 or 1-10)
+        raise HTTPException(status_code=404, detail="Movie not found")
+
     rating = payload.get("rating")
-    if rating is not None:
-        if not isinstance(rating, int) or not (1 <= rating <= 10):
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail="rating must be an integer between 1 and 10")
-    # Force the authenticated user as the author
+    if rating is not None and (not isinstance(rating, int) or not (1 <= rating <= 10)):
+        raise HTTPException(status_code=422, detail="rating must be an integer between 1 and 10")
+
+    # 🚫 Ignore any user_id from client
     payload["user_id"] = current_user.id
-    payload.pop("id", None)  # ignore provided id if any
+
     new_review = Review(**payload)
     session.add(new_review)
     session.commit()
