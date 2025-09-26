@@ -1,7 +1,7 @@
 from typing import List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlmodel import Session, select
-import views.user as user_views  # assumes views.user.get_current_user exists
+import views.user as user_views  # assumes views.user.get_current_user2 exists
 from database.database import get_session
 from models.review import Review
 from models.movie import Movie
@@ -22,8 +22,8 @@ def is_admin_or_superadmin(user: User) -> bool:
     return _role_name_of_user(user) in ("admin", "superadmin")
 
 
-def require_logged_in_user(user: User = Depends(user_views.get_current_user)) -> User:
-    """Ensure the request is authenticated (get_current_user should raise 401 if not)."""
+def require_logged_in_user(user: User = Depends(user_views.get_current_user2)) -> User:
+    """Ensure the request is authenticated (get_current_user2 should raise 401 if not)."""
     return user
 
 
