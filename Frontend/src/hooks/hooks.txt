@@ -1,4 +1,0 @@
-Sadrži custom React hook-ove koji enkapsuliraju određenu 
-logiku  i  omogućavaju  njen  reusability.  Na  primjer,  ovdje  mogu  biti 
-hook-ovi  za  rad  sa  local  storage-om  (useLocalStorage),  rukovanje 
-formama (useFormValidation), ili API pozive (useFetch).

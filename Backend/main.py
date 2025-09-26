@@ -1,11 +1,19 @@
 from fastapi import FastAPI
+
+#from fastapi.middleware.cors import CORSMiddleware
+#from contextlib import asynccontextmanager
+#from database.database import init_db
+#from routers import movie, review
+
 from routers import __all__ as all_routers
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from importlib import import_module
 load_dotenv()
 
+
 app = FastAPI()
+
 
 origins = []  
 
@@ -43,3 +51,4 @@ for module_name in all_routers:
 # for module_name in all_routers:
 #     module = import_module(f"routers.{module_name}")
 #     app.include_router(module.router)
+

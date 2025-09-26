@@ -1,4 +1,0 @@
-Menadžment  globalnog  state-a  pomoću  React Context 
-API-ja,  čime  se  eliminiše  potreba za prosleđivanjem podataka kroz 
-više  nivoa  komponenti  (props  drilling).  Tipični  primjeri  su  user 
-authentication, tema aplikacije, podešavanja jezika...

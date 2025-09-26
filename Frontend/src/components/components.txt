@@ -1,4 +1,0 @@
-Sadrži reusable UI komponente koje mogu biti dio bilo 
-kog component library-ja, poput dugmadi, kartica, modalnih prozora i 
-drugih  vizuelnih  elemenata.  Kompleksne  komponente  specifične za 
-određene stranice ne idu ovdje, već u pages/. 

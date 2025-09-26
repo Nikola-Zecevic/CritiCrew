@@ -16,8 +16,6 @@ class Movie(SQLModel, table=True):
     image: Optional[str] = None
     release_date: Optional[date] = None
 
+
     reviews: List["Review"] = Relationship(back_populates="movie")
     genres: List["Genre"] = Relationship(back_populates="movies", link_model=MovieGenreLink)
-
-
-
