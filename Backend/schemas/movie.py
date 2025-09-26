@@ -20,6 +20,7 @@ class MovieReadWithGenres(MovieBase):
     id: int
     genres: list[str] = []
     rating: float = 0.0
+    slug: str
 
 class MovieResponse(BaseModel):
     """Schema for frontend response with calculated fields"""

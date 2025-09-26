@@ -1,48 +1,18 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
-from sqlmodel import Session, select, func
+from sqlmodel import Session, select
 from typing import List, Optional
 from database.database import engine
 from models.movie import Movie
-from models.genre import Genre
-from models.movie_genre_link import MovieGenreLink
-from models.review import Review
 from schemas.movie import MovieCreate, MovieRead, MovieReadWithGenres
+from views.movie_views import (
+    get_movie_rating, 
+    get_movie_genres, 
+    create_movie_slug,
+    get_movies_with_filters,
+    build_movie_response_data
+)
 
 router = APIRouter(prefix="/movies", tags=["movies"])
-
-def get_movie_rating(session: Session, movie_id: Optional[int]) -> float:
-    """Calculate average rating for a movie from reviews"""
-    if movie_id is None:
-        return 0.0
-        
-    result = session.exec(
-        select(func.avg(Review.rating)).where(Review.movie_id == movie_id)
-    ).first()
-    return round(float(result), 1) if result else 0.0
-
-def get_movie_genres(session: Session, movie_id: Optional[int]) -> List[str]:
-    """Get all genre names for a movie"""
-    if movie_id is None:
-        return []
-        
-    genre_ids = session.exec(
-        select(MovieGenreLink.genre_id).where(MovieGenreLink.movie_id == movie_id)
-    ).all()
-    
-    if not genre_ids:
-        return []
-    
-    # Get genres one by one to avoid in_ issues
-    genres = []
-    for genre_id in genre_ids:
-        if genre_id is not None:
-            genre_name = session.exec(
-                select(Genre.name).where(Genre.id == genre_id)
-            ).first()
-            if genre_name:
-                genres.append(genre_name)
-    
-    return genres
 
 # GET svi filmovi with optional filtering
 @router.get("/", response_model=List[MovieReadWithGenres])
@@ -51,39 +21,19 @@ def get_movies(
     sort: Optional[str] = Query("desc", description="Sort by rating: 'asc' or 'desc'")
 ):
     with Session(engine) as session:
-        statement = select(Movie)
-        movies = session.exec(statement).all()
+        # Use view function for filtering logic
+        movies = get_movies_with_filters(session, genre, sort)
 
-        # Filter by genre if specified
-        if genre:
-            filtered = []
-            for movie in movies:
-                if movie.id is not None:
-                    movie_genres = get_movie_genres(session, movie.id)
-                    if genre in movie_genres:
-                        filtered.append(movie)
-            movies = filtered
-
-        # Build response with calculated fields
+        # Build response with calculated fields using view function
         movie_responses = []
         for movie in movies:
             if movie.id is None:
                 continue  # Skip movies without id
                 
-            rating = get_movie_rating(session, movie.id)
-            genres = get_movie_genres(session, movie.id)
-            
-            movie_response = MovieReadWithGenres(
-                id=movie.id,
-                title=movie.title,
-                director=movie.director,
-                description=movie.description,
-                image=movie.image,
-                release_date=movie.release_date,
-                genres=genres,
-                rating=rating
-            )
-            movie_responses.append(movie_response)
+            response_data = build_movie_response_data(session, movie)
+            if response_data:
+                movie_response = MovieReadWithGenres(**response_data)
+                movie_responses.append(movie_response)
         
         # Sort by rating
         if sort == "asc":
@@ -94,13 +44,23 @@ def get_movies(
         return movie_responses
 
 # GET film po id
-@router.get("/{movie_id}", response_model=MovieRead)
+@router.get("/{movie_id}", response_model=MovieReadWithGenres)
 def get_movie(movie_id: int):
     with Session(engine) as session:
         movie = session.get(Movie, movie_id)
         if not movie:
             raise HTTPException(status_code=404, detail="Movie not found")
-        return movie
+        
+        # Ensure movie has valid ID
+        if movie.id is None:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        
+        # Use view function to build response data
+        response_data = build_movie_response_data(session, movie)
+        if not response_data:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        
+        return MovieReadWithGenres(**response_data)
 
 # POST novi film (admin/superadmin)
 @router.post("/", response_model=MovieRead)
