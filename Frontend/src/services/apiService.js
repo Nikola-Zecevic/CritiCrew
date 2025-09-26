@@ -137,7 +137,7 @@ class ApiService {
 
   // Movie-related API calls
   async getAllMovies() {
-    return await this.makeRequest('/movies-view/', { method: 'GET' });
+    return await this.makeRequest('/movies/', { method: 'GET' });
   }
 
   async getMovieById(id) {

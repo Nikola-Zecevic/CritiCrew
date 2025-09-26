@@ -32,6 +32,10 @@ export default function Dashboard() {
   const [movies, setMovies] = useState([]);
   const [loadingMovies, setLoadingMovies] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // 8 movies per page for grid layout
 
   // Edit dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -47,6 +51,17 @@ export default function Dashboard() {
     movie.director.toLowerCase().includes(searchTerm.toLowerCase()) ||
     movie.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMovies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMovies = filteredMovies.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search term changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Load movies from API
   useEffect(() => {
@@ -75,6 +90,11 @@ export default function Dashboard() {
 
   const handleCloseNotification = () => {
     setNotification(prev => ({ ...prev, open: false }));
+  };
+
+  // Pagination handler
+  const handlePageChange = (event, newPage) => {
+    setCurrentPage(newPage);
   };
 
   // Edit movie handlers
@@ -173,7 +193,11 @@ export default function Dashboard() {
           onSearchChange={setSearchTerm}
           onEditMovie={handleEditMovie}
           onDeleteMovie={handleDeleteMovie}
+          paginatedMovies={paginatedMovies}
           filteredMovies={filteredMovies}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
         />
       </Container>
 

@@ -13,6 +13,7 @@ import {
   Movie as MovieIcon,
 } from '@mui/icons-material';
 import DashboardMovieCard from './DashboardMovieCard';
+import Pagination from './Pagination';
 
 const MoviesList = ({
   movies,
@@ -21,7 +22,11 @@ const MoviesList = ({
   onSearchChange,
   onEditMovie,
   onDeleteMovie,
-  filteredMovies
+  paginatedMovies,
+  filteredMovies,
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
   if (loading) {
     return (
@@ -106,29 +111,43 @@ const MoviesList = ({
             </Button>
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
-                xl: 'repeat(5, 1fr)'
-              },
-              gap: 3,
-              gridAutoRows: '450px'
-            }}
-          >
-            {filteredMovies.map((movie) => (
-              <DashboardMovieCard
-                key={movie.id}
-                movie={movie}
-                onEdit={onEditMovie}
-                onDelete={onDeleteMovie}
-              />
-            ))}
-          </Box>
+          <>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                  xl: 'repeat(5, 1fr)'
+                },
+                gap: 3,
+                gridAutoRows: '450px',
+                mb: 3
+              }}
+            >
+              {paginatedMovies.map((movie) => (
+                <DashboardMovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onEdit={onEditMovie}
+                  onDelete={onDeleteMovie}
+                />
+              ))}
+            </Box>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Box display="flex" justifyContent="center" mt={3}>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={onPageChange}
+                />
+              </Box>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

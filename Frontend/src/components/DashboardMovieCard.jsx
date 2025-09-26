@@ -83,9 +83,9 @@ const DashboardMovieCard = ({ movie, onEdit, onDelete }) => {
         />
         
         {/* Release Year Badge */}
-        {movie.release_date && (
+        {(movie.release_date || movie.year) && (
           <Chip
-            label={new Date(movie.release_date).getFullYear()}
+            label={movie.release_date ? new Date(movie.release_date).getFullYear() : movie.year}
             size="small"
             variant="outlined"
             sx={{
@@ -151,12 +151,12 @@ const DashboardMovieCard = ({ movie, onEdit, onDelete }) => {
             minHeight: '1.25rem'
           }}
         >
-          {movie.release_date ? (
+          {movie.release_date || movie.year ? (
             <>
               <Box component="span" sx={{ fontWeight: 'medium', color: 'primary.main' }}>
                 Released:
               </Box>{' '}
-              {new Date(movie.release_date).getFullYear()}
+              {movie.release_date ? new Date(movie.release_date).getFullYear() : movie.year}
             </>
           ) : (
             <Box component="span" sx={{ color: 'text.disabled' }}>
