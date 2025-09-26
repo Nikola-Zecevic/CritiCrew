@@ -1,4 +1,3 @@
-import React from "react";
 // import { Link as RouterLink, useNavigate } from "react-router-dom";
 // import {
 //   AppBar,
@@ -20,6 +19,7 @@ import React from "react";
 // import { useThemeContext } from "../contexts/ThemeContext";
 // import useMovieSearch from "../hooks/useMovieSearch";
 
+import React, { useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
@@ -39,7 +39,10 @@ export default function Navbar() {
     showSuggestions,
     handleSearchInputChange,
     clearSearch,
+    hideSuggestions,
   } = useMovieSearch();
+
+  const searchRef = useRef(null);
 
   // function getInitials(name = "") {
   //   return name
@@ -68,6 +71,20 @@ export default function Navbar() {
       .join("")
       .slice(0, 2)
       .toUpperCase();
+
+  // Handle clicking outside search to close suggestions
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        hideSuggestions();
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [hideSuggestions]);
 
   const navLinks = [
     { label: "Home", to: "/" },
@@ -301,6 +318,7 @@ export default function Navbar() {
 
           {/* Search */}
           <Box
+            ref={searchRef}
             sx={{
               flex: 1,
               maxWidth: { xs: "100%", md: 450 },
@@ -377,7 +395,7 @@ export default function Navbar() {
                     onClick={() => handleSuggestionClick(movie)}
                     sx={{
                       px: 2,
-                      py: 1,
+                      py: 1.5,
                       color: theme.palette.text.secondary,
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       cursor: "pointer",
@@ -385,9 +403,18 @@ export default function Navbar() {
                         bgcolor: theme.palette.action.hover,
                         color: theme.palette.primary.main,
                       },
+                      "&:last-child": {
+                        borderBottom: "none",
+                      },
                     }}
                   >
-                    {movie.title} ({movie.year}) — ⭐{movie.rating}
+                    <Box sx={{ fontWeight: 600, mb: 0.5 }}>
+                      {movie.title}
+                    </Box>
+                    <Box sx={{ fontSize: '0.875rem', opacity: 0.8 }}>
+                      {movie.year && `Released: ${movie.year}`}
+                      {movie.director && ` • Directed by ${movie.director}`}
+                    </Box>
                   </Box>
                 ))}
               </Box>

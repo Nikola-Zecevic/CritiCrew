@@ -244,7 +244,7 @@ function Modal({ isOpen, onClose, movie }) {
           }}
           aria-hidden
         >
-          ★ {getDisplayRating({ rating: currentRating, isUserRating })}/5
+          ★ {getDisplayRating({ rating: currentRating, isUserRating }) === 'No reviews' ? 'No reviews' : `${getDisplayRating({ rating: currentRating, isUserRating })}/5`}
         </Box>
       </DialogTitle>
 
@@ -308,7 +308,6 @@ function Modal({ isOpen, onClose, movie }) {
           <Box>
             {[
               ["Genre", movie.genre || "Drama"],
-              ["Duration", movie.duration || "142 min"],
               ["Director", movie.director || "Frank Darabont"],
             ].map(([label, value]) => (
               <Box

@@ -79,7 +79,25 @@ class ApiService {
       // Handle different types of axios errors
       if (error.response) {
         // Server responded with error status
-        const message = error.response.data?.message || error.response.statusText || 'Server Error';
+        console.error('Full error response:', error.response);
+        
+        let message = error.response.statusText || 'Server Error';
+        
+        // Handle validation errors (422)
+        if (error.response.status === 422 && error.response.data?.detail) {
+          if (Array.isArray(error.response.data.detail)) {
+            // Pydantic validation errors
+            const validationErrors = error.response.data.detail.map(err => 
+              `${err.loc?.join('.')} - ${err.msg}`
+            ).join(', ');
+            message = `Validation Error: ${validationErrors}`;
+          } else {
+            message = `Validation Error: ${error.response.data.detail}`;
+          }
+        } else if (error.response.data?.message) {
+          message = error.response.data.message;
+        }
+        
         throw new Error(`HTTP ${error.response.status}: ${message}`);
       } else if (error.request) {
         // Request was made but no response received (CORS/Network)
@@ -207,6 +225,21 @@ class ApiService {
     return await this.makeRequest('/movies', {
       method: 'POST',
       data: movieData,
+    });
+  }
+
+  // Movie update
+  async updateMovie(movieId, movieData) {
+    return await this.makeRequest(`/movies/${movieId}`, {
+      method: 'PUT',
+      data: movieData,
+    });
+  }
+
+  // Movie deletion
+  async deleteMovie(movieId) {
+    return await this.makeRequest(`/movies/${movieId}`, {
+      method: 'DELETE',
     });
   }
 

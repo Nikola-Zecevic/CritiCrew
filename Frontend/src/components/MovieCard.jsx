@@ -69,7 +69,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           variant="body2"
           sx={{ color: theme.palette.secondary.main }}
         >
-          ⭐ {getDisplayRating(movie)}/5
+          ⭐ {getDisplayRating(movie) === 'No reviews' ? 'No reviews' : `${getDisplayRating(movie)}/5`}
         </Typography>
 
         {isFeatured && (

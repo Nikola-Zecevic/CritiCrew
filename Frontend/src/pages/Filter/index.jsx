@@ -20,16 +20,30 @@ import {
 import { useThemeContext } from "../../contexts/ThemeContext";
 
 function Filter() {
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [showGenreBox, setShowGenreBox] = useState(false);
-  const [sortRating, setSortRating] = useState("");
+  // Initialize state from sessionStorage or use defaults
+  const [visibleCount, setVisibleCount] = useState(() => {
+    const saved = sessionStorage.getItem('filter-visible-count');
+    return saved ? parseInt(saved, 10) : 6;
+  });
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    const saved = sessionStorage.getItem('filter-selected-genres');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [showGenreBox, setShowGenreBox] = useState(() => {
+    const saved = sessionStorage.getItem('filter-show-genre-box');
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [sortRating, setSortRating] = useState(() => {
+    const saved = sessionStorage.getItem('filter-sort-rating');
+    return saved || "";
+  });
   const [allMovies, setAllMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { mode } = useThemeContext();
 
+  // Load movies on component mount
   useEffect(() => {
     const loadMovies = async () => {
       try {
@@ -47,6 +61,23 @@ function Filter() {
     loadMovies();
   }, []);
 
+  // Save state changes to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('filter-visible-count', visibleCount.toString());
+  }, [visibleCount]);
+
+  useEffect(() => {
+    sessionStorage.setItem('filter-selected-genres', JSON.stringify(selectedGenres));
+  }, [selectedGenres]);
+
+  useEffect(() => {
+    sessionStorage.setItem('filter-show-genre-box', JSON.stringify(showGenreBox));
+  }, [showGenreBox]);
+
+  useEffect(() => {
+    sessionStorage.setItem('filter-sort-rating', sortRating);
+  }, [sortRating]);
+
   const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
 
@@ -60,7 +91,7 @@ function Filter() {
     setSelectedGenres((prev) =>
       prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
-    setVisibleCount(6);
+    // Note: We no longer reset visibleCount to preserve "Load More" state
   };
 
   let filteredMovies =
@@ -151,8 +182,18 @@ function Filter() {
         </Button>
         <Button
           variant="outlined"
-          onClick={() => setSelectedGenres([])}
-          disabled={selectedGenres.length === 0}
+          onClick={() => {
+            setSelectedGenres([]);
+            setSortRating("");
+            setVisibleCount(6);
+            setShowGenreBox(false);
+            // Clear sessionStorage when resetting
+            sessionStorage.removeItem('filter-selected-genres');
+            sessionStorage.removeItem('filter-sort-rating');
+            sessionStorage.removeItem('filter-visible-count');
+            sessionStorage.removeItem('filter-show-genre-box');
+          }}
+          disabled={selectedGenres.length === 0 && sortRating === "" && visibleCount === 6}
           sx={{
             borderColor: highlightColor,
             color: highlightColor,
