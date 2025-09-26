@@ -13,6 +13,10 @@ class Review(SQLModel, table=True):
     rating: int
     review_text: str
     review_date: datetime = Field(default_factory=datetime.now)
+    
+    # Foreign key fields
+    user_id: Optional[int] = Field(default=None, foreign_key="users.id")
+    movie_id: Optional[int] = Field(default=None, foreign_key="movies.id")
 
     user: Optional["User"] = Relationship(back_populates="reviews")
     movie: Optional["Movie"] = Relationship(back_populates="reviews")
