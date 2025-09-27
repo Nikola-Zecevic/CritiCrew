@@ -325,6 +325,12 @@ class ApiService {
     // Get auth token from localStorage
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     
+    console.log('🔐 getUserFavorites - Token check:', {
+      hasToken: !!token,
+      tokenType: token ? (localStorage.getItem('token') ? 'token' : 'authToken') : 'none',
+      tokenLength: token ? token.length : 0
+    });
+    
     return await this.makeRequest('/favorites/', {
       method: 'GET',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -357,6 +363,16 @@ class ApiService {
     const token = localStorage.getItem('token') || localStorage.getItem('authToken');
     
     return await this.makeRequest(`/favorites/check/${movieId}`, {
+      method: 'GET',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async getFavorites() {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest('/favorites/', {
       method: 'GET',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     });

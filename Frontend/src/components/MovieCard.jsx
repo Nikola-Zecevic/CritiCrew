@@ -47,6 +47,19 @@ export default function MovieCard({ movie, isFeatured = false }) {
     loadFavoriteStatus();
   }, [movie.id, isAuthenticated]);
 
+  // Listen for all favorites cleared event
+  useEffect(() => {
+    const handleAllFavoritesCleared = () => {
+      setIsFavorited(false);
+    };
+
+    window.addEventListener('allFavoritesCleared', handleAllFavoritesCleared);
+
+    return () => {
+      window.removeEventListener('allFavoritesCleared', handleAllFavoritesCleared);
+    };
+  }, []);
+
   const handleFavoriteToggle = async (e) => {
     e.stopPropagation(); // stop triggering parent click
     
@@ -65,6 +78,12 @@ export default function MovieCard({ movie, isFeatured = false }) {
         }
 
         localStorage.setItem('movieFavorites', JSON.stringify(updatedFavorites));
+        
+        // Dispatch custom event to notify other components of favorites change
+        window.dispatchEvent(new CustomEvent('favoritesChanged', { 
+          detail: { movieId: movie.id, isFavorited: !isFavorited } 
+        }));
+        
         setFavoriteSnackbarOpen(true);
       } catch (error) {
         console.error('Error toggling favorite in localStorage:', error);
@@ -83,6 +102,12 @@ export default function MovieCard({ movie, isFeatured = false }) {
         await apiService.addToFavorites(movie.id);
         setIsFavorited(true);
       }
+      
+      // Dispatch custom event to notify other components of favorites change
+      window.dispatchEvent(new CustomEvent('favoritesChanged', { 
+        detail: { movieId: movie.id, isFavorited: !isFavorited } 
+      }));
+      
       setFavoriteSnackbarOpen(true);
     } catch (error) {
       console.error('Error toggling favorite via API:', error);

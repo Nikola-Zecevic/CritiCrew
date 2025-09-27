@@ -19,29 +19,29 @@ import {
 } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
-function Filter() {
+function Movies() {
   // Initialize state from sessionStorage or use defaults
   const [visibleCount, setVisibleCount] = useState(() => {
-    const saved = sessionStorage.getItem('filter-visible-count');
+    const saved = sessionStorage.getItem('movies-visible-count');
     return saved ? parseInt(saved, 10) : 6;
   });
   const [selectedGenres, setSelectedGenres] = useState(() => {
-    const saved = sessionStorage.getItem('filter-selected-genres');
+    const saved = sessionStorage.getItem('movies-selected-genres');
     return saved ? JSON.parse(saved) : [];
   });
   const [showGenreBox, setShowGenreBox] = useState(() => {
-    const saved = sessionStorage.getItem('filter-show-genre-box');
+    const saved = sessionStorage.getItem('movies-show-genre-box');
     return saved ? JSON.parse(saved) : false;
   });
   const [sortRating, setSortRating] = useState(() => {
-    const saved = sessionStorage.getItem('filter-sort-rating');
+    const saved = sessionStorage.getItem('movies-sort-rating');
     return saved || "";
   });
   const [allMovies, setAllMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { mode } = useThemeContext();
+  const { mode, theme } = useThemeContext();
 
   // Load movies on component mount
   useEffect(() => {
@@ -63,19 +63,19 @@ function Filter() {
 
   // Save state changes to sessionStorage
   useEffect(() => {
-    sessionStorage.setItem('filter-visible-count', visibleCount.toString());
+    sessionStorage.setItem('movies-visible-count', visibleCount.toString());
   }, [visibleCount]);
 
   useEffect(() => {
-    sessionStorage.setItem('filter-selected-genres', JSON.stringify(selectedGenres));
+    sessionStorage.setItem('movies-selected-genres', JSON.stringify(selectedGenres));
   }, [selectedGenres]);
 
   useEffect(() => {
-    sessionStorage.setItem('filter-show-genre-box', JSON.stringify(showGenreBox));
+    sessionStorage.setItem('movies-show-genre-box', JSON.stringify(showGenreBox));
   }, [showGenreBox]);
 
   useEffect(() => {
-    sessionStorage.setItem('filter-sort-rating', sortRating);
+    sessionStorage.setItem('movies-sort-rating', sortRating);
   }, [sortRating]);
 
   const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
@@ -111,7 +111,6 @@ function Filter() {
 
   const bgPaper = mode === "light" ? "#fff" : "#121212";
   const textColor = mode === "light" ? "#333" : "#FFD700";
-  const highlightColor = "#f5c518";
 
   if (loading) {
     return (
@@ -188,17 +187,20 @@ function Filter() {
             setVisibleCount(6);
             setShowGenreBox(false);
             // Clear sessionStorage when resetting
-            sessionStorage.removeItem('filter-selected-genres');
-            sessionStorage.removeItem('filter-sort-rating');
-            sessionStorage.removeItem('filter-visible-count');
-            sessionStorage.removeItem('filter-show-genre-box');
+            sessionStorage.removeItem('movies-selected-genres');
+            sessionStorage.removeItem('movies-sort-rating');
+            sessionStorage.removeItem('movies-visible-count');
+            sessionStorage.removeItem('movies-show-genre-box');
           }}
           disabled={selectedGenres.length === 0 && sortRating === "" && visibleCount === 6}
           sx={{
-            borderColor: highlightColor,
-            color: highlightColor,
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
             fontWeight: "bold",
-            "&:hover": { borderColor: highlightColor, color: highlightColor },
+            "&:hover": { 
+              borderColor: theme.palette.primary.dark, 
+              color: theme.palette.primary.dark 
+            },
           }}
         >
           Reset filter
@@ -220,8 +222,8 @@ function Filter() {
                     checked={selectedGenres.includes(genre)}
                     onChange={() => toggleGenre(genre)}
                     sx={{
-                      color: highlightColor,
-                      "&.Mui-checked": { color: highlightColor },
+                      color: theme.palette.primary.main,
+                      "&.Mui-checked": { color: theme.palette.primary.main },
                     }}
                   />
                 }
@@ -282,11 +284,13 @@ function Filter() {
           onClick={handleLoadMore}
           sx={{
             mt: 3,
-            backgroundColor: highlightColor,
-            color: "#000",
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
             fontWeight: "bold",
             fontSize: 20,
-            "&:hover": { backgroundColor: highlightColor },
+            "&:hover": { 
+              backgroundColor: theme.palette.primary.dark,
+            },
             alignSelf: "center",
           }}
         >
@@ -297,4 +301,4 @@ function Filter() {
   );
 }
 
-export default Filter;
+export default Movies;

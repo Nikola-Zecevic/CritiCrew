@@ -28,7 +28,7 @@ function NotFound() {
           </Button>
           <Button
             component={Link}
-            to="/filter"
+            to="/movies"
             variant="contained"
             sx={{ background: '#f5c518', color: '#000', fontWeight: 'bold', borderRadius: 2 }}
           >

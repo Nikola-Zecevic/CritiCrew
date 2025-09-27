@@ -3,12 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
 import { useThemeContext } from "../contexts/ThemeContext";
-import { Box, TextField, IconButton } from "@mui/material";
-import { LightMode, DarkMode, Shuffle } from "@mui/icons-material";
+import { Box, TextField, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { LightMode, DarkMode, Casino, ArrowDropDown } from "@mui/icons-material";
 import { getRandomMovie } from "../utils/randomMovie";
 import Modal from "./Modal";
 export default function Navbar() {
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser, isAdmin, isSuperadmin } = useAuth();
   const navigate = useNavigate();
   const { theme, mode, toggleTheme } = useThemeContext();
   const {
@@ -23,6 +23,10 @@ export default function Navbar() {
   // modal / random movie state
   const [randomMovie, setRandomMovie] = useState(null);
   const [openRandom, setOpenRandom] = useState(false);
+  
+  // Dashboard dropdown state
+  const [dashboardAnchor, setDashboardAnchor] = useState(null);
+  const dashboardOpen = Boolean(dashboardAnchor);
   const handleSearch = (e) => {
     e.preventDefault();
     // we intentionally don't navigate here — suggestions handle selection
@@ -52,7 +56,8 @@ export default function Navbar() {
   }, [hideSuggestions]);
   const navLinks = [
     { label: "Home", to: "/" },
-    { label: "Filter", to: "/filter" },
+    { label: "Favorites", to: "/favorites" },
+    { label: "Movies", to: "/movies" },
     { label: "About Us", to: "/about" },
   ];
   const navLinkStyle = {
@@ -86,6 +91,20 @@ export default function Navbar() {
     } catch (err) {
       console.error("Failed to fetch random movie:", err);
     }
+  };
+
+  // Dashboard dropdown handlers
+  const handleDashboardClick = (event) => {
+    setDashboardAnchor(event.currentTarget);
+  };
+
+  const handleDashboardClose = () => {
+    setDashboardAnchor(null);
+  };
+
+  const handleMenuItemClick = (path) => {
+    navigate(path);
+    handleDashboardClose();
   };
   return (
     <>
@@ -242,7 +261,7 @@ export default function Navbar() {
               {/* Random button */}
               <IconButton
                 onClick={handleRandomMovie}
-                aria-label="random movie"
+                aria-label="roll dice for random movie"
                 sx={{
                   ml: 1,
                   bgcolor: theme.palette.primary.main,
@@ -250,7 +269,7 @@ export default function Navbar() {
                   "&:hover": { bgcolor: theme.palette.primary.light },
                 }}
               >
-                <Shuffle
+                <Casino
                   sx={{
                     color: theme.palette.getContrastText(
                       theme.palette.primary.main
@@ -326,18 +345,59 @@ export default function Navbar() {
               </li>
             ))}
             {isAdmin && (
-              <>
-                <li>
-                  <Box component={Link} to="/dashboard" sx={navLinkStyle}>
-                    Dashboard
-                  </Box>
-                </li>
-                <li>
-                  <Box component={Link} to="/admin" sx={navLinkStyle}>
-                    Admin
-                  </Box>
-                </li>
-              </>
+              <li>
+                <Box
+                  onClick={handleDashboardClick}
+                  sx={{
+                    ...navLinkStyle,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    verticalAlign: 'baseline',
+                    gap: 0.5,
+                  }}
+                >
+                  Dashboard
+                  <ArrowDropDown sx={{ fontSize: '1.2rem' }} />
+                </Box>
+                <Menu
+                  anchorEl={dashboardAnchor}
+                  open={dashboardOpen}
+                  onClose={handleDashboardClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'dashboard-button',
+                  }}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: theme.palette.background.paper,
+                      border: `1px solid ${theme.palette.primary.main}`,
+                      borderRadius: 2,
+                      mt: 1,
+                    },
+                  }}
+                >
+                  <MenuItem 
+                    onClick={() => handleMenuItemClick('/manage-movies')}
+                    sx={{ 
+                      color: theme.palette.text.primary,
+                      '&:hover': { bgcolor: theme.palette.action.hover }
+                    }}
+                  >
+                    <Typography>Manage Movies</Typography>
+                  </MenuItem>
+                  {isSuperadmin && (
+                    <MenuItem 
+                      onClick={() => handleMenuItemClick('/manage-users')}
+                      sx={{ 
+                        color: theme.palette.text.primary,
+                        '&:hover': { bgcolor: theme.palette.action.hover }
+                      }}
+                    >
+                      <Typography>Manage Users</Typography>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </li>
             )}
           </Box>
           {/* Desktop controls (theme toggle + avatar) */}
