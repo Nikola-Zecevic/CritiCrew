@@ -7,11 +7,14 @@ import { Alert, Snackbar } from "@mui/material";
 import "../../styles/Authentication.css";
 
 export default function AuthenticationPage() {
-  const { login } = useAuth();
+  const { login, register, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode") === "signup" ? "signup" : "login";
   const [notification, setNotification] = useState({ open: false, message: "", severity: "info" });
+  const [formLoading, setFormLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const showNotification = (message, severity = "info") => {
     setNotification({ open: true, message, severity });
@@ -23,53 +26,59 @@ export default function AuthenticationPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setFormLoading(true);
+    setError("");
+    setSuccess("");
+    
     const form = new FormData(e.target);
 
     if (mode === "login") {
-      const identifier = form.get("identifier");
+      const username = form.get("username");
       const password = form.get("password");
 
-      const result = login(identifier, password);
+      const result = await login(username, password);
       if (result.success) {
-        navigate("/");
+        setSuccess("Login successful! Redirecting...");
+        setTimeout(() => navigate("/"), 1000);
       } else {
-        showNotification(result.message, "error");
+        setError(result.message);
       }
     } else {
-      // Handle signup
-      try {
-        const userData = {
-          name: form.get("name"),
-          surname: form.get("surname"),
-          address: form.get("address") || null,
-          email: form.get("email"),
-          username: form.get("username"),
-          password: form.get("password"), // Backend will hash this
-        };
+      // Handle signup with backend schema
+      const userData = {
+        username: form.get("username"),
+        password: form.get("password"),
+        email: form.get("email"),
+        name: form.get("name"),
+        surname: form.get("surname"),
+        address: form.get("address") || null,
+      };
 
-        console.log("🔐 Registering new user...", { ...userData, password: "[HIDDEN]" });
-        
-        const newUser = await apiService.registerUser(userData);
-        console.log("✅ User registered successfully:", newUser);
-        
-        showNotification("Account created successfully! Please login.", "success");
+      console.log("🔐 Registering new user...", { ...userData, password: "[HIDDEN]" });
+      
+      const result = await register(userData);
+      if (result.success) {
+        setSuccess(result.message);
         setTimeout(() => {
           navigate("/auth?mode=login");
         }, 2000);
-        
-      } catch (error) {
-        console.error("❌ Registration failed:", error);
-        showNotification(
-          error.message || "Registration failed. Please try again.",
-          "error"
-        );
+      } else {
+        setError(result.message);
       }
     }
+    
+    setFormLoading(false);
   }
 
   return (
     <>
-      <AuthForm mode={mode} onSubmit={handleSubmit} />
+      <AuthForm 
+        mode={mode} 
+        onSubmit={handleSubmit} 
+        loading={formLoading || loading}
+        error={error}
+        success={success}
+      />
       
       {/* Notification Snackbar */}
       <Snackbar

@@ -35,6 +35,22 @@ def require_superadmin(user: User = Depends(user_views.get_current_user2)):
 def list_all_users(session:Session = Depends(get_session), current_user:User=Depends(require_superadmin)):
     return user_views.get_all_users(session)
 
+@router.get("/me")
+def get_current_user_profile(current_user: User = Depends(user_views.get_current_user2)):
+    """Get current user profile with role information"""
+    role_name = getattr(current_user.role, 'name', 'user') if current_user.role else 'user'
+    
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "name": current_user.name,
+        "surname": current_user.surname,
+        "address": current_user.address,
+        "role_id": current_user.role_id,
+        "role": role_name
+    }
+
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED )
 def register_user(user_data:Register, session:Session = Depends(get_session)):
     return user_views.register2(session, user_data)

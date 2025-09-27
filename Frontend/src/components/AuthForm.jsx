@@ -1,6 +1,6 @@
-import { Box, Typography, TextField, Button, Link, Paper } from "@mui/material";
+import { Box, Typography, TextField, Button, Link, Paper, Alert, CircularProgress } from "@mui/material";
 
-export default function AuthForm({ mode, onSubmit }) {
+export default function AuthForm({ mode, onSubmit, loading, error, success }) {
   return (
     <Paper
       elevation={4}
@@ -62,8 +62,8 @@ export default function AuthForm({ mode, onSubmit }) {
         
         {mode === "login" && (
           <TextField
-            label="Email or Username"
-            name="identifier"
+            label="Username"
+            name="username"
             type="text"
             required
             fullWidth
@@ -76,10 +76,33 @@ export default function AuthForm({ mode, onSubmit }) {
           type="password"
           required
           fullWidth
+          helperText={mode === "signup" ? "Minimum 8 characters" : ""}
         />
 
-        <Button type="submit" variant="contained" fullWidth>
-          {mode === "signup" ? "Create Account" : "Login"}
+        {error && (
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {error}
+          </Alert>
+        )}
+
+        {success && (
+          <Alert severity="success" sx={{ mt: 1 }}>
+            {success}
+          </Alert>
+        )}
+
+        <Button 
+          type="submit" 
+          variant="contained" 
+          fullWidth 
+          disabled={loading}
+          sx={{ mt: 2 }}
+        >
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            mode === "signup" ? "Create Account" : "Login"
+          )}
         </Button>
 
         <Typography variant="body2" align="center" sx={{ mt: 2 }}>

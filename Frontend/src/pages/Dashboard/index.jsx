@@ -20,6 +20,18 @@ export default function Dashboard() {
   const { currentUser, isAuthenticated, isAdmin, isSuperadmin, logout } =
     useAuth();
   const navigate = useNavigate();
+
+  // Redirect non-admin users
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
+    }
+    if (!isAdmin) {
+      navigate('/');
+      return;
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
   
   // Notification states
   const [notification, setNotification] = useState({
@@ -216,6 +228,11 @@ export default function Dashboard() {
     
     return response;
   };
+
+  // Don't render anything if not admin - let the useEffect handle redirection
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
 
   return (
     <Box sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>

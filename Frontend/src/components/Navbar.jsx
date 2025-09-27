@@ -326,11 +326,18 @@ export default function Navbar() {
               </li>
             ))}
             {isAdmin && (
-              <li>
-                <Box component={Link} to="/dashboard" sx={navLinkStyle}>
-                  Dashboard
-                </Box>
-              </li>
+              <>
+                <li>
+                  <Box component={Link} to="/dashboard" sx={navLinkStyle}>
+                    Dashboard
+                  </Box>
+                </li>
+                <li>
+                  <Box component={Link} to="/admin" sx={navLinkStyle}>
+                    Admin
+                  </Box>
+                </li>
+              </>
             )}
           </Box>
           {/* Desktop controls (theme toggle + avatar) */}

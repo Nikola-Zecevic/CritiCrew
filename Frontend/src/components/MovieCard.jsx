@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Box,
@@ -9,18 +9,97 @@ import {
   Button,
   useMediaQuery,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
 import { useThemeContext } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import apiService from "../services/apiService";
 import { getDisplayRating } from "../utils/ratingUtils";
 export default function MovieCard({ movie, isFeatured = false }) {
   const { theme } = useThemeContext();
+  const { isAuthenticated } = useAuth();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isFavorited, setIsFavorited] = useState(false);
-  const handleFavoriteToggle = (e) => {
+  const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
+
+  // Load favorite status when component mounts or movie changes
+  useEffect(() => {
+    const loadFavoriteStatus = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await apiService.checkFavoriteStatus(movie.id);
+          setIsFavorited(response.is_favorite);
+        } catch (error) {
+          console.error('Failed to load favorite status:', error);
+          // Fallback to localStorage for backwards compatibility
+          const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+          setIsFavorited(favorites.includes(movie.id));
+        }
+      } else {
+        // Not authenticated, use localStorage
+        const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+        setIsFavorited(favorites.includes(movie.id));
+      }
+    };
+    
+    loadFavoriteStatus();
+  }, [movie.id, isAuthenticated]);
+
+  const handleFavoriteToggle = async (e) => {
     e.stopPropagation(); // stop triggering parent click
-    setIsFavorited((prev) => !prev);
-    // here you could also call API/context to save favorites
+    
+    if (!isAuthenticated) {
+      // If not authenticated, use localStorage as fallback
+      try {
+        const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+        let updatedFavorites;
+
+        if (isFavorited) {
+          updatedFavorites = favorites.filter(id => id !== movie.id);
+          setIsFavorited(false);
+        } else {
+          updatedFavorites = [...favorites, movie.id];
+          setIsFavorited(true);
+        }
+
+        localStorage.setItem('movieFavorites', JSON.stringify(updatedFavorites));
+        setFavoriteSnackbarOpen(true);
+      } catch (error) {
+        console.error('Error toggling favorite in localStorage:', error);
+      }
+      return;
+    }
+
+    // Authenticated user - use backend API
+    try {
+      if (isFavorited) {
+        // Remove from favorites
+        await apiService.removeFromFavorites(movie.id);
+        setIsFavorited(false);
+      } else {
+        // Add to favorites
+        await apiService.addToFavorites(movie.id);
+        setIsFavorited(true);
+      }
+      setFavoriteSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error toggling favorite via API:', error);
+      
+      // Show error message to user
+      if (error.message.includes('already in favorites')) {
+        // Already favorited, just update UI
+        setIsFavorited(true);
+      } else if (error.message.includes('not found')) {
+        // Favorite not found, just update UI
+        setIsFavorited(false);
+      }
+    }
+  };
+
+  const handleCloseFavoriteSnackbar = () => {
+    setFavoriteSnackbarOpen(false);
   };
   return (
     <Card
@@ -144,6 +223,18 @@ export default function MovieCard({ movie, isFeatured = false }) {
           </Link>
         </Box>
       </CardContent>
+      
+      {/* Favorite notification snackbar */}
+      <Snackbar
+        open={favoriteSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseFavoriteSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseFavoriteSnackbar} severity="success" sx={{ width: '100%' }}>
+          {isFavorited ? 'Added to favorites!' : 'Removed from favorites!'}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

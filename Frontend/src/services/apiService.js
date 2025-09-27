@@ -224,9 +224,68 @@ class ApiService {
   }
 
   async loginUser(credentials) {
+    // Backend expects form data for OAuth2PasswordRequestForm
+    const formData = new FormData();
+    formData.append('username', credentials.username);
+    formData.append('password', credentials.password);
+    
     return await this.makeRequest('/users/login', {
       method: 'POST',
-      data: credentials,
+      data: formData,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+  }
+
+  // User management API calls (admin/superadmin only)
+  async getAllUsers() {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest('/users/', {
+      method: 'GET',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async deleteUser(userId) {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/users/${userId}`, {
+      method: 'DELETE',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async promoteUser(userId) {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/users/${userId}/promote`, {
+      method: 'PUT',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async demoteUser(userId) {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/users/${userId}/demote`, {
+      method: 'PUT',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  // Get current user info from backend API
+  async getCurrentUser() {
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    return await this.makeRequest('/users/me', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
     });
   }
 
