@@ -30,7 +30,7 @@ function UserReviews({ movieId, onReviewsChange }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [comment, setComment] = useState("");
-  const [rating, setRating] = useState(3);
+  const [rating, setRating] = useState(3); // 1-5 scale for UI
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
@@ -52,7 +52,8 @@ function UserReviews({ movieId, onReviewsChange }) {
           id: review.id,
           movieId: review.movie?.id || movieId,
           user: review.user?.username || 'Anonymous',
-          rating: review.rating,
+          rating: Math.round(review.rating / 2), // Convert from 1-10 to 1-5 scale
+          backendRating: review.rating, // Keep original for backend operations
           comment: review.review_text,
           date: review.review_date
         }));
@@ -89,8 +90,7 @@ function UserReviews({ movieId, onReviewsChange }) {
     try {
       const reviewData = {
         movie_id: movieId,
-        user_id: currentUser?.id || 1, // You'll need to get real user ID from auth
-        rating,
+        rating: rating * 2, // Convert from 1-5 to 1-10 scale for backend
         review_text: comment.trim(),
       };
 
@@ -102,7 +102,8 @@ function UserReviews({ movieId, onReviewsChange }) {
         id: newReview.id,
         movieId: newReview.movie?.id || movieId,
         user: newReview.user?.username || currentUser?.name || 'Anonymous',
-        rating: newReview.rating,
+        rating: Math.round(newReview.rating / 2), // Convert from 1-10 to 1-5 scale
+        backendRating: newReview.rating, // Keep original for backend operations
         comment: newReview.review_text,
         date: newReview.review_date
       };
@@ -133,7 +134,9 @@ function UserReviews({ movieId, onReviewsChange }) {
   };
 
   const handleConfirmDelete = async () => {
-    if (deleteIndex === null) return setConfirmOpen(false);
+    if (deleteIndex === null) {
+      return setConfirmOpen(false);
+    }
     
     const reviewToDelete = reviews[deleteIndex];
     

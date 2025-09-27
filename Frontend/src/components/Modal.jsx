@@ -11,24 +11,52 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ShareIcon from "@mui/icons-material/Share";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import UserReviews from "./UserReviews";
 import { useThemeContext } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
 import moviesService from "../services/moviesService";
+import apiService from "../services/apiService";
 import { getDisplayRating } from "../utils/ratingUtils";
 
 function Modal({ isOpen, onClose, movie }) {
   const { theme } = useThemeContext(); // now we have the MUI theme directly
+  const { isAuthenticated } = useAuth();
   const [currentRating, setCurrentRating] = useState(movie?.rating || 0);
   const [isUserRating, setIsUserRating] = useState(movie?.isUserRating || false);
   const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
   
-  // Update current rating when movie changes
+  // Update current rating and favorite status when movie changes
   useEffect(() => {
     if (movie) {
       setCurrentRating(movie.rating);
       setIsUserRating(movie.isUserRating || false);
+      
+      // Load favorite status from backend API if user is authenticated
+      const loadFavoriteStatus = async () => {
+        if (isAuthenticated) {
+          try {
+            const response = await apiService.checkFavoriteStatus(movie.id);
+            setIsFavorite(response.is_favorite);
+          } catch (error) {
+            console.error('Failed to load favorite status:', error);
+            // Fallback to localStorage for backwards compatibility
+            const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+            setIsFavorite(favorites.includes(movie.id));
+          }
+        } else {
+          // Not authenticated, use localStorage
+          const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+          setIsFavorite(favorites.includes(movie.id));
+        }
+      };
+      
+      loadFavoriteStatus();
     }
-  }, [movie]);
+  }, [movie, isAuthenticated]);
 
   // Function to calculate new average rating
   const updateMovieRating = (reviews) => {
@@ -91,7 +119,64 @@ function Modal({ isOpen, onClose, movie }) {
     setShareSnackbarOpen(false);
   };
 
-  if (!movie) return null;
+  const handleCloseFavoriteSnackbar = () => {
+    setFavoriteSnackbarOpen(false);
+  };
+
+  // Function to handle favorite toggle
+  const handleFavoriteToggle = async () => {
+    if (!isAuthenticated) {
+      // If not authenticated, use localStorage as fallback
+      try {
+        const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+        let updatedFavorites;
+
+        if (isFavorite) {
+          updatedFavorites = favorites.filter(id => id !== movie.id);
+          setIsFavorite(false);
+        } else {
+          updatedFavorites = [...favorites, movie.id];
+          setIsFavorite(true);
+        }
+
+        localStorage.setItem('movieFavorites', JSON.stringify(updatedFavorites));
+        setFavoriteSnackbarOpen(true);
+      } catch (error) {
+        console.error('Error toggling favorite in localStorage:', error);
+      }
+      return;
+    }
+
+    // Authenticated user - use backend API
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        await apiService.removeFromFavorites(movie.id);
+        setIsFavorite(false);
+      } else {
+        // Add to favorites
+        await apiService.addToFavorites(movie.id);
+        setIsFavorite(true);
+      }
+      setFavoriteSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error toggling favorite via API:', error);
+      
+      // Show error message to user
+      if (error.message.includes('already in favorites')) {
+        // Already favorited, just update UI
+        setIsFavorite(true);
+      } else if (error.message.includes('not found')) {
+        // Favorite not found, just update UI
+        setIsFavorite(false);
+      }
+      // You might want to show an error snackbar here
+    }
+  };
+
+  if (!movie) {
+    return null;
+  }
 
   return (
     <Dialog
@@ -163,13 +248,38 @@ function Modal({ isOpen, onClose, movie }) {
         <CloseIcon />
       </IconButton>
 
+      {/* Favorite button */}
+      <IconButton
+        aria-label={isFavorite ? "remove from favorites" : "add to favorites"}
+        onClick={handleFavoriteToggle}
+        sx={{
+          position: "absolute",
+          top: "1.2rem",
+          right: "1.2rem",
+          bgcolor: isFavorite ? theme.palette.error.main : theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
+          borderRadius: "50%",
+          width: 40,
+          height: 40,
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+          zIndex: 10,
+          "&:hover": {
+            bgcolor: isFavorite ? theme.palette.error.dark : theme.palette.secondary.main,
+            transform: "scale(1.1)",
+          },
+        }}
+      >
+        {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+      </IconButton>
+
       {/* Share button */}
       <IconButton
         aria-label="share movie"
         onClick={handleShare}
         sx={{
           position: "absolute",
-          top: "1.2rem",
+          top: "4rem", // Moved down to make room for favorite button
           right: "1.2rem",
           bgcolor: theme.palette.primary.main,
           color: theme.palette.mode === "dark" ? "#000" : "#fff",
@@ -366,6 +476,22 @@ function Modal({ isOpen, onClose, movie }) {
           sx={{ width: '100%' }}
         >
           Movie link copied to clipboard!
+        </Alert>
+      </Snackbar>
+
+      {/* Favorite success notification */}
+      <Snackbar
+        open={favoriteSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseFavoriteSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseFavoriteSnackbar} 
+          severity={isFavorite ? "success" : "info"}
+          sx={{ width: '100%' }}
+        >
+          {isFavorite ? `${movie.title} added to favorites!` : `${movie.title} removed from favorites!`}
         </Alert>
       </Snackbar>
     </Dialog>

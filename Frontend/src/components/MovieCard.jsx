@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Box,
@@ -8,25 +8,57 @@ import {
   Typography,
   Button,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
 import { useThemeContext } from "../contexts/ThemeContext";
 import { getDisplayRating } from "../utils/ratingUtils";
-
 export default function MovieCard({ movie, isFeatured = false }) {
-  const { theme } = useThemeContext(); // get the MUI theme from ThemeContext
+  const { theme } = useThemeContext();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
+  const [isFavorited, setIsFavorited] = useState(false);
+  const handleFavoriteToggle = (e) => {
+    e.stopPropagation(); // stop triggering parent click
+    setIsFavorited((prev) => !prev);
+    // here you could also call API/context to save favorites
+  };
   return (
     <Card
       sx={{
+        position: "relative",
         display: isFeatured && !isSmallScreen ? "flex" : "block",
         flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,
         backgroundColor: theme.palette.background.paper,
+        "&:hover .favorite-btn": {
+          opacity: 1,
+        },
       }}
     >
+      {/* Favorite button */}
+      <IconButton
+        onClick={handleFavoriteToggle}
+        className="favorite-btn"
+        sx={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          zIndex: 2,
+          backgroundColor: theme.palette.background.paper,
+          boxShadow: 2,
+          "&:hover": { backgroundColor: theme.palette.background.default },
+          opacity: 0,
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        {isFavorited ? (
+          <Favorite sx={{ color: theme.palette.error.main }} />
+        ) : (
+          <FavoriteBorder sx={{ color: theme.palette.text.primary }} />
+        )}
+      </IconButton>
       <CardMedia
         component="img"
         image={movie.image}
@@ -37,7 +69,6 @@ export default function MovieCard({ movie, isFeatured = false }) {
           objectFit: "cover",
         }}
       />
-
       <CardContent
         sx={{
           flex: 1,
@@ -50,28 +81,25 @@ export default function MovieCard({ movie, isFeatured = false }) {
       >
         <Typography
           variant={isFeatured ? "h5" : "h6"}
-          sx={{
-            fontWeight: 600,
-            color: theme.palette.text.primary,
-          }}
+          sx={{ fontWeight: 600, color: theme.palette.text.primary }}
         >
           {movie.title}
         </Typography>
-
         <Typography
           variant="body2"
           sx={{ color: theme.palette.text.secondary }}
         >
           Year: {movie.year}
         </Typography>
-
         <Typography
           variant="body2"
           sx={{ color: theme.palette.secondary.main }}
         >
-          ⭐ {getDisplayRating(movie) === 'No reviews' ? 'No reviews' : `${getDisplayRating(movie)}/5`}
+          ⭐{" "}
+          {getDisplayRating(movie) === "No reviews"
+            ? "No reviews"
+            : `${getDisplayRating(movie)}/5`}
         </Typography>
-
         {isFeatured && (
           <Typography
             variant="body2"
@@ -80,7 +108,6 @@ export default function MovieCard({ movie, isFeatured = false }) {
             {movie.description}
           </Typography>
         )}
-
         {!isFeatured && (
           <Typography
             variant="body2"
@@ -89,7 +116,6 @@ export default function MovieCard({ movie, isFeatured = false }) {
             {movie.genre}
           </Typography>
         )}
-
         <Box sx={{ mt: 2 }}>
           <Link to={`/movie/${movie.slug}`} style={{ textDecoration: "none" }}>
             <Button
@@ -119,6 +145,5 @@ export default function MovieCard({ movie, isFeatured = false }) {
         </Box>
       </CardContent>
     </Card>
-
   );
 }

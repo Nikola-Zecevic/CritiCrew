@@ -3,6 +3,7 @@ from sqlmodel import SQLModel, Field, Relationship
 if TYPE_CHECKING:
     from .role import Role
     from .review import Review
+    from .favorite import Favorite
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -19,3 +20,4 @@ class User(SQLModel, table=True):
 
     role: Optional["Role"] = Relationship(back_populates="users")
     reviews: List["Review"] = Relationship(back_populates="user")
+    favorites: List["Favorite"] = Relationship(back_populates="user")

@@ -20,6 +20,9 @@ from sqlmodel import SQLModel, Field, Relationship
 if TYPE_CHECKING:
     from .user import User
 
+if TYPE_CHECKING:
+    from .user import User
+
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
 

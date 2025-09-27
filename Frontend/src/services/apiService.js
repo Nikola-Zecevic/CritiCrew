@@ -63,9 +63,16 @@ class ApiService {
   // Generic request wrapper with CORS proxy fallback
   async makeRequest(endpoint, options = {}) {
     try {
+      // Merge headers properly
+      const headers = {
+        ...this.api.defaults.headers,
+        ...options.headers,
+      };
+
       // Try direct connection first
       const response = await this.api({
         url: endpoint,
+        headers,
         ...options,
       });
       return response.data;
@@ -165,21 +172,46 @@ class ApiService {
     return await this.makeRequest(`/movies/?${params.toString()}`, { method: 'GET' });
   }
 
-  // Review-related API calls (for future use)
+  // Review-related API calls
   async getMovieReviews(movieId) {
-    return await this.makeRequest(`/reviews/movie/${movieId}`, { method: 'GET' });
+    // Use the correct endpoint with query parameter
+    return await this.makeRequest(`/reviews/?movie_id=${movieId}`, { method: 'GET' });
+  }
+
+  async getAllReviews() {
+    // Get all reviews without movie filter
+    return await this.makeRequest('/reviews/', { method: 'GET' });
   }
 
   async createReview(reviewData) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
     return await this.makeRequest('/reviews/', {
       method: 'POST',
       data: reviewData,
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     });
   }
 
   async deleteReview(reviewId) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
     return await this.makeRequest(`/reviews/${reviewId}`, {
       method: 'DELETE',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async updateReview(reviewId, reviewData) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/reviews/${reviewId}`, {
+      method: 'PUT',
+      data: reviewData,
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     });
   }
 
@@ -226,6 +258,58 @@ class ApiService {
   async delete(endpoint) {
     return await this.makeRequest(endpoint, {
       method: 'DELETE',
+    });
+  }
+
+  // Favorites-related API calls
+  async getUserFavorites() {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest('/favorites/', {
+      method: 'GET',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async addToFavorites(movieId) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest('/favorites/', {
+      method: 'POST',
+      data: { movie_id: movieId },
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async removeFromFavorites(movieId) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/favorites/${movieId}`, {
+      method: 'DELETE',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async checkFavoriteStatus(movieId) {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest(`/favorites/check/${movieId}`, {
+      method: 'GET',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
+  }
+
+  async clearAllFavorites() {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+    
+    return await this.makeRequest('/favorites/clear', {
+      method: 'DELETE',
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
     });
   }
 

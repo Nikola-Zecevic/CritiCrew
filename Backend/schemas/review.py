@@ -1,8 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Optional
-	
-# Minimal info o useru i filmu za prikaz u reviewu
+
+# Minimal info about user and movie for displaying in review
 class UserInReview(BaseModel):
     id: int
     username: str
@@ -17,7 +17,7 @@ class ReviewBase(BaseModel):
 
 class ReviewCreate(ReviewBase):
     movie_id: int
-    user_id: int
+    # 🚫 no user_id here – it comes from the logged-in user automatically
 
 class ReviewRead(ReviewBase):
     id: int
