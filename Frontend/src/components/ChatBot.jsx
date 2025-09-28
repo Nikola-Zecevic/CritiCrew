@@ -12,6 +12,7 @@ import {
   Chip,
   Alert,
 } from '@mui/material';
+import FormatChatMessage from './FormatChatMessage';
 import {
   Chat,
   Send,
@@ -327,15 +328,19 @@ What movie topic interests you today?`,
                     borderRadius: 2,
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {message.content}
-                  </Typography>
+                  {message.type === 'bot' ? (
+                    <FormatChatMessage content={message.content} />
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                      }}
+                    >
+                      {message.content}
+                    </Typography>
+                  )}
                   <Typography
                     variant="caption"
                     sx={{

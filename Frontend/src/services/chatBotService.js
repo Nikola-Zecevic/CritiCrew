@@ -42,7 +42,7 @@ class ChatBotService {
     // Just use movie titles, no additional details
     const favoriteTitles = favoritesArray.map(fav => fav.title).join(', ');
     const favoritesContext = favoritesArray.length > 0 ? `\nUser's favorites: ${favoriteTitles}` : '';
-    return `You are a movie expert assistant. Answer movie questions directly and naturally.${favoritesContext}`;
+    return `You are a friendly movie expert assistant. Provide movie recommendations in a conversational, easy-to-read format. When recommending multiple movies, separate each recommendation clearly. Use natural language without markdown formatting.${favoritesContext}`;
   }
 
   // Generate movie recommendations based on user input
@@ -80,7 +80,7 @@ class ChatBotService {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 250,
+          maxOutputTokens: 1500,
         },
         safetySettings: [
           {
@@ -149,9 +149,9 @@ class ChatBotService {
       // Handle MAX_TOKENS case - but first check if we got partial content
       if (finishReason === 'MAX_TOKENS') {
         if (aiResponse) {
-          aiResponse += "\n\n(Response was truncated due to length limits)";
+          aiResponse += "\n\n✨ I have more recommendations! Feel free to ask for additional suggestions.";
         } else {
-          aiResponse = "I apologize, but my response was cut off due to length limits. Could you please ask a more specific question?";
+          aiResponse = "I'd love to give you some great movie recommendations! Could you be a bit more specific about what you're looking for?";
         }
       }
 
