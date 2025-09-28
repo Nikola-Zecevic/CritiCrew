@@ -19,7 +19,7 @@ import {
   Close,
   Movie,
   SmartToy,
-  Clear,
+  Refresh,
 } from '@mui/icons-material';
 import { useThemeContext } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -222,8 +222,8 @@ What movie topic interests you today?`,
         onClick={() => setIsOpen(!isOpen)}
         sx={{
           position: 'fixed',
-          bottom: 24,
-          right: 24,
+          bottom: { xs: 16, sm: 24 },
+          right: { xs: 16, sm: 24 },
           zIndex: 1000,
           bgcolor: theme.palette.primary.main,
           '&:hover': {
@@ -242,10 +242,12 @@ What movie topic interests you today?`,
           elevation={8}
           sx={{
             position: 'fixed',
-            bottom: 100,
-            right: 24,
-            width: { xs: 'calc(100vw - 48px)', sm: 400 },
-            height: { xs: 'calc(100vh - 200px)', sm: 600 },
+            bottom: { xs: 16, sm: 100 },
+            right: { xs: 16, sm: 24 },
+            left: { xs: 16, sm: 'auto' },
+            width: { xs: 'auto', sm: 400 },
+            height: { xs: '70vh', sm: 600 },
+            maxHeight: { xs: 'calc(100vh - 120px)', sm: 600 },
             zIndex: 999,
             display: 'flex',
             flexDirection: 'column',
@@ -276,7 +278,7 @@ What movie topic interests you today?`,
               sx={{ color: 'inherit' }}
               title="Clear Chat"
             >
-              <Clear />
+              <Refresh />
             </IconButton>
             <IconButton
               size="small"

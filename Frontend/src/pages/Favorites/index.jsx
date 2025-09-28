@@ -198,12 +198,24 @@ function Favorites() {
     };
   }, [isAuthenticated]);
 
-  // Filter favorites based on search query
-  const filteredFavorites = Array.isArray(favorites) ? favorites.filter(movie => 
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    movie.director.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (movie.genre && movie.genre.toLowerCase().includes(searchQuery.toLowerCase()))
-  ) : [];
+  // Filter favorites based on search query with error handling
+  const filteredFavorites = Array.isArray(favorites) ? favorites.filter(movie => {
+    try {
+      if (!movie || !searchQuery) {
+        return true;
+      }
+      
+      const query = searchQuery.toLowerCase();
+      const title = movie.title ? movie.title.toString().toLowerCase() : '';
+      const director = movie.director ? movie.director.toString().toLowerCase() : '';
+      const genre = movie.genre ? movie.genre.toString().toLowerCase() : '';
+      
+      return title.includes(query) || director.includes(query) || genre.includes(query);
+    } catch (error) {
+      console.error('Error filtering favorite movie:', error, movie);
+      return false; // Skip this movie if there's an error
+    }
+  }) : [];
 
   // Handle load more
   const handleLoadMore = () => setVisibleCount(prev => prev + 6);

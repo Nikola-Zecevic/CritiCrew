@@ -130,12 +130,19 @@ export default function MovieCard({ movie, isFeatured = false }) {
     <Card
       sx={{
         position: "relative",
-        display: isFeatured && !isSmallScreen ? "flex" : "block",
+        display: isFeatured && !isSmallScreen ? "flex" : "flex",
         flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
+        height: isFeatured && !isSmallScreen ? "auto" : 420, // Slightly increased height for better spacing
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,
         backgroundColor: theme.palette.background.paper,
+        cursor: "pointer", // Add cursor pointer to indicate clickable card
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          transform: "translateY(-2px)",
+          boxShadow: 4,
+        },
         "&:hover .favorite-btn": {
           opacity: 1,
         },
@@ -178,14 +185,25 @@ export default function MovieCard({ movie, isFeatured = false }) {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: isFeatured ? "center" : "space-between",
           gap: 1,
           p: isFeatured ? 3 : 2,
+          minHeight: 0, // Allow flex shrinking
         }}
       >
         <Typography
           variant={isFeatured ? "h5" : "h6"}
-          sx={{ fontWeight: 600, color: theme.palette.text.primary }}
+          sx={{ 
+            fontWeight: 600, 
+            color: theme.palette.text.primary,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "-webkit-box",
+            WebkitLineClamp: isFeatured ? 3 : 2,
+            WebkitBoxOrient: "vertical",
+            lineHeight: 1.2,
+            minHeight: isFeatured ? "auto" : "2.4em", // Reserve space for 2 lines
+          }}
         >
           {movie.title}
         </Typography>
@@ -215,38 +233,20 @@ export default function MovieCard({ movie, isFeatured = false }) {
         {!isFeatured && (
           <Typography
             variant="body2"
-            sx={{ color: theme.palette.text.primary }}
+            sx={{ 
+              color: theme.palette.text.primary,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              lineHeight: 1.3,
+              mt: "auto", // Push genres to bottom of available space
+            }}
           >
             {movie.genre}
           </Typography>
         )}
-        <Box sx={{ mt: 2 }}>
-          <Link to={`/movie/${movie.slug}`} style={{ textDecoration: "none" }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: theme.palette.primary.main,
-                color: theme.palette.mode === "dark" ? "#000" : "#fff",
-                fontWeight: 600,
-                borderRadius: "6px",
-                textTransform: "none",
-                px: 2.5,
-                py: 1,
-                boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: theme.palette.secondary.main,
-                  color:
-                    theme.palette.mode === "dark"
-                      ? theme.palette.background.default
-                      : "#111",
-                  boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
-                },
-              }}
-            >
-              Read More
-            </Button>
-          </Link>
-        </Box>
       </CardContent>
       
       {/* Favorite notification snackbar */}

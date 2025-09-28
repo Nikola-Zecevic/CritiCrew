@@ -16,7 +16,10 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
+import { Search } from "@mui/icons-material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 
 function Movies() {
@@ -35,6 +38,10 @@ function Movies() {
   });
   const [sortRating, setSortRating] = useState(() => {
     const saved = sessionStorage.getItem('movies-sort-rating');
+    return saved || "";
+  });
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const saved = sessionStorage.getItem('movies-search-query');
     return saved || "";
   });
   const [allMovies, setAllMovies] = useState([]);
@@ -78,6 +85,10 @@ function Movies() {
     sessionStorage.setItem('movies-sort-rating', sortRating);
   }, [sortRating]);
 
+  useEffect(() => {
+    sessionStorage.setItem('movies-search-query', searchQuery);
+  }, [searchQuery]);
+
   const handleLoadMore = () => setVisibleCount((prev) => prev + 3);
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
 
@@ -94,6 +105,7 @@ function Movies() {
     // Note: We no longer reset visibleCount to preserve "Load More" state
   };
 
+  // Apply genre filtering
   let filteredMovies =
     selectedGenres.length === 0
       ? allMovies
@@ -102,6 +114,24 @@ function Movies() {
             movie.genre.toLowerCase().includes(g.toLowerCase())
           )
         );
+
+  // Apply search filtering with error handling
+  if (searchQuery) {
+    filteredMovies = filteredMovies.filter(movie => {
+      try {
+        const query = searchQuery.toLowerCase();
+        const title = movie.title ? movie.title.toString().toLowerCase() : '';
+        const director = movie.director ? movie.director.toString().toLowerCase() : '';
+        const genre = movie.genre ? movie.genre.toString().toLowerCase() : '';
+        const description = movie.description ? movie.description.toString().toLowerCase() : '';
+        
+        return title.includes(query) || director.includes(query) || genre.includes(query) || description.includes(query);
+      } catch (error) {
+        console.error('Error filtering movie:', error, movie);
+        return false;
+      }
+    });
+  }
 
   if (sortRating === "asc") {
     filteredMovies = [...filteredMovies].sort((a, b) => a.rating - b.rating);
@@ -163,6 +193,29 @@ function Movies() {
           : "All Movies"}
       </Typography>
 
+      {/* Search Bar */}
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+        <TextField
+          variant="outlined"
+          placeholder="Search movies by title, director, genre, or description..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: { xs: "100%", sm: "500px", md: "600px" },
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 3,
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
       {/* Control Buttons */}
       <Box
         sx={{
@@ -184,15 +237,17 @@ function Movies() {
           onClick={() => {
             setSelectedGenres([]);
             setSortRating("");
+            setSearchQuery("");
             setVisibleCount(6);
             setShowGenreBox(false);
             // Clear sessionStorage when resetting
             sessionStorage.removeItem('movies-selected-genres');
             sessionStorage.removeItem('movies-sort-rating');
+            sessionStorage.removeItem('movies-search-query');
             sessionStorage.removeItem('movies-visible-count');
             sessionStorage.removeItem('movies-show-genre-box');
           }}
-          disabled={selectedGenres.length === 0 && sortRating === "" && visibleCount === 6}
+          disabled={selectedGenres.length === 0 && sortRating === "" && searchQuery === "" && visibleCount === 6}
           sx={{
             borderColor: theme.palette.primary.main,
             color: theme.palette.primary.main,

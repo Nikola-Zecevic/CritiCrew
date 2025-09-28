@@ -68,6 +68,8 @@ export default function Navbar() {
     fontSize: "1.1rem",
     px: 1,
     py: 0.5,
+    display: "inline-flex",
+    alignItems: "center",
     transition: "color 0.2s ease",
     "&:hover": { color: theme.palette.primary.main },
     "&::after": {
