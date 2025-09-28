@@ -8,20 +8,22 @@ import {
   CircularProgress,
   Alert,
   Container,
-  Grid,
+  TextField,
+  InputAdornment,
   Chip,
 } from "@mui/material";
+import { Search, Favorite, FavoriteBorder } from "@mui/icons-material";
 import { useThemeContext } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import MovieCard from "../../components/MovieCard";
 import apiService from "../../services/apiService";
-import { Favorite, FavoriteBorder } from "@mui/icons-material";
 
 function Favorites() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [clearing, setClearing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(6);
   const { theme } = useThemeContext();
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -196,27 +198,15 @@ function Favorites() {
     };
   }, [isAuthenticated]);
 
-  // Handle clearing all favorites
-  const handleClearAllFavorites = async () => {
-    if (!window.confirm("Are you sure you want to remove all movies from your favorites?")) {
-      return;
-    }
+  // Filter favorites based on search query
+  const filteredFavorites = Array.isArray(favorites) ? favorites.filter(movie => 
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    movie.director.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (movie.genre && movie.genre.toLowerCase().includes(searchQuery.toLowerCase()))
+  ) : [];
 
-    try {
-      setClearing(true);
-      await apiService.clearAllFavorites();
-      setFavorites([]);
-      
-      // Dispatch event to notify other components that all favorites were cleared
-      window.dispatchEvent(new CustomEvent('allFavoritesCleared'));
-      
-    } catch (error) {
-      console.error("Error clearing favorites:", error);
-      setError("Failed to clear favorites");
-    } finally {
-      setClearing(false);
-    }
-  };
+  // Handle load more
+  const handleLoadMore = () => setVisibleCount(prev => prev + 6);
 
   if (loading) {
     return (
@@ -250,61 +240,63 @@ function Favorites() {
     );
   }
 
-  return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header Section */}
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          mb: 4,
-          background: `linear-gradient(135deg, ${theme.palette.primary.main}20, ${theme.palette.secondary.main}20)`,
-          borderRadius: 3,
-        }}
-      >
-        <Box display="flex" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
-          <Box display="flex" alignItems="center" gap={2}>
-            <Favorite color="primary" sx={{ fontSize: 40 }} />
-            <Box>
-              <Typography
-                variant="h3"
-                component="h1"
-                sx={{
-                  fontWeight: "bold",
-                  color: theme.palette.primary.main,
-                  mb: 1,
-                }}
-              >
-                My Favorites
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Your personally curated collection of favorite movies
-              </Typography>
-            </Box>
-          </Box>
-          
-          {Array.isArray(favorites) && favorites.length > 0 && (
-            <Box display="flex" alignItems="center" gap={2}>
-              <Chip
-                label={`${favorites.length} movie${favorites.length !== 1 ? 's' : ''}`}
-                color="primary"
-                variant="outlined"
-              />
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={handleClearAllFavorites}
-                disabled={clearing}
-                size="small"
-              >
-                {clearing ? "Clearing..." : "Clear All"}
-              </Button>
-            </Box>
-          )}
-        </Box>
-      </Paper>
+  const textColor = theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.common.black;
 
-      {/* Movies Grid */}
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: theme.palette.background.default,
+        px: 2,
+        py: 4,
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+      }}
+    >
+      <Typography
+        variant="h2"
+        sx={{ textAlign: "center", color: textColor, mb: 2 }}
+      >
+        My Favorites
+      </Typography>
+
+      {/* Search Bar */}
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        <TextField
+          variant="outlined"
+          placeholder="Search your favorite movies..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: { xs: "100%", sm: "400px", md: "500px" },
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 3,
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search color="action" />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
+      {/* Stats */}
+      {Array.isArray(favorites) && favorites.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+          <Chip
+            label={`${filteredFavorites.length} of ${favorites.length} movie${favorites.length !== 1 ? 's' : ''}`}
+            color="primary"
+            variant="outlined"
+            sx={{ fontSize: "16px", fontWeight: "bold" }}
+          />
+        </Box>
+      )}
+
+      {/* Empty State */}
       {!Array.isArray(favorites) || favorites.length === 0 ? (
         <Paper
           elevation={2}
@@ -312,6 +304,9 @@ function Favorites() {
             p: 6,
             textAlign: "center",
             borderRadius: 3,
+            alignSelf: "center",
+            maxWidth: "600px",
+            width: "100%",
           }}
         >
           <FavoriteBorder sx={{ fontSize: 80, color: "text.secondary", mb: 2 }} />
@@ -330,31 +325,84 @@ function Favorites() {
             Browse Movies
           </Button>
         </Paper>
+      ) : filteredFavorites.length === 0 ? (
+        <Paper
+          elevation={2}
+          sx={{
+            p: 6,
+            textAlign: "center",
+            borderRadius: 3,
+            alignSelf: "center",
+            maxWidth: "600px",
+            width: "100%",
+          }}
+        >
+          <Search sx={{ fontSize: 80, color: "text.secondary", mb: 2 }} />
+          <Typography variant="h5" color="text.secondary" gutterBottom>
+            No movies found
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Try adjusting your search query to find your favorite movies.
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => setSearchQuery("")}
+            sx={{ borderRadius: 2 }}
+          >
+            Clear Search
+          </Button>
+        </Paper>
       ) : (
         <>
-          <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
-            Your Collection ({Array.isArray(favorites) ? favorites.length : 0} movie{Array.isArray(favorites) && favorites.length !== 1 ? 's' : ''})
-          </Typography>
-          
-          <Grid container spacing={3}>
-            {Array.isArray(favorites) && favorites.map((movie) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
-                <MovieCard
-                  movie={movie}
-                />
-              </Grid>
+          {/* Movies Grid */}
+          <Box
+            sx={{
+              display: "grid",
+              gap: 3,
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "1fr 1fr",
+                md: "repeat(3, 1fr)",
+              },
+            }}
+          >
+            {filteredFavorites.slice(0, visibleCount).map((movie) => (
+              <Box
+                key={movie.id}
+                onClick={() => {
+                  const slug = movie.slug || movie.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                  navigate(`/movie/${slug}`);
+                }}
+                sx={{ cursor: "pointer", height: "100%" }}
+              >
+                <MovieCard movie={movie} />
+              </Box>
             ))}
-          </Grid>
-          
-          
-          {!Array.isArray(favorites) && (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-              Error: Favorites data is not in the expected format. Please refresh the page.
-            </Alert>
+          </Box>
+
+          {/* Load More Button */}
+          {visibleCount < filteredFavorites.length && (
+            <Button
+              variant="contained"
+              onClick={handleLoadMore}
+              sx={{
+                mt: 3,
+                backgroundColor: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                fontWeight: "bold",
+                fontSize: 20,
+                "&:hover": { 
+                  backgroundColor: theme.palette.primary.dark,
+                },
+                alignSelf: "center",
+              }}
+            >
+              Load More
+            </Button>
           )}
         </>
       )}
-    </Container>
+    </Box>
   );
 }
 

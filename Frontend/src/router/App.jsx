@@ -30,9 +30,9 @@ function App() {
           <Route path="admin" element={<AdminPage></AdminPage>}></Route>
           <Route path="manage-movies" element={<ManageMovies></ManageMovies>}></Route>
           <Route path="manage-users" element={<ManageUsers></ManageUsers>}></Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="auth" element={<AuthenticationPage />}></Route>
-        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
