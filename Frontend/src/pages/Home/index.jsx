@@ -131,9 +131,31 @@ function Home() {
         {movieOfTheDay ? (
           <Box
             onClick={() => handleMovieClick(movieOfTheDay)}
-            sx={{ cursor: "pointer" }}
+            sx={{
+              cursor: "pointer",
+              // 👇 allow proper wrapping on small screens
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "center", sm: "flex-start" },
+            }}
           >
-            <MovieCard movie={movieOfTheDay} isFeatured />
+            <MovieCard
+              movie={movieOfTheDay}
+              isFeatured
+              sx={{
+                width: "100%",
+                // 👇 let card auto-grow vertically instead of cropping
+                height: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                "& .MuiTypography-root": {
+                  whiteSpace: "normal", // wrap text normally
+                  overflow: "visible",
+                  textOverflow: "unset",
+                },
+              }}
+            />
           </Box>
         ) : (
           <Typography

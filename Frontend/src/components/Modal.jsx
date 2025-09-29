@@ -23,42 +23,42 @@ import { getDisplayRating } from "../utils/ratingUtils";
 function Modal({ isOpen, onClose, movie }) {
   const { theme } = useThemeContext();
   const { isAuthenticated } = useAuth();
+
   const [currentRating, setCurrentRating] = useState(movie?.rating || 0);
   const [isUserRating, setIsUserRating] = useState(
     movie?.isUserRating || false
   );
-  const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
   const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
   const [favoriteMessage, setFavoriteMessage] = useState("");
   const [favoriteSeverity, setFavoriteSeverity] = useState("success");
 
+  // Load favorite status
   useEffect(() => {
-    if (movie) {
-      setCurrentRating(movie.rating);
-      setIsUserRating(movie.isUserRating || false);
+    if (!movie) return;
 
-      const loadFavoriteStatus = async () => {
-        if (isAuthenticated) {
-          try {
-            const response = await apiService.checkFavoriteStatus(movie.id);
-            setIsFavorite(response.is_favorite);
-          } catch {
-            const favorites = JSON.parse(
-              localStorage.getItem("movieFavorites") || "[]"
-            );
-            setIsFavorite(favorites.includes(movie.id));
-          }
-        } else {
-          const favorites = JSON.parse(
-            localStorage.getItem("movieFavorites") || "[]"
-          );
-          setIsFavorite(favorites.includes(movie.id));
+    setCurrentRating(movie.rating);
+    setIsUserRating(movie.isUserRating || false);
+
+    const loadFavoriteStatus = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await apiService.checkFavoriteStatus(movie.id);
+          setIsFavorite(response.is_favorite);
+          return;
+        } catch {
+          // fallback to localStorage
         }
-      };
+      }
+      const favorites = JSON.parse(
+        localStorage.getItem("movieFavorites") || "[]"
+      );
+      setIsFavorite(favorites.includes(movie.id));
+    };
 
-      loadFavoriteStatus();
-    }
+    loadFavoriteStatus();
   }, [movie, isAuthenticated]);
 
   const updateMovieRating = (reviews) => {
@@ -102,9 +102,6 @@ function Modal({ isOpen, onClose, movie }) {
       }
     }
   };
-
-  const handleCloseSnackbar = () => setShareSnackbarOpen(false);
-  const handleCloseFavoriteSnackbar = () => setFavoriteSnackbarOpen(false);
 
   const handleFavoriteToggle = async () => {
     if (!isAuthenticated) {
@@ -152,9 +149,8 @@ function Modal({ isOpen, onClose, movie }) {
       PaperProps={{
         sx: { bgcolor: theme.palette.background.default, borderRadius: 3 },
       }}
-      aria-labelledby="movie-dialog-title"
     >
-      {/* Close button */}
+      {/* Action buttons */}
       <IconButton
         aria-label="close"
         onClick={onClose}
@@ -164,17 +160,12 @@ function Modal({ isOpen, onClose, movie }) {
           left: 16,
           bgcolor: theme.palette.primary.main,
           color: theme.palette.mode === "dark" ? "#000" : "#fff",
-          borderRadius: "50%",
-          width: 40,
-          height: 40,
-          zIndex: 10,
           "&:hover": { bgcolor: theme.palette.secondary.main },
         }}
       >
         <CloseIcon />
       </IconButton>
 
-      {/* Favorite button */}
       <IconButton
         aria-label={isFavorite ? "remove from favorites" : "add to favorites"}
         onClick={handleFavoriteToggle}
@@ -186,10 +177,6 @@ function Modal({ isOpen, onClose, movie }) {
             ? theme.palette.error.main
             : theme.palette.primary.main,
           color: theme.palette.mode === "dark" ? "#000" : "#fff",
-          borderRadius: "50%",
-          width: 40,
-          height: 40,
-          zIndex: 10,
           "&:hover": {
             bgcolor: isFavorite
               ? theme.palette.error.dark
@@ -200,7 +187,6 @@ function Modal({ isOpen, onClose, movie }) {
         {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
       </IconButton>
 
-      {/* Share button */}
       <IconButton
         aria-label="share movie"
         onClick={handleShare}
@@ -210,9 +196,6 @@ function Modal({ isOpen, onClose, movie }) {
           right: 16,
           bgcolor: theme.palette.primary.main,
           color: theme.palette.mode === "dark" ? "#000" : "#fff",
-          borderRadius: "50%",
-          width: 40,
-          height: 40,
           "&:hover": { bgcolor: theme.palette.secondary.main },
         }}
       >
@@ -220,19 +203,22 @@ function Modal({ isOpen, onClose, movie }) {
       </IconButton>
 
       {/* Header */}
-      <DialogTitle id="movie-dialog-title" sx={{ textAlign: "center", pb: 1 }}>
+      <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
         <Typography
+          component="h2"
           variant="h4"
           sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
         >
           {movie.title}
         </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{ color: theme.palette.text.secondary }}
-        >
-          {movie.year}
-        </Typography>
+        {movie.year && (
+          <Typography
+            variant="subtitle1"
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            {movie.year}
+          </Typography>
+        )}
         <Box
           sx={{
             mt: 1,
@@ -262,6 +248,7 @@ function Modal({ isOpen, onClose, movie }) {
           gap: 2,
         }}
       >
+        {/* Poster */}
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Box
             component="img"
@@ -275,6 +262,8 @@ function Modal({ isOpen, onClose, movie }) {
             }}
           />
         </Box>
+
+        {/* Info */}
         <Box sx={{ color: theme.palette.text.primary }}>
           <Typography
             variant="h6"
@@ -295,7 +284,7 @@ function Modal({ isOpen, onClose, movie }) {
           <Box>
             {[
               ["Genre", movie.genre || "Drama"],
-              ["Director", movie.director || "Frank Darabont"],
+              ["Director", movie.director || "Unknown"],
             ].map(([label, value]) => (
               <Box
                 key={label}
@@ -314,6 +303,7 @@ function Modal({ isOpen, onClose, movie }) {
             ))}
           </Box>
 
+          {/* Reviews */}
           <Box
             sx={{
               pt: 0.5,
@@ -339,34 +329,25 @@ function Modal({ isOpen, onClose, movie }) {
         </Box>
       </DialogContent>
 
-      {/* Share Snackbar */}
+      {/* Snackbars */}
       <Snackbar
         open={shareSnackbarOpen}
         autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
+        onClose={() => setShareSnackbarOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+        <Alert severity="success" sx={{ width: "100%" }}>
           Movie link copied to clipboard!
         </Alert>
       </Snackbar>
 
-      {/* Favorite Snackbar */}
       <Snackbar
         open={favoriteSnackbarOpen}
         autoHideDuration={3000}
-        onClose={handleCloseFavoriteSnackbar}
+        onClose={() => setFavoriteSnackbarOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseFavoriteSnackbar}
-          severity={favoriteSeverity}
-          sx={{ width: "100%" }}
-        >
+        <Alert severity={favoriteSeverity} sx={{ width: "100%" }}>
           {favoriteMessage}
         </Alert>
       </Snackbar>

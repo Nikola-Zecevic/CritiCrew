@@ -104,7 +104,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
         position: "relative",
         display: "flex",
         flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
-        height: isFeatured && !isSmallScreen ? "auto" : 460,
+        height: "auto",
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,
