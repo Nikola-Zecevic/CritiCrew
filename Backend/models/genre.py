@@ -1,12 +1,16 @@
 from sqlmodel import SQLModel, Field, Relationship
 from .movie_genre_link import MovieGenreLink
-# from .movie import Movie
+from typing import TYPE_CHECKING, List, Optional
+
+if TYPE_CHECKING:
+    from .movie import Movie
 
 class Genre(SQLModel, table=True):
     __tablename__ = "genres"
 
-    id: int | None = Field(default=None, primary_key=True)
-    name: str
+    id: Optional[int] = Field(default=None, primary_key=True)
 
-    movies: list["Movie"] = Relationship(back_populates="genres", link_model=MovieGenreLink)
+    name: str = Field(unique=True, index=True)
+
+    movies: List["Movie"] = Relationship(back_populates="genres", link_model=MovieGenreLink)
 

@@ -1,21 +1,23 @@
 from datetime import date
 from sqlmodel import SQLModel, Field, Relationship
-# from .review import Review
 from .movie_genre_link import MovieGenreLink
-# from .genre import Genre
+from typing import TYPE_CHECKING, List, Optional
+if TYPE_CHECKING:
+    from .review import Review
+    from .genre import Genre
+    from .favorite import Favorite
 
 class Movie(SQLModel, table=True):
     __tablename__ = "movies"
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     title: str
     director: str
     description: str
-    image: str | None = None 
-    release_date: date | None = None
-
-    reviews: list["Review"] = Relationship(back_populates="movie")
-    genres: list["Genre"] = Relationship(back_populates="movies", link_model=MovieGenreLink)
+    image: Optional[str] = None
+    release_date: Optional[date] = None
 
 
-
+    reviews: List["Review"] = Relationship(back_populates="movie")
+    favorited_by: List["Favorite"] = Relationship(back_populates="movie")
+    genres: List["Genre"] = Relationship(back_populates="movies", link_model=MovieGenreLink)
