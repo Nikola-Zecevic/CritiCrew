@@ -45,3 +45,9 @@ Thumbs.db
 # Environment variables
 .env
 .env.*
+
+# Deployment files with sensitive info
+PRODUCTION_DEPLOYMENT.md
+DEPLOYMENT_STATUS.md
+update_movie_images.sql
+INTEGRATION_GUIDE.md

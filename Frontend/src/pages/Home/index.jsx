@@ -1,17 +1,52 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Pagination from "../../components/Pagination";
-import allMovies from "../../services/moviesService";
+import moviesService from "../../services/moviesService";
 import MovieCard from "../../components/MovieCard";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
-
+import { getMovieOfTheDay } from "../../utils/movieOfTheDay";
 
 function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useThemeContext();
+
+  const [allMovies, setAllMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [movieOfTheDay, setMovieOfTheDay] = useState(null);
+
   const moviesPerPage = 3;
+
+  useEffect(() => {
+    const loadMovies = async () => {
+      try {
+        setLoading(true);
+        const movies = await moviesService.getAllMovies();
+        setAllMovies(movies);
+      } catch (err) {
+        setError("Failed to load movies: " + err.message);
+        console.error("Error loading movies:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMovies();
+
+    // Listen for rating updates
+    const unsubscribe = moviesService.addRatingUpdateListener(
+      (movieId, newRating, updatedMovies) => {
+        console.log(
+          `🔄 Home: Received rating update for movie ${movieId}, refreshing movie list`
+        );
+        setAllMovies([...updatedMovies]); // Create new array to trigger re-render
+      }
+    );
+
+    return unsubscribe; // Cleanup listener on unmount
+  }, []);
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const totalPages = Math.ceil(allMovies.length / moviesPerPage);
@@ -19,13 +54,54 @@ function Home() {
   const currentMovies = useMemo(() => {
     const startIndex = (currentPage - 1) * moviesPerPage;
     return allMovies.slice(startIndex, startIndex + moviesPerPage);
-  }, [currentPage, moviesPerPage]);
+  }, [allMovies, currentPage, moviesPerPage]);
 
   const handleMovieClick = (movie) => navigate(`/movie/${movie.slug}`);
   const handlePageChange = (page) => setSearchParams({ page });
 
   const textColor = mode === "dark" ? "#FFD700" : "#333";
   const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
+
+  // ✅ Get today's movie (deterministic, no repeats until list cycles)
+  useEffect(() => {
+    const loadMovieOfTheDay = async () => {
+      if (allMovies.length > 0) {
+        const selected = await getMovieOfTheDay(allMovies);
+        setMovieOfTheDay(selected);
+      }
+    };
+    loadMovieOfTheDay();
+  }, [allMovies]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          px: 2,
+          py: 4,
+        }}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -49,16 +125,50 @@ function Home() {
             textAlign: "center",
             fontWeight: 700,
           }}
-
         >
           🎬 Movie of the Day
         </Typography>
-        <Box
-          onClick={() => handleMovieClick(allMovies[0])}
-          sx={{ cursor: "pointer" }}
-        >
-          <MovieCard movie={allMovies[0]} isFeatured />
-        </Box>
+        {movieOfTheDay ? (
+          <Box
+            onClick={() => handleMovieClick(movieOfTheDay)}
+            sx={{
+              cursor: "pointer",
+              // 👇 allow proper wrapping on small screens
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "center", sm: "flex-start" },
+            }}
+          >
+            <MovieCard
+              movie={movieOfTheDay}
+              isFeatured
+              sx={{
+                width: "100%",
+                // 👇 let card auto-grow vertically instead of cropping
+                height: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
+                "& .MuiTypography-root": {
+                  whiteSpace: "normal", // wrap text normally
+                  overflow: "visible",
+                  textOverflow: "unset",
+                },
+              }}
+            />
+          </Box>
+        ) : (
+          <Typography
+            variant="body1"
+            sx={{
+              color: textColor,
+              textAlign: "center",
+              fontStyle: "italic",
+            }}
+          >
+            Loading movie of the day...
+          </Typography>
+        )}
       </Box>
 
       {/* Top Rated Movies */}
@@ -84,7 +194,6 @@ function Home() {
               sm: "1fr 1fr",
               md: "repeat(3, 1fr)",
             },
-
           }}
         >
           {currentMovies.map((movie) => (
@@ -105,7 +214,6 @@ function Home() {
             onPageChange={handlePageChange}
           />
         </Box>
-
       </Box>
     </Box>
   );

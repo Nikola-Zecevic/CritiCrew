@@ -6,5 +6,3 @@ class MovieGenreLink(SQLModel, table=True):
 
     movie_id: int|None = Field(default=None, foreign_key="movies.id", primary_key=True)
     genre_id: int|None = Field(default=None, foreign_key="genres.id", primary_key=True)
-
-

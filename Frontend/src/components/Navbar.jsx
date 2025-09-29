@@ -1,66 +1,40 @@
-import React from "react";
-// import { Link as RouterLink, useNavigate } from "react-router-dom";
-// import {
-//   AppBar,
-//   Toolbar,
-//   Typography,
-//   Box,
-//   IconButton,
-//   InputBase,
-//   Paper,
-//   List,
-//   ListItem,
-//   ListItemButton,
-//   ListItemText,
-//   Button,
-//   Avatar,
-// } from "@mui/material";
-// import { Search as SearchIcon, DarkMode, LightMode } from "@mui/icons-material";
-// import { useAuth } from "../contexts/AuthContext";
-// import { useThemeContext } from "../contexts/ThemeContext";
-// import useMovieSearch from "../hooks/useMovieSearch";
-
+import React, { useRef, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useMovieSearch from "../hooks/useMovieSearch";
 import { useAuth } from "../contexts/AuthContext";
-import { Box, TextField, IconButton } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import { useThemeContext } from "../contexts/ThemeContext";
-import { LightMode, DarkMode } from "@mui/icons-material";
-
+import { Box, TextField, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { LightMode, DarkMode, Casino, ArrowDropDown } from "@mui/icons-material";
+import { getRandomMovie } from "../utils/randomMovie";
+import Modal from "./Modal";
 export default function Navbar() {
-  const { currentUser, isAdmin } = useAuth();
+  const { currentUser, isAdmin, isSuperadmin } = useAuth();
   const navigate = useNavigate();
   const { theme, mode, toggleTheme } = useThemeContext();
-
   const {
     searchQuery,
     searchResults,
     showSuggestions,
     handleSearchInputChange,
     clearSearch,
+    hideSuggestions,
   } = useMovieSearch();
-
-  // function getInitials(name = "") {
-  //   return name
-  //     .split(" ")
-  //     .map((word) => word[0])
-  //     .join("")
-  //     .toUpperCase();
-  // }
-
-  // function handleSearch(e) {
-  //   e.preventDefault();
-  // }
-
-  // function handleSuggestionClick(movie) {
-
-  const handleSearch = (e) => e.preventDefault();
+  const searchRef = useRef(null);
+  // modal / random movie state
+  const [randomMovie, setRandomMovie] = useState(null);
+  const [openRandom, setOpenRandom] = useState(false);
+  
+  // Dashboard dropdown state
+  const [dashboardAnchor, setDashboardAnchor] = useState(null);
+  const dashboardOpen = Boolean(dashboardAnchor);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // we intentionally don't navigate here — suggestions handle selection
+  };
   const handleSuggestionClick = (movie) => {
     clearSearch();
     navigate(`/movie/${movie.slug}`);
   };
-
   const getInitials = (name = "U") =>
     name
       .split(" ")
@@ -68,14 +42,24 @@ export default function Navbar() {
       .join("")
       .slice(0, 2)
       .toUpperCase();
-
+  // Close suggestions when clicking outside search
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        hideSuggestions();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [hideSuggestions]);
   const navLinks = [
     { label: "Home", to: "/" },
-    { label: "Filter", to: "/filter" },
-    { label: "Random Movie", to: "/random" },
+    { label: "Favorites", to: "/favorites" },
+    { label: "Movies", to: "/movies" },
     { label: "About Us", to: "/about" },
   ];
-
   const navLinkStyle = {
     position: "relative",
     textDecoration: "none",
@@ -84,6 +68,8 @@ export default function Navbar() {
     fontSize: "1.1rem",
     px: 1,
     py: 0.5,
+    display: "inline-flex",
+    alignItems: "center",
     transition: "color 0.2s ease",
     "&:hover": { color: theme.palette.primary.main },
     "&::after": {
@@ -98,160 +84,33 @@ export default function Navbar() {
     },
     "&:hover::after": { width: "100%" },
   };
+  // fetch and open modal with random movie
+  const handleRandomMovie = async () => {
+    try {
+      const movie = await getRandomMovie();
+      setRandomMovie(movie);
+      setOpenRandom(true);
+    } catch (err) {
+      console.error("Failed to fetch random movie:", err);
+    }
+  };
 
+  // Dashboard dropdown handlers
+  const handleDashboardClick = (event) => {
+    setDashboardAnchor(event.currentTarget);
+  };
+
+  const handleDashboardClose = () => {
+    setDashboardAnchor(null);
+  };
+
+  const handleMenuItemClick = (path) => {
+    navigate(path);
+    handleDashboardClose();
+  };
   return (
-    // <AppBar position="static" color="default" elevation={2}>
-    //   <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-    //     {/* Logo */}
-    //     <Typography
-    //       variant="h6"
-    //       component={RouterLink}
-    //       to="/"
-    //       sx={{
-    //         textDecoration: "none",
-    //         color: "inherit",
-    //         fontWeight: "bold",
-    //       }}
-    //     >
-    //       CritiCrew
-    //     </Typography>
-
-    //     {/* Search */}
-    //     <Box sx={{ position: "relative", flexGrow: 1, maxWidth: 400, mx: 2 }}>
-    //       <Paper
-    //         component="form"
-    //         onSubmit={handleSearch}
-    //         sx={{
-    //           p: "2px 4px",
-    //           display: "flex",
-    //           alignItems: "center",
-    //           width: "100%",
-    //         }}
-    //       >
-    //         <InputBase
-    //           placeholder="Search movies…"
-    //           value={searchQuery}
-    //           onChange={(e) => handleSearchInputChange(e.target.value)}
-    //           sx={{ ml: 1, flex: 1 }}
-    //         />
-    //         <IconButton type="submit" sx={{ p: "10px" }}>
-    //           <SearchIcon />
-    //         </IconButton>
-    //       </Paper>
-
-    //       {showSuggestions && searchResults.length > 0 && (
-    //         <Paper
-    //           sx={{
-    //             position: "absolute",
-    //             top: "100%",
-    //             left: 0,
-    //             right: 0,
-    //             mt: 1,
-    //             zIndex: 10,
-    //             maxHeight: 250,
-    //             overflowY: "auto",
-    //           }}
-    //         >
-    //           <List>
-    //             {searchResults.map((movie) => (
-    //               <ListItem key={movie.id} disablePadding>
-    //                 <ListItemButton
-    //                   onClick={() => handleSuggestionClick(movie)}
-    //                 >
-    //                   <ListItemText
-    //                     primary={`${movie.title} (${movie.year})`}
-    //                     secondary={`⭐ ${movie.rating}`}
-    //                   />
-    //                 </ListItemButton>
-    //               </ListItem>
-    //             ))}
-    //           </List>
-    //         </Paper>
-    //       )}
-    //     </Box>
-
-    //     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-    //       <Button component={RouterLink} to="/" color="inherit">
-    //         Home
-    //       </Button>
-    //       <Button component={RouterLink} to="/filter" color="inherit">
-    //         Filter
-    //       </Button>
-    //       <Button component={RouterLink} to="/random" color="inherit">
-    //         Random Movie
-    //       </Button>
-    //       <Button component={RouterLink} to="/about" color="inherit">
-    //         About Us
-    //       </Button>
-    //       {isAdmin && (
-    //         <Button component={RouterLink} to="/dashboard" color="inherit">
-    //           Dashboard
-    //         </Button>
-    //       )}
-    //     </Box>
-
-    //     <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-    //       <IconButton onClick={toggleTheme} color="inherit">
-    //         {mode === "light" ? <DarkMode /> : <LightMode />}
-    //       </IconButton>
-
-    //       <IconButton component={RouterLink} to="/profile" sx={{ ml: 1 }}>
-    //         <Avatar sx={{ bgcolor: "primary.main", color: "white" }}>
-    //           {getInitials(currentUser?.name || "U")}
-    //         </Avatar>
-    //       </IconButton>
-    //     </Box>
-    //   </Toolbar>
-    // </AppBar>
     <>
-      {/* Theme toggle */}
-      <IconButton
-        onClick={toggleTheme}
-        sx={{
-          position: "fixed",
-          top: 16,
-          left: 16,
-          bgcolor: theme.palette.background.paper,
-          boxShadow: 3,
-          "&:hover": { bgcolor: theme.palette.primary.light },
-          zIndex: 2000,
-        }}
-      >
-        {mode === "light" ? <DarkMode /> : <LightMode />}
-      </IconButton>
-
-      {/* Mobile profile avatar */}
-      <Box
-        component={Link}
-        to="/profile"
-        sx={{
-          position: "fixed",
-          top: 16,
-          right: 16,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          border: `2px solid ${theme.palette.primary.main}`,
-          bgcolor: theme.palette.background.paper,
-          color: theme.palette.primary.main,
-          fontWeight: "bold",
-          display: { xs: "flex", md: "none" },
-          alignItems: "center",
-          justifyContent: "center",
-          textDecoration: "none",
-          boxShadow: 3,
-          zIndex: 2000,
-          "&:hover": {
-            bgcolor: theme.palette.primary.main,
-            color: theme.palette.getContrastText(theme.palette.primary.main),
-            transform: "scale(1.05)",
-          },
-        }}
-      >
-        {getInitials(currentUser?.name)}
-      </Box>
-
-      {/* Navbar */}
+      {/* NAV container */}
       <Box
         component="nav"
         sx={{
@@ -262,6 +121,73 @@ export default function Navbar() {
           zIndex: 1200,
         }}
       >
+        {/* Mobile header row: theme toggle | logo | avatar (one row) */}
+        <Box
+          sx={{
+            display: { xs: "flex", md: "none" },
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 2,
+            py: 1,
+          }}
+        >
+          {/* Theme toggle (left) */}
+          <IconButton
+            onClick={toggleTheme}
+            sx={{
+              bgcolor: theme.palette.background.paper,
+              boxShadow: 2,
+              "&:hover": { bgcolor: theme.palette.primary.light },
+            }}
+            aria-label="toggle theme"
+          >
+            {mode === "light" ? <DarkMode /> : <LightMode />}
+          </IconButton>
+          {/* Logo (center) */}
+          <Box
+            component={Link}
+            to="/"
+            sx={{
+              color: theme.palette.primary.main,
+              fontSize: "1.8rem",
+              fontWeight: "bold",
+              textDecoration: "none",
+              textAlign: "center",
+            }}
+          >
+            CritiCrew
+          </Box>
+          {/* User avatar (right) */}
+          <Box
+            component={Link}
+            to="/profile"
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: `2px solid ${theme.palette.primary.main}`,
+              bgcolor: theme.palette.background.paper,
+              color: theme.palette.primary.main,
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textDecoration: "none",
+              boxShadow: 2,
+              "&:hover": {
+                bgcolor: theme.palette.primary.main,
+                color: theme.palette.getContrastText(
+                  theme.palette.primary.main
+                ),
+                transform: "scale(1.05)",
+              },
+            }}
+            aria-label="profile"
+          >
+            {getInitials(currentUser?.name)}
+          </Box>
+        </Box>
+        {/* Main navbar content */}
         <Box
           sx={{
             display: "flex",
@@ -269,36 +195,44 @@ export default function Navbar() {
             justifyContent: "space-between",
             maxWidth: 1200,
             mx: "auto",
-            px: 3,
-            gap: 3,
-            py: { xs: 2, md: 1.5 },
+            px: { xs: 2, sm: 3 },
+            gap: { xs: 2, md: 3 },
+            py: { xs: 1.5, md: 1.5 },
             flexDirection: { xs: "column", md: "row" },
+            minHeight: { xs: "auto", md: 64 },
           }}
         >
-          {/* Logo */}
+          {/* Desktop Logo (left) */}
           <Box
             component={Link}
             to="/"
             sx={{
               color: theme.palette.primary.main,
-              fontSize: { xs: "2.2rem", md: "2.4rem" },
+              fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.4rem" },
               fontWeight: "bold",
               textDecoration: "none",
               textAlign: { xs: "center", md: "left" },
               width: { xs: "100%", md: "auto" },
+              px: { xs: 1, md: 0 },
+              py: { xs: 0.5, md: 0 },
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              order: { xs: 1, md: 0 },
+              display: { xs: "none", md: "block" },
             }}
           >
             CritiCrew
           </Box>
-
-          {/* Search */}
+          {/* Search + Random button */}
           <Box
+            ref={searchRef}
             sx={{
               flex: 1,
-              maxWidth: 550,
+              maxWidth: { xs: "100%", md: 450 },
               width: "100%",
               position: "relative",
               order: { xs: 3, md: 0 },
+              px: { xs: 1, md: 0 },
             }}
           >
             <Box
@@ -324,10 +258,12 @@ export default function Navbar() {
                     color: theme.palette.text.primary,
                   },
                 }}
+                inputProps={{ "aria-label": "search movies" }}
               />
+              {/* Random button */}
               <IconButton
-                type="submit"
-                aria-label="search"
+                onClick={handleRandomMovie}
+                aria-label="roll dice for random movie"
                 sx={{
                   ml: 1,
                   bgcolor: theme.palette.primary.main,
@@ -335,7 +271,7 @@ export default function Navbar() {
                   "&:hover": { bgcolor: theme.palette.primary.light },
                 }}
               >
-                <SearchIcon
+                <Casino
                   sx={{
                     color: theme.palette.getContrastText(
                       theme.palette.primary.main
@@ -344,8 +280,7 @@ export default function Navbar() {
                 />
               </IconButton>
             </Box>
-
-            {/* Suggestions */}
+            {/* Suggestions dropdown */}
             {showSuggestions && searchResults.length > 0 && (
               <Box
                 sx={{
@@ -368,7 +303,7 @@ export default function Navbar() {
                     onClick={() => handleSuggestionClick(movie)}
                     sx={{
                       px: 2,
-                      py: 1,
+                      py: 1.5,
                       color: theme.palette.text.secondary,
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       cursor: "pointer",
@@ -376,27 +311,32 @@ export default function Navbar() {
                         bgcolor: theme.palette.action.hover,
                         color: theme.palette.primary.main,
                       },
+                      "&:last-child": { borderBottom: "none" },
                     }}
                   >
-                    {movie.title} ({movie.year}) — ⭐{movie.rating}
+                    <Box sx={{ fontWeight: 600, mb: 0.5 }}>{movie.title}</Box>
+                    <Box sx={{ fontSize: "0.875rem", opacity: 0.8 }}>
+                      {movie.year && `Released: ${movie.year}`}
+                      {movie.director && ` • Directed by ${movie.director}`}
+                    </Box>
                   </Box>
                 ))}
               </Box>
             )}
           </Box>
-
           {/* Nav links */}
           <Box
             component="ul"
             sx={{
               display: "flex",
               listStyle: "none",
-              gap: { xs: 2, md: 5 },
+              gap: { xs: 1.5, sm: 2, md: 4 },
               m: 0,
               p: 0,
               order: { xs: 2, md: 0 },
               justifyContent: "center",
               flexWrap: "wrap",
+              width: { xs: "100%", md: "auto" },
             }}
           >
             {navLinks.map((link) => (
@@ -408,42 +348,115 @@ export default function Navbar() {
             ))}
             {isAdmin && (
               <li>
-                <Box component={Link} to="/dashboard" sx={navLinkStyle}>
+                <Box
+                  onClick={handleDashboardClick}
+                  sx={{
+                    ...navLinkStyle,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    verticalAlign: 'baseline',
+                    gap: 0.5,
+                  }}
+                >
                   Dashboard
+                  <ArrowDropDown sx={{ fontSize: '1.2rem' }} />
                 </Box>
+                <Menu
+                  anchorEl={dashboardAnchor}
+                  open={dashboardOpen}
+                  onClose={handleDashboardClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'dashboard-button',
+                  }}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: theme.palette.background.paper,
+                      border: `1px solid ${theme.palette.primary.main}`,
+                      borderRadius: 2,
+                      mt: 1,
+                    },
+                  }}
+                >
+                  <MenuItem 
+                    onClick={() => handleMenuItemClick('/manage-movies')}
+                    sx={{ 
+                      color: theme.palette.text.primary,
+                      '&:hover': { bgcolor: theme.palette.action.hover }
+                    }}
+                  >
+                    <Typography>Manage Movies</Typography>
+                  </MenuItem>
+                  {isSuperadmin && (
+                    <MenuItem 
+                      onClick={() => handleMenuItemClick('/manage-users')}
+                      sx={{ 
+                        color: theme.palette.text.primary,
+                        '&:hover': { bgcolor: theme.palette.action.hover }
+                      }}
+                    >
+                      <Typography>Manage Users</Typography>
+                    </MenuItem>
+                  )}
+                </Menu>
               </li>
             )}
           </Box>
-
-          {/* Desktop profile */}
+          {/* Desktop controls (theme toggle + avatar) */}
           <Box
-            component={Link}
-            to="/profile"
             sx={{
               display: { xs: "none", md: "flex" },
-              width: 46,
-              height: 46,
-              borderRadius: "50%",
-              border: `2px solid ${theme.palette.primary.main}`,
-              bgcolor: theme.palette.background.paper,
-              color: theme.palette.primary.main,
-              fontWeight: "bold",
               alignItems: "center",
-              justifyContent: "center",
-              textDecoration: "none",
-              "&:hover": {
-                bgcolor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(
-                  theme.palette.primary.main
-                ),
-                transform: "scale(1.05)",
-              },
+              gap: 2,
             }}
           >
-            {getInitials(currentUser?.name)}
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                bgcolor: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`,
+                "&:hover": { bgcolor: theme.palette.primary.light },
+              }}
+              aria-label="toggle theme"
+            >
+              {mode === "light" ? <DarkMode /> : <LightMode />}
+            </IconButton>
+            <Box
+              component={Link}
+              to="/profile"
+              sx={{
+                width: 46,
+                height: 46,
+                borderRadius: "50%",
+                border: `2px solid ${theme.palette.primary.main}`,
+                bgcolor: theme.palette.background.paper,
+                color: theme.palette.primary.main,
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                "&:hover": {
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  transform: "scale(1.05)",
+                },
+              }}
+              aria-label="profile"
+            >
+              {getInitials(currentUser?.name)}
+            </Box>
           </Box>
         </Box>
       </Box>
+      {/* Random Movie Modal */}
+      <Modal
+        isOpen={openRandom}
+        onClose={() => setOpenRandom(false)}
+        movie={randomMovie}
+      />
     </>
   );
 }

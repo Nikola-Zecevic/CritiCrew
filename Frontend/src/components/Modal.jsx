@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,13 +6,138 @@ import {
   IconButton,
   Typography,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ShareIcon from "@mui/icons-material/Share";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import UserReviews from "./UserReviews";
 import { useThemeContext } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import moviesService from "../services/moviesService";
+import apiService from "../services/apiService";
+import { getDisplayRating } from "../utils/ratingUtils";
 
 function Modal({ isOpen, onClose, movie }) {
-  const { theme } = useThemeContext(); // now we have the MUI theme directly
+  const { theme } = useThemeContext();
+  const { isAuthenticated } = useAuth();
+
+  const [currentRating, setCurrentRating] = useState(movie?.rating || 0);
+  const [isUserRating, setIsUserRating] = useState(
+    movie?.isUserRating || false
+  );
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const [shareSnackbarOpen, setShareSnackbarOpen] = useState(false);
+  const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
+  const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [favoriteSeverity, setFavoriteSeverity] = useState("success");
+
+  // Load favorite status
+  useEffect(() => {
+    if (!movie) return;
+
+    setCurrentRating(movie.rating);
+    setIsUserRating(movie.isUserRating || false);
+
+    const loadFavoriteStatus = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await apiService.checkFavoriteStatus(movie.id);
+          setIsFavorite(response.is_favorite);
+          return;
+        } catch {
+          // fallback to localStorage
+        }
+      }
+      const favorites = JSON.parse(
+        localStorage.getItem("movieFavorites") || "[]"
+      );
+      setIsFavorite(favorites.includes(movie.id));
+    };
+
+    loadFavoriteStatus();
+  }, [movie, isAuthenticated]);
+
+  const updateMovieRating = (reviews) => {
+    let newRating = movie.rating;
+    let isFromUserReviews = false;
+
+    if (reviews && reviews.length > 0) {
+      const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+      newRating = sum / reviews.length;
+      isFromUserReviews = true;
+    }
+
+    setCurrentRating(newRating);
+    setIsUserRating(isFromUserReviews);
+    moviesService.updateMovieRating(movie.id, newRating);
+  };
+
+  const handleShare = async () => {
+    try {
+      const movieUrl = `${window.location.origin}/movie/${movie.slug}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: movie.title,
+          text: `Check out this movie: ${movie.title}`,
+          url: movieUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(movieUrl);
+        setShareSnackbarOpen(true);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(
+          `${window.location.origin}/movie/${movie.slug}`
+        );
+        setShareSnackbarOpen(true);
+      } catch {
+        alert(
+          `Copy this link to share: ${window.location.origin}/movie/${movie.slug}`
+        );
+      }
+    }
+  };
+
+  const handleFavoriteToggle = async () => {
+    if (!isAuthenticated) {
+      setFavoriteMessage("Log in to add favorites");
+      setFavoriteSeverity("error");
+      setFavoriteSnackbarOpen(true);
+      setIsFavorite(false);
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await apiService.removeFromFavorites(movie.id);
+        setIsFavorite(false);
+        setFavoriteMessage(`${movie.title} removed from favorites!`);
+      } else {
+        await apiService.addToFavorites(movie.id);
+        setIsFavorite(true);
+        setFavoriteMessage(`${movie.title} added to favorites!`);
+      }
+
+      setFavoriteSeverity("success");
+      setFavoriteSnackbarOpen(true);
+
+      window.dispatchEvent(
+        new CustomEvent("favoritesChanged", {
+          detail: { movieId: movie.id, isFavorited: !isFavorite },
+        })
+      );
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      if (error.message.includes("already in favorites")) setIsFavorite(true);
+      else if (error.message.includes("not found")) setIsFavorite(false);
+    }
+  };
+
   if (!movie) return null;
 
   return (
@@ -22,138 +147,105 @@ function Modal({ isOpen, onClose, movie }) {
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: {
-          bgcolor: theme.palette.background.default,
-          border: `2px solid ${theme.palette.primary.main}`,
-          borderRadius: 3,
-          maxWidth: "900px",
-          width: "90%",
-          maxHeight: "90vh",
-          overflowY: "auto",
-          position: "relative",
-          animation: "modalSlideIn 0.3s ease-out",
-          "&::-webkit-scrollbar": { width: 10, height: 10 },
-          "&::-webkit-scrollbar-track": {
-            background: theme.palette.background.default,
-            borderRadius: 8,
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: theme.palette.primary.main,
-            borderRadius: 8,
-            border: `2px solid ${theme.palette.background.default}`,
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: theme.palette.secondary.main,
-          },
-          scrollbarWidth: "thin",
-          scrollbarColor: `${theme.palette.primary.main} ${theme.palette.background.default}`,
-        },
+        sx: { bgcolor: theme.palette.background.default, borderRadius: 3 },
       }}
-      BackdropProps={{
-        sx: {
-          backgroundColor:
-            theme.palette.mode === "dark"
-              ? "rgba(0,0,0,0.9)"
-              : "rgba(0,0,0,0.5)",
-          backdropFilter: "blur(2px)",
-        },
-      }}
-      aria-labelledby="movie-dialog-title"
     >
-      {/* Close button */}
+      {/* Action buttons */}
       <IconButton
         aria-label="close"
         onClick={onClose}
         sx={{
           position: "absolute",
-          top: "1.2rem",
-          left: "1.2rem",
+          top: 16,
+          left: 16,
           bgcolor: theme.palette.primary.main,
           color: theme.palette.mode === "dark" ? "#000" : "#fff",
-          borderRadius: "50%",
-          width: 40,
-          height: 40,
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-          zIndex: 10,
-          "&:hover": {
-            bgcolor: theme.palette.secondary.main,
-            transform: "scale(1.1)",
-          },
+          "&:hover": { bgcolor: theme.palette.secondary.main },
         }}
       >
         <CloseIcon />
       </IconButton>
 
-      {/* Header */}
-      <DialogTitle
-        id="movie-dialog-title"
+      <IconButton
+        aria-label={isFavorite ? "remove from favorites" : "add to favorites"}
+        onClick={handleFavoriteToggle}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 0.5,
-          p: "2rem 2rem 1rem",
-          borderBottom: `1px solid ${theme.palette.text.secondary}`,
-          textAlign: "center",
+          position: "absolute",
+          top: 16,
+          right: 16,
+          bgcolor: isFavorite
+            ? theme.palette.error.main
+            : theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
+          "&:hover": {
+            bgcolor: isFavorite
+              ? theme.palette.error.dark
+              : theme.palette.secondary.main,
+          },
         }}
       >
+        {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+      </IconButton>
+
+      <IconButton
+        aria-label="share movie"
+        onClick={handleShare}
+        sx={{
+          position: "absolute",
+          top: 72,
+          right: 16,
+          bgcolor: theme.palette.primary.main,
+          color: theme.palette.mode === "dark" ? "#000" : "#fff",
+          "&:hover": { bgcolor: theme.palette.secondary.main },
+        }}
+      >
+        <ShareIcon />
+      </IconButton>
+
+      {/* Header */}
+      <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
         <Typography
+          component="h2"
           variant="h4"
-          component="div"
-          sx={{
-            fontSize: { xs: "2rem", md: "2.5rem" },
-            fontWeight: 700,
-            color: theme.palette.primary.main,
-            mb: 0.5,
-            letterSpacing: 0.5,
-          }}
+          sx={{ color: theme.palette.primary.main, fontWeight: "bold" }}
         >
           {movie.title}
         </Typography>
-
-        <Typography
-          variant="subtitle1"
-          component="div"
-          sx={{
-            color: theme.palette.text.secondary,
-            fontSize: "1.1rem",
-            mb: 0.5,
-          }}
-        >
-          {movie.year}
-        </Typography>
-
+        {movie.year && (
+          <Typography
+            variant="subtitle1"
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            {movie.year}
+          </Typography>
+        )}
         <Box
           sx={{
+            mt: 1,
             display: "inline-block",
-            color: theme.palette.primary.main,
-            backgroundColor:
-              theme.palette.mode === "dark"
-                ? "rgba(245,197,24,0.18)"
-                : "rgba(0,0,0,0.05)",
             px: 2,
             py: 1,
             borderRadius: 2.5,
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-            mt: 0.5,
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? "rgba(245,197,24,0.18)"
+                : "rgba(0,0,0,0.05)",
           }}
-          aria-hidden
         >
-          ★ {movie.rating}/10
+          ★{" "}
+          {getDisplayRating({ rating: currentRating, isUserRating }) ===
+          "No reviews"
+            ? "No reviews"
+            : `${getDisplayRating({ rating: currentRating, isUserRating })}/5`}
         </Box>
       </DialogTitle>
 
       {/* Body */}
       <DialogContent
         sx={{
-          p: { xs: "1rem", md: "2rem" },
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "300px 1fr" },
-          gap: "2rem",
-          alignItems: "flex-start",
-          textAlign: { xs: "center", md: "left" },
+          gap: 2,
         }}
       >
         {/* Poster */}
@@ -165,39 +257,26 @@ function Modal({ isOpen, onClose, movie }) {
             sx={{
               width: "100%",
               maxWidth: { xs: 200, md: 280 },
-              height: "auto",
               borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-              mt: { xs: 0, md: 2 },
+              mt: 2,
             }}
           />
         </Box>
 
-        {/* Details */}
-        <Box sx={{ color: theme.palette.text.primary, mt: 0 }}>
+        {/* Info */}
+        <Box sx={{ color: theme.palette.text.primary }}>
           <Typography
             variant="h6"
-            component="div"
             sx={{
-              color: theme.palette.primary.main,
               fontWeight: "bold",
-              fontSize: "1.5rem",
+              color: theme.palette.primary.main,
               mt: 3,
-              mb: 1.5,
             }}
           >
             Description
           </Typography>
-
           <Typography
-            component="div"
-            sx={{
-              lineHeight: 1.6,
-              fontSize: "1.1rem",
-              mt: 1,
-              mb: 3.5,
-              color: theme.palette.text.secondary,
-            }}
+            sx={{ color: theme.palette.text.secondary, mt: 1, mb: 3.5 }}
           >
             {movie.description || "No description available."}
           </Typography>
@@ -205,8 +284,7 @@ function Modal({ isOpen, onClose, movie }) {
           <Box>
             {[
               ["Genre", movie.genre || "Drama"],
-              ["Duration", movie.duration || "142 min"],
-              ["Director", movie.director || "Frank Darabont"],
+              ["Director", movie.director || "Unknown"],
             ].map(([label, value]) => (
               <Box
                 key={label}
@@ -225,6 +303,7 @@ function Modal({ isOpen, onClose, movie }) {
             ))}
           </Box>
 
+          {/* Reviews */}
           <Box
             sx={{
               pt: 0.5,
@@ -234,22 +313,44 @@ function Modal({ isOpen, onClose, movie }) {
           >
             <Typography
               variant="h6"
-              component="div"
               sx={{
-                color: theme.palette.primary.main,
                 fontWeight: "bold",
-                fontSize: "1.5rem",
+                color: theme.palette.primary.main,
                 mt: 1.5,
-                mb: 1.2,
               }}
             >
               User Reviews
             </Typography>
-
-            <UserReviews movieId={movie.id} />
+            <UserReviews
+              movieId={movie.id}
+              onReviewsChange={updateMovieRating}
+            />
           </Box>
         </Box>
       </DialogContent>
+
+      {/* Snackbars */}
+      <Snackbar
+        open={shareSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setShareSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" sx={{ width: "100%" }}>
+          Movie link copied to clipboard!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={favoriteSnackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setFavoriteSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity={favoriteSeverity} sx={{ width: "100%" }}>
+          {favoriteMessage}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }

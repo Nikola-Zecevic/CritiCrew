@@ -1,305 +1,293 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import usersFromFile from "../../apis/users.json";
+import apiService from "../../services/apiService";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Container,
   Box,
-  Paper,
-  TextField,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Stack,
 } from "@mui/material";
+
+// Import our new components
+import DashboardHeader from "../../components/DashboardHeader";
+import AddMovieForm from "../../components/AddMovieForm";
+import MoviesList from "../../components/MoviesList";
+import UsersTable from "../../components/UsersTable";
+import EditMovieDialog from "../../components/EditMovieDialog";
+import DeleteConfirmDialog from "../../components/DeleteConfirmDialog";
+import NotificationSnackbar from "../../components/NotificationSnackbar";
 
 export default function Dashboard() {
   const { currentUser, isAuthenticated, isAdmin, isSuperadmin, logout } =
     useAuth();
   const navigate = useNavigate();
-  const [users, setUsers] = useState(() => {
-    const stored = localStorage.getItem("usersData");
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {}
+
+  // Redirect non-admin users
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/auth');
+      return;
     }
-    return usersFromFile.map((u) => ({ ...u }));
+    if (!isAdmin) {
+      navigate('/');
+      return;
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
+  
+  // Notification states
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
   });
 
-  function persistUsers(next) {
-    setUsers(next);
-    try {
-      localStorage.setItem("usersData", JSON.stringify(next));
-    } catch {}
-  }
+  // Movies states
+  const [movies, setMovies] = useState([]);
+  const [loadingMovies, setLoadingMovies] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Responsive items per page calculation
+  const getItemsPerPage = React.useCallback(() => {
+    if (window.innerWidth >= 1536) { return 15; } // xl: 5 columns × 3 rows
+    if (window.innerWidth >= 1200) { return 12; } // lg: 4 columns × 3 rows
+    if (window.innerWidth >= 900) { return 9; }   // md: 3 columns × 3 rows
+    if (window.innerWidth >= 600) { return 6; }   // sm: 2 columns × 3 rows
+    return 3; // xs: 1 column × 3 rows
+  }, []);
+  
+  const [itemsPerPage, setItemsPerPage] = useState(() => getItemsPerPage());
 
-  function promoteUser(id) {
-    const next = users.map((u) => (u.id === id ? { ...u, role: "admin" } : u));
-    persistUsers(next);
-    alert("User promoted to admin.");
-  }
+  // Edit dialog states
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingMovie, setEditingMovie] = useState(null);
 
-  function demoteUser(id) {
-    const next = users.map((u) =>
-      u.id === id ? { ...u, role: "regular" } : u
-    );
-    persistUsers(next);
+  // Delete confirmation states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingMovie, setDeletingMovie] = useState(null);
+  
+  // Filter movies based on search term
+  const filteredMovies = movies.filter(movie =>
+    movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.director.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    movie.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    if (currentUser?.id === id) {
-      alert("You have been demoted. You will be logged out.");
-      logout();
-      navigate("/", { replace: true });
-    } else {
-      alert("User demoted to regular.");
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMovies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMovies = filteredMovies.slice(startIndex, endIndex);
+
+  // Debug logging for pagination
+  React.useEffect(() => {
+    console.log('Pagination Debug:', {
+      totalMovies: movies.length,
+      filteredMovies: filteredMovies.length,
+      itemsPerPage,
+      currentPage,
+      totalPages,
+      startIndex,
+      endIndex,
+      paginatedMoviesCount: paginatedMovies.length
+    });
+  }, [movies.length, filteredMovies.length, itemsPerPage, currentPage, totalPages, startIndex, endIndex, paginatedMovies.length]);
+
+  // Reset to page 1 when search term changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Reset to page 1 if current page exceeds total pages
+  React.useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
     }
-  }
+  }, [currentPage, totalPages]);
 
-  function deleteUser(id) {
-    const userToDelete = users.find((u) => u.id === id);
-    if (!userToDelete) return;
-
-    if (userToDelete.role === "superadmin" && currentUser?.id === id) {
-      alert("You cannot delete your own superadmin account.");
-      return;
-    }
-
-    if (!confirm("Delete this user? This action cannot be undone (demo)."))
-      return;
-
-    const next = users.filter((u) => u.id !== id);
-    persistUsers(next);
-
-    if (currentUser?.id === id) {
-      alert("You deleted your own account in the demo. Logging out.");
-      logout();
-      navigate("/", { replace: true });
-    } else {
-      alert("User deleted.");
-    }
-  }
-
-  const [movies, setMovies] = useState(() => {
-    const stored = localStorage.getItem("moviesData");
-    if (stored) {
+  // Load movies from API
+  useEffect(() => {
+    const loadMovies = async () => {
       try {
-        return JSON.parse(stored);
-      } catch {}
-    }
-    return [];
-  });
-
-  function persistMovies(next) {
-    setMovies(next);
-    try {
-      localStorage.setItem("moviesData", JSON.stringify(next));
-    } catch {}
-  }
-
-  function handleAddMovie(e) {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const title = (fd.get("title") || "").toString().trim();
-    const year = (fd.get("year") || "").toString().trim();
-    const genre = (fd.get("genre") || "").toString().trim();
-    const description = (fd.get("description") || "").toString().trim();
-
-    if (!title) {
-      alert("Title is required.");
-      return;
-    }
-
-    const newMovie = {
-      id: Date.now(),
-      title,
-      year,
-      genre,
-      description,
-      addedBy: currentUser?.name || "unknown",
-      addedAt: new Date().toISOString(),
+        const response = await apiService.getMovies();
+        setMovies(response || []);
+      } catch (error) {
+        console.error('Error loading movies:', error);
+        showNotification('Failed to load movies', 'error');
+      } finally {
+        setLoadingMovies(false);
+      }
     };
 
-    persistMovies([newMovie, ...movies]);
-    e.target.reset();
-    alert("Movie added (demo).");
+    loadMovies();
+  }, []);
+
+  // Handle window resize for responsive pagination
+  useEffect(() => {
+    const handleResize = () => {
+      const newItemsPerPage = getItemsPerPage();
+      if (newItemsPerPage !== itemsPerPage) {
+        setItemsPerPage(newItemsPerPage);
+        // Reset to page 1 when items per page changes to avoid empty pages
+        setCurrentPage(1);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [itemsPerPage, getItemsPerPage]);
+
+  const showNotification = (message, severity = 'success') => {
+    setNotification({
+      open: true,
+      message,
+      severity
+    });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, open: false }));
+  };
+
+  // Pagination handler
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  // Edit movie handlers
+  const handleEditMovie = (movie) => {
+    setEditingMovie(movie);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSave = async (updateData) => {
+    try {
+      console.log('Sending update data:', updateData);
+      
+      const updatedMovie = await apiService.updateMovie(editingMovie.id, updateData);
+      
+      // Update local state
+      setMovies(prev => prev.map(movie => 
+        movie.id === editingMovie.id ? updatedMovie : movie
+      ));
+      
+      showNotification('Movie updated successfully!', 'success');
+      setEditDialogOpen(false);
+      setEditingMovie(null);
+    } catch (error) {
+      console.error('Error updating movie:', error);
+      showNotification(`Failed to update movie: ${error.message}`, 'error');
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditDialogOpen(false);
+    setEditingMovie(null);
+  };
+
+  // Delete movie handlers
+  const handleDeleteMovie = (movie) => {
+    setDeletingMovie(movie);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await apiService.deleteMovie(deletingMovie.id);
+      
+      // Remove from local state
+      setMovies(prev => prev.filter(movie => movie.id !== deletingMovie.id));
+      
+      showNotification('Movie deleted successfully!', 'success');
+      setDeleteDialogOpen(false);
+      setDeletingMovie(null);
+    } catch (error) {
+      console.error('Error deleting movie:', error);
+      showNotification(`Failed to delete movie: ${error.message}`, 'error');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setDeletingMovie(null);
+  };
+
+
+  // Add movie handler for the AddMovieForm component
+  const handleAddMovie = async (movieData) => {
+    console.log('Creating movie with data:', movieData);
+
+    // Create movie via API
+    const response = await apiService.createMovie(movieData);
+    
+    // Add to local state for immediate display
+    setMovies(prev => [response, ...prev]);
+    
+    return response;
+  };
+
+  // Don't render anything if not admin - let the useEffect handle redirection
+  if (!isAuthenticated || !isAdmin) {
+    return null;
   }
 
-  function renderUserActions(u) {
-    if (u.role === "superadmin") {
-      return (
-        <Typography variant="body2" color="text.secondary">
-          superadmin
-        </Typography>
-      );
-    }
-
-    if (u.role === "admin") {
-      return (
-        <Stack direction="row" spacing={1}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => {
-              if (!confirm("Demote this admin to regular?")) return;
-              demoteUser(u.id);
-            }}
-          >
-            Demote
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            variant="contained"
-            onClick={() => deleteUser(u.id)}
-          >
-            Delete
-          </Button>
-        </Stack>
-      );
-    }
-
-    return (
-      <Stack direction="row" spacing={1}>
-        <Button
-          size="small"
-          color="warning"
-          variant="contained"
-          onClick={() => {
-            if (!confirm("Promote this user to admin?")) return;
-            promoteUser(u.id);
-          }}
-        >
-          Promote
-        </Button>
-        <Button
-          size="small"
-          color="error"
-          variant="contained"
-          onClick={() => deleteUser(u.id)}
-        >
-          Delete
-        </Button>
-      </Stack>
-    );
-  }
   return (
-    <Box>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Dashboard
-          </Typography>
-          <Typography variant="body2">
-            Welcome, {currentUser?.name} ({currentUser?.role})
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <Box sx={{ flexGrow: 1, bgcolor: "background.default", minHeight: "100vh" }}>
+      <DashboardHeader />
 
       <Container sx={{ mt: 4 }}>
-        <Card sx={{ mb: 4 }}>
-          <CardHeader title="Add Movie (demo)" />
-          <CardContent>
-            <Box component="form" onSubmit={handleAddMovie}>
-              <Stack spacing={2}>
-                <Stack direction="row" spacing={2}>
-                  <TextField name="title" label="Title" required fullWidth />
-                  <TextField name="year" label="Year" fullWidth />
-                </Stack>
-                <TextField name="genre" label="Genre" fullWidth />
-                <TextField
-                  name="description"
-                  label="Short description"
-                  multiline
-                  rows={3}
-                  fullWidth
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ alignSelf: "flex-start" }}
-                >
-                  Add Movie
-                </Button>
-              </Stack>
-            </Box>
-
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              Added movies (demo)
-            </Typography>
-            {movies.length === 0 ? (
-              <Typography color="text.secondary">
-                No movies added yet.
-              </Typography>
-            ) : (
-              <Stack spacing={2} sx={{ mt: 1 }}>
-                {movies.map((m) => (
-                  <Paper key={m.id} sx={{ p: 2 }}>
-                    <Typography variant="subtitle1">
-                      <strong>{m.title}</strong> {m.year ? `(${m.year})` : ""}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Added by {m.addedBy} —{" "}
-                      {new Date(m.addedAt).toLocaleString()}
-                    </Typography>
-                    {m.description && (
-                      <Typography variant="body2" color="text.secondary">
-                        {m.description}
-                      </Typography>
-                    )}
-                  </Paper>
-                ))}
-              </Stack>
-            )}
-          </CardContent>
-        </Card>
-
+        {/* Users Management - Only visible to superadmins */}
         {isSuperadmin && (
-          <Card>
-            <CardHeader title="Users (manage)" />
-            <CardContent>
-              {users.length === 0 ? (
-                <Typography color="text.secondary">No users loaded.</Typography>
-              ) : (
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Username / Name</TableCell>
-                        <TableCell>Role</TableCell>
-                        <TableCell>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {users.map((u) => (
-                        <TableRow key={u.id}>
-                          <TableCell>{u.id}</TableCell>
-                          <TableCell>
-                            {u.name || u.username || u.email}
-                          </TableCell>
-                          <TableCell>{u.role}</TableCell>
-                          <TableCell>{renderUserActions(u)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
+          <UsersTable showNotification={showNotification} />
         )}
+
+        {/* Add Movie Form */}
+        <AddMovieForm 
+          onAddMovie={handleAddMovie}
+          showNotification={showNotification}
+        />
+
+        {/* Movies List */}
+        <MoviesList
+          movies={movies}
+          loading={loadingMovies}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onEditMovie={handleEditMovie}
+          onDeleteMovie={handleDeleteMovie}
+          paginatedMovies={paginatedMovies}
+          filteredMovies={filteredMovies}
+          currentPage={currentPage || 1}
+          totalPages={totalPages || 1}
+          onPageChange={handlePageChange}
+        />
       </Container>
+
+      {/* Edit Movie Dialog */}
+      <EditMovieDialog
+        open={editDialogOpen}
+        onClose={handleEditCancel}
+        onSave={handleEditSave}
+        movie={editingMovie}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Movie"
+        itemName={deletingMovie?.title}
+      />
+
+      {/* Notification Snackbar */}
+      <NotificationSnackbar
+        notification={notification}
+        onClose={handleCloseNotification}
+      />
     </Box>
   );
 }
