@@ -171,6 +171,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
             WebkitLineClamp: isFeatured ? 3 : 2,
             WebkitBoxOrient: "vertical",
             lineHeight: 1.2,
+            minHeight: "2.4em",
           }}
         >
           {movie.title}
