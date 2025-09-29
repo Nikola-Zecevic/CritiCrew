@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
-  Box,
   Card,
   CardContent,
   CardMedia,
   Typography,
-  Button,
   useMediaQuery,
   IconButton,
   Snackbar,
@@ -25,171 +22,101 @@ export default function MovieCard({ movie, isFeatured = false }) {
 
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [imdbRating, setImdbRating] = useState(null);
 
-  // Load favorite status when component mounts or movie changes
   useEffect(() => {
     const loadFavoriteStatus = async () => {
       if (isAuthenticated) {
         try {
           const response = await apiService.checkFavoriteStatus(movie.id);
           setIsFavorited(response.is_favorite);
-        } catch (error) {
-          console.error("Failed to load favorite status:", error);
-          // Fallback to localStorage for backwards compatibility
-          const favorites = JSON.parse(
-            localStorage.getItem("movieFavorites") || "[]"
-          );
-          setIsFavorited(favorites.includes(movie.id));
+        } catch {
+          setIsFavorited(false);
         }
       } else {
-        // Not authenticated, use localStorage
         const favorites = JSON.parse(
           localStorage.getItem("movieFavorites") || "[]"
         );
         setIsFavorited(favorites.includes(movie.id));
       }
     };
-
     loadFavoriteStatus();
   }, [movie.id, isAuthenticated]);
 
-  // IMDB - new change
   useEffect(() => {
-    async function fetchIMDb() {
-      try {
-        if (movie?.title) {
+    const fetchIMDb = async () => {
+      if (movie?.title) {
+        try {
           const omdbData = await apiService.getMovieFromOMDb(movie.title);
-          if (
-            omdbData &&
-            omdbData.imdbRating &&
-            omdbData.imdbRating !== "N/A"
-          ) {
+          if (omdbData?.imdbRating && omdbData.imdbRating !== "N/A") {
             setImdbRating(omdbData.imdbRating);
           }
+        } catch {
+          console.error("Failed to fetch IMDb rating");
         }
-      } catch (err) {
-        console.error("❌ Failed to fetch IMDb rating:", err);
       }
-    }
+    };
     fetchIMDb();
   }, [movie?.title]);
 
-  // Listen for all favorites cleared event
-  useEffect(() => {
-    const handleAllFavoritesCleared = () => {
-      setIsFavorited(false);
-    };
-    window.addEventListener("allFavoritesCleared", handleAllFavoritesCleared);
-    return () => {
-      window.removeEventListener(
-        "allFavoritesCleared",
-        handleAllFavoritesCleared
-      );
-    };
-  }, []);
-
   const handleFavoriteToggle = async (e) => {
-    e.stopPropagation(); // stop triggering parent click
+    e.stopPropagation();
 
     if (!isAuthenticated) {
-      // If not authenticated, use localStorage as fallback
-      try {
-        const favorites = JSON.parse(
-          localStorage.getItem("movieFavorites") || "[]"
-        );
-        let updatedFavorites;
-
-        if (isFavorited) {
-          updatedFavorites = favorites.filter((id) => id !== movie.id);
-          setIsFavorited(false);
-        } else {
-          updatedFavorites = [...favorites, movie.id];
-          setIsFavorited(true);
-        }
-
-        localStorage.setItem(
-          "movieFavorites",
-          JSON.stringify(updatedFavorites)
-        );
-
-        // Dispatch custom event to notify other components of favorites change
-        window.dispatchEvent(
-          new CustomEvent("favoritesChanged", {
-            detail: { movieId: movie.id, isFavorited: !isFavorited },
-          })
-        );
-
-        setFavoriteSnackbarOpen(true);
-      } catch (error) {
-        console.error("Error toggling favorite in localStorage:", error);
-      }
+      setSnackbarMessage("Log in to add favorites");
+      setSnackbarSeverity("error");
+      setFavoriteSnackbarOpen(true);
+      setIsFavorited(false); // don't fill heart for guest
       return;
     }
 
-    // Authenticated user - use backend API
     try {
       if (isFavorited) {
-        // Remove from favorites
         await apiService.removeFromFavorites(movie.id);
         setIsFavorited(false);
+        setSnackbarMessage("Removed from favorites!");
       } else {
-        // Add to favorites
         await apiService.addToFavorites(movie.id);
         setIsFavorited(true);
+        setSnackbarMessage("Added to favorites!");
       }
 
-      // Dispatch custom event to notify other components of favorites change
+      setSnackbarSeverity("success");
+      setFavoriteSnackbarOpen(true);
+
       window.dispatchEvent(
         new CustomEvent("favoritesChanged", {
           detail: { movieId: movie.id, isFavorited: !isFavorited },
         })
       );
-
-      setFavoriteSnackbarOpen(true);
     } catch (error) {
-      console.error("Error toggling favorite via API:", error);
-
-      // Show error message to user
-      if (error.message.includes("already in favorites")) {
-        // Already favorited, just update UI
-        setIsFavorited(true);
-      } else if (error.message.includes("not found")) {
-        // Favorite not found, just update UI
-        setIsFavorited(false);
-      }
+      console.error("Error toggling favorite:", error);
     }
   };
 
-  const handleCloseFavoriteSnackbar = () => {
-    setFavoriteSnackbarOpen(false);
-  };
-  useEffect(() => {
-    console.log("movie prop:", movie);
-  }, [movie]);
-  // inside MovieCard, after your useEffect console.log and other hooks
-  function getReleaseYear(movie) {
+  const handleCloseFavoriteSnackbar = () => setFavoriteSnackbarOpen(false);
+
+  const getReleaseYear = (movie) => {
     const candidates = [
       movie?.release_date,
       movie?.releaseDate,
       movie?.year,
       movie?.released,
     ];
-
     for (const c of candidates) {
       if (!c && c !== 0) continue;
       if (typeof c === "number" && c > 1800) return c;
       if (typeof c === "string") {
-        // ISO date or full date string
         const d = new Date(c);
         if (!isNaN(d)) return d.getFullYear();
-        // plain YYYY string
         const m = c.match(/^(\d{4})$/);
         if (m) return Number(m[1]);
       }
     }
     return null;
-  }
+  };
 
   const releaseYear = getReleaseYear(movie);
 
@@ -204,15 +131,10 @@ export default function MovieCard({ movie, isFeatured = false }) {
         overflow: "hidden",
         boxShadow: 3,
         backgroundColor: theme.palette.background.paper,
-        cursor: "pointer", // Add cursor pointer to indicate clickable card
+        cursor: "pointer",
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: 4,
-        },
-        "&:hover .favorite-btn": {
-          opacity: 1,
-        },
+        "&:hover": { transform: "translateY(-2px)", boxShadow: 4 },
+        "&:hover .favorite-btn": { opacity: 1 },
       }}
     >
       {/* Favorite button */}
@@ -237,6 +159,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           <FavoriteBorder sx={{ color: theme.palette.text.primary }} />
         )}
       </IconButton>
+
       <CardMedia
         component="img"
         image={movie.image}
@@ -255,7 +178,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           justifyContent: isFeatured ? "center" : "space-between",
           gap: 1,
           p: isFeatured ? 3 : 2,
-          minHeight: 0, // Allow flex shrinking
+          minHeight: 0,
         }}
       >
         <Typography
@@ -269,7 +192,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
             WebkitLineClamp: isFeatured ? 3 : 2,
             WebkitBoxOrient: "vertical",
             lineHeight: 1.2,
-            minHeight: isFeatured ? "auto" : "2.4em", // Reserve space for 2 lines
+            minHeight: isFeatured ? "auto" : "2.4em",
           }}
         >
           {movie.title}
@@ -316,7 +239,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               lineHeight: 1.3,
-              mt: "auto", // Push genres to bottom of available space
+              mt: "auto",
             }}
           >
             {movie.genre}
@@ -333,10 +256,10 @@ export default function MovieCard({ movie, isFeatured = false }) {
       >
         <Alert
           onClose={handleCloseFavoriteSnackbar}
-          severity="success"
+          severity={snackbarSeverity}
           sx={{ width: "100%" }}
         >
-          {isFavorited ? "Added to favorites!" : "Removed from favorites!"}
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Card>

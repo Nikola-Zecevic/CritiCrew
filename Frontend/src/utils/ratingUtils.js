@@ -31,15 +31,12 @@ export function formatRating(rating, isUserRating = false) {
  * @param {Object} movie - Movie object with rating and isUserRating properties
  * @returns {string} - Formatted rating for display
  */
-export function getDisplayRating(movie) {
-  if (!movie || (!movie.rating && movie.rating !== 0)) {
-    return "No reviews";
+export function getDisplayRating(movie, reviews = []) {
+  if (reviews.length > 0) {
+    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    return formatRating(avg, true); // ✅ user-based rating, 0–5 scale
   }
 
-  // If rating is 0 or 0.0, show "No reviews" instead
-  if (movie.rating === 0 || movie.rating === 0.0) {
-    return "No reviews";
-  }
-
+  // fallback to stored movie rating
   return formatRating(movie.rating, movie.isUserRating);
 }
