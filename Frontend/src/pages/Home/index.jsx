@@ -11,11 +11,12 @@ function Home() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { mode } = useThemeContext();
-  
+
   const [allMovies, setAllMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [movieOfTheDay, setMovieOfTheDay] = useState(null);
+
   const moviesPerPage = 3;
 
   useEffect(() => {
@@ -25,8 +26,8 @@ function Home() {
         const movies = await moviesService.getAllMovies();
         setAllMovies(movies);
       } catch (err) {
-        setError('Failed to load movies: ' + err.message);
-        console.error('Error loading movies:', err);
+        setError("Failed to load movies: " + err.message);
+        console.error("Error loading movies:", err);
       } finally {
         setLoading(false);
       }
@@ -35,10 +36,14 @@ function Home() {
     loadMovies();
 
     // Listen for rating updates
-    const unsubscribe = moviesService.addRatingUpdateListener((movieId, newRating, updatedMovies) => {
-      console.log(`🔄 Home: Received rating update for movie ${movieId}, refreshing movie list`);
-      setAllMovies([...updatedMovies]); // Create new array to trigger re-render
-    });
+    const unsubscribe = moviesService.addRatingUpdateListener(
+      (movieId, newRating, updatedMovies) => {
+        console.log(
+          `🔄 Home: Received rating update for movie ${movieId}, refreshing movie list`
+        );
+        setAllMovies([...updatedMovies]); // Create new array to trigger re-render
+      }
+    );
 
     return unsubscribe; // Cleanup listener on unmount
   }, []);
@@ -58,7 +63,15 @@ function Home() {
   const sectionBg = mode === "dark" ? "#121212" : "#f9f9f9";
 
   // ✅ Get today's movie (deterministic, no repeats until list cycles)
-  const movieOfTheDay = getMovieOfTheDay(allMovies); 
+  useEffect(() => {
+    const loadMovieOfTheDay = async () => {
+      if (allMovies.length > 0) {
+        const selected = await getMovieOfTheDay(allMovies);
+        setMovieOfTheDay(selected);
+      }
+    };
+    loadMovieOfTheDay();
+  }, [allMovies]);
 
   if (loading) {
     return (
@@ -112,7 +125,6 @@ function Home() {
             textAlign: "center",
             fontWeight: 700,
           }}
-
         >
           🎬 Movie of the Day
         </Typography>
@@ -160,7 +172,6 @@ function Home() {
               sm: "1fr 1fr",
               md: "repeat(3, 1fr)",
             },
-
           }}
         >
           {currentMovies.map((movie) => (
@@ -181,7 +192,6 @@ function Home() {
             onPageChange={handlePageChange}
           />
         </Box>
-
       </Box>
     </Box>
   );

@@ -1,45 +1,58 @@
-import moviesService from "../services/moviesService";
+// utils/movieOfTheDay.js
+import apiService from "../services/apiService";
 
-// Simple deterministic shuffle (Fisher-Yates using a seeded random)
-function seededShuffle(array, seed) {
-    const result = [...array];
-    let m = result.length,
-        t,
-        i;
-
-    function random() {
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-    }
-
-    while (m) {
-        i = Math.floor(random() * m--);
-        t = result[m];
-        result[m] = result[i];
-        result[i] = t;
-    }
-    return result;
+// Only consider IMDb >= 7.0
+function isGoodMovie(omdbData) {
+  if (!omdbData) return false;
+  const imdb = parseFloat(omdbData.imdbRating);
+  return !isNaN(imdb) && imdb >= 7;
 }
 
-export function getMovieOfTheDay(allMovies = []) {
-    // If no movies provided, return null (component should handle this)
-    if (!allMovies || allMovies.length === 0) {
-        return null;
-    }
+// Deterministic pick of the day (still used for fairness)
+function pickForToday(goodMovies) {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const index =
+    Math.abs(today.split("").reduce((sum, c) => sum + c.charCodeAt(0), 0)) %
+    goodMovies.length;
+  return goodMovies[index];
+}
 
-    const today = new Date();
-    const year = today.getFullYear();
+export async function getMovieOfTheDay(allMovies) {
+  if (!allMovies || allMovies.length === 0) return null;
 
-    // Calculate day of year (1–365/366)
-    const dayOfYear = Math.floor(
-        (today - new Date(year, 0, 0)) / 1000 / 60 / 60 / 24
-    );
+  const today = new Date().toISOString().slice(0, 10);
 
-    // Shuffle movie list deterministically for this year
-    const shuffled = seededShuffle(allMovies, year);
+  // Check localStorage first
+  const cached = JSON.parse(localStorage.getItem("movieOfTheDay") || "null");
+  if (cached && cached.date === today) {
+    return cached.movie; // return stored movie for today
+  }
 
-    // Pick today's movie, wrap if days > movies
-    const index = (dayOfYear - 1) % shuffled.length;
+  // Otherwise, compute fresh
+  const moviesWithData = await Promise.all(
+    allMovies.map(async (m) => {
+      try {
+        const omdb = await apiService.getMovieFromOMDb(m.title || m.name);
+        return { movie: m, omdb };
+      } catch {
+        return { movie: m, omdb: null };
+      }
+    })
+  );
 
-    return shuffled[index];
+  const goodMovies = moviesWithData
+    .filter(({ omdb }) => isGoodMovie(omdb))
+    .map(({ movie }) => movie);
+
+  if (goodMovies.length === 0) return null;
+
+  const selected = pickForToday(goodMovies);
+
+  // Store result in localStorage for the rest of the day
+  localStorage.setItem(
+    "movieOfTheDay",
+    JSON.stringify({ date: today, movie: selected })
+  );
+
+  return selected;
 }

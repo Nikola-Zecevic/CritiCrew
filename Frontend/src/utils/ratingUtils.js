@@ -8,12 +8,12 @@
  */
 export function formatRating(rating, isUserRating = false) {
   if (!rating && rating !== 0) {
-    return 'No reviews';
+    return "No reviews";
   }
 
   // If rating is 0 or 0.0, show "No reviews" instead
   if (rating === 0 || rating === 0.0) {
-    return 'No reviews';
+    return "No reviews";
   }
 
   // If it's a user rating (from reviews), it's already on 0-5 scale
@@ -22,7 +22,8 @@ export function formatRating(rating, isUserRating = false) {
   }
 
   // If it's an original database rating, convert from 0-10 to 0-5 scale
-  return (rating).toFixed(1);
+  if (rating > 5) return (rating / 2).toFixed(1);
+  return rating.toFixed(1);
 }
 
 /**
@@ -32,12 +33,12 @@ export function formatRating(rating, isUserRating = false) {
  */
 export function getDisplayRating(movie) {
   if (!movie || (!movie.rating && movie.rating !== 0)) {
-    return 'No reviews';
+    return "No reviews";
   }
 
   // If rating is 0 or 0.0, show "No reviews" instead
   if (movie.rating === 0 || movie.rating === 0.0) {
-    return 'No reviews';
+    return "No reviews";
   }
 
   return formatRating(movie.rating, movie.isUserRating);

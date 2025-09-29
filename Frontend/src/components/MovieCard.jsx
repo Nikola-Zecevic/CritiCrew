@@ -17,12 +17,15 @@ import { useThemeContext } from "../contexts/ThemeContext";
 import { useAuth } from "../contexts/AuthContext";
 import apiService from "../services/apiService";
 import { getDisplayRating } from "../utils/ratingUtils";
+
 export default function MovieCard({ movie, isFeatured = false }) {
   const { theme } = useThemeContext();
   const { isAuthenticated } = useAuth();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteSnackbarOpen, setFavoriteSnackbarOpen] = useState(false);
+  const [imdbRating, setImdbRating] = useState(null);
 
   // Load favorite status when component mounts or movie changes
   useEffect(() => {
@@ -32,61 +35,94 @@ export default function MovieCard({ movie, isFeatured = false }) {
           const response = await apiService.checkFavoriteStatus(movie.id);
           setIsFavorited(response.is_favorite);
         } catch (error) {
-          console.error('Failed to load favorite status:', error);
+          console.error("Failed to load favorite status:", error);
           // Fallback to localStorage for backwards compatibility
-          const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+          const favorites = JSON.parse(
+            localStorage.getItem("movieFavorites") || "[]"
+          );
           setIsFavorited(favorites.includes(movie.id));
         }
       } else {
         // Not authenticated, use localStorage
-        const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+        const favorites = JSON.parse(
+          localStorage.getItem("movieFavorites") || "[]"
+        );
         setIsFavorited(favorites.includes(movie.id));
       }
     };
-    
+
     loadFavoriteStatus();
   }, [movie.id, isAuthenticated]);
+
+  // IMDB - new change
+  useEffect(() => {
+    async function fetchIMDb() {
+      try {
+        if (movie?.title) {
+          const omdbData = await apiService.getMovieFromOMDb(movie.title);
+          if (
+            omdbData &&
+            omdbData.imdbRating &&
+            omdbData.imdbRating !== "N/A"
+          ) {
+            setImdbRating(omdbData.imdbRating);
+          }
+        }
+      } catch (err) {
+        console.error("❌ Failed to fetch IMDb rating:", err);
+      }
+    }
+    fetchIMDb();
+  }, [movie?.title]);
 
   // Listen for all favorites cleared event
   useEffect(() => {
     const handleAllFavoritesCleared = () => {
       setIsFavorited(false);
     };
-
-    window.addEventListener('allFavoritesCleared', handleAllFavoritesCleared);
-
+    window.addEventListener("allFavoritesCleared", handleAllFavoritesCleared);
     return () => {
-      window.removeEventListener('allFavoritesCleared', handleAllFavoritesCleared);
+      window.removeEventListener(
+        "allFavoritesCleared",
+        handleAllFavoritesCleared
+      );
     };
   }, []);
 
   const handleFavoriteToggle = async (e) => {
     e.stopPropagation(); // stop triggering parent click
-    
+
     if (!isAuthenticated) {
       // If not authenticated, use localStorage as fallback
       try {
-        const favorites = JSON.parse(localStorage.getItem('movieFavorites') || '[]');
+        const favorites = JSON.parse(
+          localStorage.getItem("movieFavorites") || "[]"
+        );
         let updatedFavorites;
 
         if (isFavorited) {
-          updatedFavorites = favorites.filter(id => id !== movie.id);
+          updatedFavorites = favorites.filter((id) => id !== movie.id);
           setIsFavorited(false);
         } else {
           updatedFavorites = [...favorites, movie.id];
           setIsFavorited(true);
         }
 
-        localStorage.setItem('movieFavorites', JSON.stringify(updatedFavorites));
-        
+        localStorage.setItem(
+          "movieFavorites",
+          JSON.stringify(updatedFavorites)
+        );
+
         // Dispatch custom event to notify other components of favorites change
-        window.dispatchEvent(new CustomEvent('favoritesChanged', { 
-          detail: { movieId: movie.id, isFavorited: !isFavorited } 
-        }));
-        
+        window.dispatchEvent(
+          new CustomEvent("favoritesChanged", {
+            detail: { movieId: movie.id, isFavorited: !isFavorited },
+          })
+        );
+
         setFavoriteSnackbarOpen(true);
       } catch (error) {
-        console.error('Error toggling favorite in localStorage:', error);
+        console.error("Error toggling favorite in localStorage:", error);
       }
       return;
     }
@@ -102,21 +138,23 @@ export default function MovieCard({ movie, isFeatured = false }) {
         await apiService.addToFavorites(movie.id);
         setIsFavorited(true);
       }
-      
+
       // Dispatch custom event to notify other components of favorites change
-      window.dispatchEvent(new CustomEvent('favoritesChanged', { 
-        detail: { movieId: movie.id, isFavorited: !isFavorited } 
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent("favoritesChanged", {
+          detail: { movieId: movie.id, isFavorited: !isFavorited },
+        })
+      );
+
       setFavoriteSnackbarOpen(true);
     } catch (error) {
-      console.error('Error toggling favorite via API:', error);
-      
+      console.error("Error toggling favorite via API:", error);
+
       // Show error message to user
-      if (error.message.includes('already in favorites')) {
+      if (error.message.includes("already in favorites")) {
         // Already favorited, just update UI
         setIsFavorited(true);
-      } else if (error.message.includes('not found')) {
+      } else if (error.message.includes("not found")) {
         // Favorite not found, just update UI
         setIsFavorited(false);
       }
@@ -132,7 +170,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
         position: "relative",
         display: isFeatured && !isSmallScreen ? "flex" : "flex",
         flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
-        height: isFeatured && !isSmallScreen ? "auto" : 420, // Slightly increased height for better spacing
+        height: isFeatured && !isSmallScreen ? "auto" : 460,
         borderRadius: 2,
         overflow: "hidden",
         boxShadow: 3,
@@ -193,8 +231,8 @@ export default function MovieCard({ movie, isFeatured = false }) {
       >
         <Typography
           variant={isFeatured ? "h5" : "h6"}
-          sx={{ 
-            fontWeight: 600, 
+          sx={{
+            fontWeight: 600,
             color: theme.palette.text.primary,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -222,6 +260,14 @@ export default function MovieCard({ movie, isFeatured = false }) {
             ? "No reviews"
             : `${getDisplayRating(movie)}/5`}
         </Typography>
+        {imdbRating && (
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            🎥 IMDb: {imdbRating}/10
+          </Typography>
+        )}
         {isFeatured && (
           <Typography
             variant="body2"
@@ -233,7 +279,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
         {!isFeatured && (
           <Typography
             variant="body2"
-            sx={{ 
+            sx={{
               color: theme.palette.text.primary,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -248,16 +294,20 @@ export default function MovieCard({ movie, isFeatured = false }) {
           </Typography>
         )}
       </CardContent>
-      
+
       {/* Favorite notification snackbar */}
       <Snackbar
         open={favoriteSnackbarOpen}
         autoHideDuration={3000}
         onClose={handleCloseFavoriteSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseFavoriteSnackbar} severity="success" sx={{ width: '100%' }}>
-          {isFavorited ? 'Added to favorites!' : 'Removed from favorites!'}
+        <Alert
+          onClose={handleCloseFavoriteSnackbar}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {isFavorited ? "Added to favorites!" : "Removed from favorites!"}
         </Alert>
       </Snackbar>
     </Card>
