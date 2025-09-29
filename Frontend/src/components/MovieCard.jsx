@@ -164,6 +164,35 @@ export default function MovieCard({ movie, isFeatured = false }) {
   const handleCloseFavoriteSnackbar = () => {
     setFavoriteSnackbarOpen(false);
   };
+  useEffect(() => {
+    console.log("movie prop:", movie);
+  }, [movie]);
+  // inside MovieCard, after your useEffect console.log and other hooks
+  function getReleaseYear(movie) {
+    const candidates = [
+      movie?.release_date,
+      movie?.releaseDate,
+      movie?.year,
+      movie?.released,
+    ];
+
+    for (const c of candidates) {
+      if (!c && c !== 0) continue;
+      if (typeof c === "number" && c > 1800) return c;
+      if (typeof c === "string") {
+        // ISO date or full date string
+        const d = new Date(c);
+        if (!isNaN(d)) return d.getFullYear();
+        // plain YYYY string
+        const m = c.match(/^(\d{4})$/);
+        if (m) return Number(m[1]);
+      }
+    }
+    return null;
+  }
+
+  const releaseYear = getReleaseYear(movie);
+
   return (
     <Card
       sx={{
@@ -249,7 +278,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           variant="body2"
           sx={{ color: theme.palette.text.secondary }}
         >
-          Year: {movie.year}
+          Year: {releaseYear ?? "N/A"}
         </Typography>
         <Typography
           variant="body2"
