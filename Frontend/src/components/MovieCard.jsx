@@ -68,7 +68,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
       setSnackbarMessage("Log in to add favorites");
       setSnackbarSeverity("error");
       setFavoriteSnackbarOpen(true);
-      setIsFavorited(false); // don't fill heart for guest
+      setIsFavorited(false);
       return;
     }
 
@@ -98,33 +98,11 @@ export default function MovieCard({ movie, isFeatured = false }) {
 
   const handleCloseFavoriteSnackbar = () => setFavoriteSnackbarOpen(false);
 
-  const getReleaseYear = (movie) => {
-    const candidates = [
-      movie?.release_date,
-      movie?.releaseDate,
-      movie?.year,
-      movie?.released,
-    ];
-    for (const c of candidates) {
-      if (!c && c !== 0) continue;
-      if (typeof c === "number" && c > 1800) return c;
-      if (typeof c === "string") {
-        const d = new Date(c);
-        if (!isNaN(d)) return d.getFullYear();
-        const m = c.match(/^(\d{4})$/);
-        if (m) return Number(m[1]);
-      }
-    }
-    return null;
-  };
-
-  const releaseYear = getReleaseYear(movie);
-
   return (
     <Card
       sx={{
         position: "relative",
-        display: isFeatured && !isSmallScreen ? "flex" : "flex",
+        display: "flex",
         flexDirection: isFeatured && !isSmallScreen ? "row" : "column",
         height: isFeatured && !isSmallScreen ? "auto" : 460,
         borderRadius: 2,
@@ -170,6 +148,7 @@ export default function MovieCard({ movie, isFeatured = false }) {
           objectFit: "cover",
         }}
       />
+
       <CardContent
         sx={{
           flex: 1,
@@ -178,9 +157,9 @@ export default function MovieCard({ movie, isFeatured = false }) {
           justifyContent: isFeatured ? "center" : "space-between",
           gap: 1,
           p: isFeatured ? 3 : 2,
-          minHeight: 0,
         }}
       >
+        {/* Movie title */}
         <Typography
           variant={isFeatured ? "h5" : "h6"}
           sx={{
@@ -192,17 +171,29 @@ export default function MovieCard({ movie, isFeatured = false }) {
             WebkitLineClamp: isFeatured ? 3 : 2,
             WebkitBoxOrient: "vertical",
             lineHeight: 1.2,
-            minHeight: isFeatured ? "auto" : "2.4em",
           }}
         >
           {movie.title}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{ color: theme.palette.text.secondary }}
-        >
-          Year: {releaseYear ?? "N/A"}
-        </Typography>
+
+        {/* Genres */}
+        {movie.genre && (
+          <Typography
+            variant="body2"
+            sx={{
+              color: theme.palette.text.secondary,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {movie.genre}
+          </Typography>
+        )}
+
+        {/* Ratings */}
         <Typography
           variant="body2"
           sx={{ color: theme.palette.secondary.main }}
@@ -220,29 +211,14 @@ export default function MovieCard({ movie, isFeatured = false }) {
             🎥 IMDb: {imdbRating}/10
           </Typography>
         )}
+
+        {/* Description only in featured */}
         {isFeatured && (
           <Typography
             variant="body2"
             sx={{ color: theme.palette.text.primary, mt: 1 }}
           >
             {movie.description}
-          </Typography>
-        )}
-        {!isFeatured && (
-          <Typography
-            variant="body2"
-            sx={{
-              color: theme.palette.text.primary,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              lineHeight: 1.3,
-              mt: "auto",
-            }}
-          >
-            {movie.genre}
           </Typography>
         )}
       </CardContent>
