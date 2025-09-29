@@ -13,10 +13,13 @@ import AdminPage from "../pages/Admin";
 import ManageMovies from "../pages/ManageMovies";
 import ManageUsers from "../pages/ManageUsers";
 import NotFound from "../pages/NotFound";
+import ProtectedRoute from "./ProtectedRoute";
+import ScrollToTop from "../components/ScrollToTop";
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -28,8 +31,22 @@ function App() {
           <Route path="profile" element={<ProfilePage></ProfilePage>}></Route>
           <Route path="dashboard" element={<Dashboard></Dashboard>}></Route>
           <Route path="admin" element={<AdminPage></AdminPage>}></Route>
-          <Route path="manage-movies" element={<ManageMovies></ManageMovies>}></Route>
-          <Route path="manage-users" element={<ManageUsers></ManageUsers>}></Route>
+          <Route
+            path="manage-movies"
+            element={
+              <ProtectedRoute requireRole={["admin", "superadmin"]}>
+                <ManageMovies />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="manage-users"
+            element={
+              <ProtectedRoute requireRole="superadmin">
+                <ManageUsers />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="auth" element={<AuthenticationPage />}></Route>

@@ -63,8 +63,8 @@ export default function Footer() {
           <Box component="ul" sx={{ listStyle: "none", p: 0, m: 0 }}>
             {[
               { label: "Home", to: "/" },
-              { label: "Filter", to: "/filter" },
-              { label: "Random Movie", to: "/random" },
+              { label: "Favorites", to: "/favorites" },
+              { label: "Movies", to: "/movies" },
               { label: "About Us", to: "/about" },
             ].map((link) => (
               <Box component="li" sx={{ mb: 1 }} key={link.to}>

@@ -8,10 +8,12 @@ import {
   Button,
   Paper,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 
 export default function ProfilePage() {
-  const { currentUser, isAuthenticated, updateUser, logout } = useAuth();
+  const { currentUser, isAuthenticated, updateUser, logout, loading } =
+    useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -19,12 +21,29 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/auth?mode=login", { replace: true });
-      return;
+    if (!loading) {
+      if (!isAuthenticated) {
+        navigate("/auth?mode=login", { replace: true });
+        return;
+      }
+      setUsername(currentUser?.username || currentUser?.name || "");
     }
-    setUsername(currentUser?.username || currentUser?.name || "");
-  }, [isAuthenticated, currentUser, navigate]);
+  }, [loading, isAuthenticated, currentUser, navigate]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!isAuthenticated || !currentUser) return null;
 
